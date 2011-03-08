@@ -9,7 +9,7 @@ GEM_SPEC = Gem::Specification.new do |s|
 
   # description and details
   s.summary     = "Simplistic port-like solution for developers"
-  s.description = "Provide a standard and simplified way to build and package\nRuby extensions (C, Java) using Rake as glue."
+  s.description = "Simplistic port-like solution for developers. It provides a standard and simplified way to compile against dependency libraries without messing up your system."
 
   # requirements
   s.required_ruby_version = ">= 1.8.6"
