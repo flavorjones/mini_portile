@@ -1,0 +1,21 @@
+require File.expand_path("mini_portile", File.join(File.dirname(__FILE__), "../lib"))
+
+ICONV_VERSION = "1.13.1"
+
+namespace :ports do
+  directory "ports"
+
+  file "ports/libiconv.#{ICONV_VERSION}.installed" => ["ports"] do |f|
+    recipe = MiniPortile.new "libiconv", ICONV_VERSION
+    recipe.files << "http://ftp.gnu.org/pub/gnu/libiconv/libiconv-#{ICONV_VERSION}.tar.gz"
+    recipe.cook
+
+    touch f.name
+  end
+
+  desc "Install port libiconv #{ICONV_VERSION}"
+  task :libiconv => ["ports/libiconv.#{ICONV_VERSION}.installed"] do
+    recipe = MiniPortile.new "libiconv", ICONV_VERSION
+    recipe.activate
+  end
+end
