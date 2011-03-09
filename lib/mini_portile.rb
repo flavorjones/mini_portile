@@ -4,8 +4,8 @@ require 'fileutils'
 require 'tempfile'
 
 class MiniPortile
-  attr_reader :name, :version, :target
-  attr_accessor :host, :files, :logger, :config_options
+  attr_reader :name, :version
+  attr_accessor :host, :files, :target, :logger, :config_options
 
   def initialize(name, version)
     @name = name
