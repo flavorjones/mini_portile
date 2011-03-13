@@ -135,12 +135,21 @@ private
     File.join(tmp_path, "#{action}.log")
   end
 
+  def tar_exe
+    @@tar_exe ||= begin
+      dev_null = RbConfig::CONFIG['host_os'] =~ /mingw|mswin/ ? 'NUL' : '/dev/null'
+      %w[tar bsdtar basic-bsdtar].find { |c|
+        system("#{c} --version >> #{dev_null} 2>&1")
+      }
+    end
+  end
+
   def extract_file(file, target)
     filename = File.basename(file)
     FileUtils.mkdir_p target
 
     message "Extracting #{filename} into #{target}... "
-    result = `tar xf #{file} -C #{target}`
+    result = `#{tar_exe} xf #{file} -C #{target}`
     if $?.success?
       output "OK"
     else
