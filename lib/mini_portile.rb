@@ -5,7 +5,8 @@ require 'tempfile'
 
 class MiniPortile
   attr_reader :name, :version
-  attr_accessor :host, :files, :target, :logger, :config_options
+  attr_writer :configure_options
+  attr_accessor :host, :files, :target, :logger
 
   def initialize(name, version)
     @name = name
@@ -13,7 +14,6 @@ class MiniPortile
     @target = 'ports'
     @files = []
     @logger = STDOUT
-    @config_options = []
 
     @host = RbConfig::CONFIG['arch']
   end
@@ -32,16 +32,17 @@ class MiniPortile
     end
   end
 
+  def configure_options
+    @configure_options ||= configure_defaults
+  end
+
   def configure
     return if configured?
 
-    prefix  = File.expand_path(port_path)
     options = [
-      "--disable-shared",   # disable generation of shared object
-      "--enable-static",    # build static library
-      "--host=#{@host}",    # build for specific target (host)
-      "--prefix=#{prefix}"  # installation target
-    ].concat(@config_options).join(' ')
+      configure_options,     # customized or default options
+      configure_prefix,      # installation target
+    ].flatten.join(' ')
 
     execute('configure', %Q(sh configure #{options}))
   end
@@ -129,6 +130,18 @@ private
     @work_path ||= begin
       Dir.glob("#{tmp_path}/*").find { |d| File.directory?(d) }
     end
+  end
+
+  def configure_defaults
+    [
+      "--host=#{@host}",    # build for specific target (host)
+      "--enable-static",    # build static library
+      "--disable-shared"    # disable generation of shared object
+    ]
+  end
+
+  def configure_prefix
+    "--prefix=#{File.expand_path(work_path)}"
   end
 
   def log_file(action)
