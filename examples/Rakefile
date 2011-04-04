@@ -21,3 +21,9 @@ namespace :ports do
     $recipes[:libiconv].activate
   end
 end
+
+desc "Set the recipe host to 'i686-w64-mingw32'"
+task :cross do
+  recipe = $recipes[:libiconv]
+  recipe.host = "i686-w64-mingw32"
+end
