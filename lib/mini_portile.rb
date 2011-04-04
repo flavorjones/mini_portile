@@ -141,7 +141,7 @@ private
   end
 
   def configure_prefix
-    "--prefix=#{File.expand_path(work_path)}"
+    "--prefix=#{File.expand_path(port_path)}"
   end
 
   def log_file(action)
