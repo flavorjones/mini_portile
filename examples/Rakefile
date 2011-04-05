@@ -6,13 +6,29 @@ ICONV_VERSION = "1.13.1"
 $recipes[:libiconv] = MiniPortile.new "libiconv", ICONV_VERSION
 $recipes[:libiconv].files << "http://ftp.gnu.org/pub/gnu/libiconv/libiconv-#{ICONV_VERSION}.tar.gz"
 
+$recipes[:sqlite3] = MiniPortile.new "sqlite3", "3.7.5"
+$recipes[:sqlite3].files << "http://sqlite.org/sqlite-autoconf-3070500.tar.gz"
+
 namespace :ports do
   directory "ports"
 
   desc "Install port libiconv #{ICONV_VERSION}"
   task :libiconv => ["ports"] do |t|
     recipe = $recipes[:libiconv]
-    checkpoint = "ports/.#{recipe.name}-#{recipe.version}-s#{recipe.host}.installed"
+    checkpoint = "ports/.#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
+
+    unless File.exist?(checkpoint)
+      recipe.cook
+      touch checkpoint
+    end
+
+    recipe.activate
+  end
+
+  desc "Install port sqlite #{$recipes[:sqlite3].version}"
+  task :sqlite3 => ["ports"] do |t|
+    recipe = $recipes[:sqlite3]
+    checkpoint = "ports/.#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
 
     unless File.exist?(checkpoint)
       recipe.cook
