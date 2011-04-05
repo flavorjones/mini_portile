@@ -103,15 +103,16 @@ task depends on MiniPortile compilation and most important, activation.
 Take the following as a simplification of how you can use MiniPortile with
 Rake:
 
-  file ".libiconv.1.13.1.installed" do |f|
+  task :libiconv do
     recipe = MiniPortile.new("libiconv", "1.13.1")
     recipe.files = ["http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.13.1.tar.gz"]
-    recipe.cook
-    touch f.name
-  end
+    checkpoint = ".#{recipe.name}-#{recipe.version}.installed"
 
-  task :libiconv => [".libiconv.1.13.1.installed"] do
-    recipe = MiniPortile.new("libiconv", "1.13.1")
+    unless File.exist?(checkpoint)
+      recipe.cook
+      touch checkpoint
+    end
+
     recipe.activate
   end
 
@@ -127,6 +128,21 @@ This example will:
 
 For your homework, you can make libiconv version be taken from <tt>ENV</tt>
 variables.
+
+=== Native or cross-compilation
+
+Above examples cover the normal use case: compile support libraries natively.
+
+MiniPortile also covers another use case, which is the cross-compilation of the
+support libraries to be used as part of a binary gem compilation.
+
+It is the perfect complementary tool for rake-compiler and it's <tt>cross</tt>
+Rake task.
+
+Depending on your usage of rake-compiler, you will need to use <tt>host</tt> to
+match the installed cross-compiler toolchain.
+
+Please refer to the examples directory for simplified and practical usage.
 
 === Supported scenarios
 
