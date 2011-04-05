@@ -39,8 +39,9 @@ namespace :ports do
   end
 end
 
-desc "Adjust recipe host for cross-compilation"
+desc "Adjust all recipes host for cross-compilation"
 task :cross do
-  recipe = $recipes[:libiconv]
-  recipe.host = "i686-w64-mingw32"
+  $recipes.each do |_, recipe|
+    recipe.host = "i686-w64-mingw32"
+  end
 end
