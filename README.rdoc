@@ -103,15 +103,16 @@ task depends on MiniPortile compilation and most important, activation.
 Take the following as a simplification of how you can use MiniPortile with
 Rake:
 
-  file ".libiconv.1.13.1.installed" do |f|
+  task :libiconv do
     recipe = MiniPortile.new("libiconv", "1.13.1")
     recipe.files = ["http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.13.1.tar.gz"]
-    recipe.cook
-    touch f.name
-  end
+    checkpoint = ".#{recipe.name}-#{recipe.version}.installed"
 
-  task :libiconv => [".libiconv.1.13.1.installed"] do
-    recipe = MiniPortile.new("libiconv", "1.13.1")
+    unless File.exist?(checkpoint)
+      recipe.cook
+      touch checkpoint
+    end
+
     recipe.activate
   end
 
