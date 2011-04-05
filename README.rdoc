@@ -3,8 +3,8 @@
 * {Source Code}[https://github.com/luislavena/mini_portile]
 * {Bug Reports}[https://github.com/luislavena/mini_portile/issues]
 
-This project is a minimalistic, simplistic and stupid implementation of a port
-/recipe system <b>for developers</b>.
+This project is a minimalistic, simplistic and stupid implementation of a port/recipe
+system <b>for developers</b>.
 
 == Another port system, srsly?
 
