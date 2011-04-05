@@ -9,20 +9,21 @@ $recipes[:libiconv].files << "http://ftp.gnu.org/pub/gnu/libiconv/libiconv-#{ICO
 namespace :ports do
   directory "ports"
 
-  file "ports/libiconv.#{ICONV_VERSION}.installed" => ["ports"] do |f|
-    recipe = $recipes[:libiconv]
-    recipe.cook
-
-    touch f.name
-  end
-
   desc "Install port libiconv #{ICONV_VERSION}"
-  task :libiconv => ["ports/libiconv.#{ICONV_VERSION}.installed"] do
-    $recipes[:libiconv].activate
+  task :libiconv => ["ports"] do |t|
+    recipe = $recipes[:libiconv]
+    checkpoint = "ports/.#{recipe.name}-#{recipe.version}-s#{recipe.host}.installed"
+
+    unless File.exist?(checkpoint)
+      recipe.cook
+      touch checkpoint
+    end
+
+    recipe.activate
   end
 end
 
-desc "Set the recipe host to 'i686-w64-mingw32'"
+desc "Adjust recipe host for cross-compilation"
 task :cross do
   recipe = $recipes[:libiconv]
   recipe.host = "i686-w64-mingw32"
