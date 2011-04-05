@@ -1,3 +1,14 @@
+=== (In Git)
+
+* Enhancements:
+  * Improve tar detection
+  * Improve and refactor configure_options
+  * Add recipe examples
+
+* Bugfixes:
+  * MiniPortile#target can be changed now. Closes GH-2
+  * Always redirect tar output properly
+
 === 0.1.0 / 2011-03-08
 
 * Initial release. Welcome to this world!

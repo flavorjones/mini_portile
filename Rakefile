@@ -19,7 +19,7 @@ GEM_SPEC = Gem::Specification.new do |s|
   # development dependencies (add_development_dependency)
 
   # components, files and paths
-  s.files = FileList["lib/**/*.rb", "Rakefile", "*.{rdoc,txt}"]
+  s.files = FileList["examples/Rakefile", "lib/**/*.rb", "Rakefile", "*.{rdoc,txt}"]
 
   s.require_path = 'lib'
 
