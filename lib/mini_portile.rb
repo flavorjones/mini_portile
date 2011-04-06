@@ -2,6 +2,7 @@ require 'rbconfig'
 require 'net/http'
 require 'fileutils'
 require 'tempfile'
+require 'digest/md5'
 
 class MiniPortile
   attr_reader :name, :version
@@ -39,12 +40,11 @@ class MiniPortile
   def configure
     return if configured?
 
-    options = [
-      configure_options,     # customized or default options
-      configure_prefix,      # installation target
-    ].flatten.join(' ')
+    md5_file = File.join(tmp_path, 'configure.md5')
+    digest   = Digest::MD5.hexdigest(computed_options)
+    File.open(md5_file, "w") { |f| f.write digest }
 
-    execute('configure', %Q(sh configure #{options}))
+    execute('configure', %Q(sh configure #{computed_options}))
   end
 
   def compile
@@ -68,8 +68,12 @@ class MiniPortile
   def configured?
     configure = File.join(work_path, 'configure')
     makefile  = File.join(work_path, 'Makefile')
+    md5_file  = File.join(tmp_path, 'configure.md5')
 
-    newer?(makefile, configure)
+    stored_md5  = File.exist?(md5_file) ? File.read(md5_file) : ""
+    current_md5 = Digest::MD5.hexdigest(computed_options)
+
+    (current_md5 == stored_md5) && newer?(makefile, configure)
   end
 
   def installed?
@@ -142,6 +146,13 @@ private
 
   def configure_prefix
     "--prefix=#{File.expand_path(port_path)}"
+  end
+
+  def computed_options
+    [
+      configure_options,     # customized or default options
+      configure_prefix,      # installation target
+    ].flatten.join(' ')
   end
 
   def log_file(action)

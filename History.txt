@@ -3,6 +3,7 @@
 * Enhancements:
   * Improve tar detection
   * Improve and refactor configure_options
+  * Detect configure_options changes. Closes GH-1
   * Add recipe examples
 
 * Bugfixes:
