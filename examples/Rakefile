@@ -25,7 +25,7 @@ namespace :ports do
     recipe.activate
   end
 
-  desc "Install port sqlite #{$recipes[:sqlite3].version}"
+  desc "Install port sqlite3 #{$recipes[:sqlite3].version}"
   task :sqlite3 => ["ports"] do |t|
     recipe = $recipes[:sqlite3]
     checkpoint = "ports/.#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
