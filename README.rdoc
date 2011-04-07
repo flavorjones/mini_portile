@@ -95,6 +95,12 @@ bandwidth, save the world).
 
 The <tt>tmp</tt> is where compilation is performed and can be safely discarded.
 
+Don't worry, you don't need to know the path structure by memory, just use recipe's
+<tt>path</tt> to obtain the full path to the installation directory:
+
+  recipe.cook
+  recipe.path # => /home/luis/projects/myapp/ports/i686-linux/libiconv/1.13.1
+
 === How can I combine this with my compilation task?
 
 In the simplified proposal, the idea is that using Rake, your <tt>compile</tt>
