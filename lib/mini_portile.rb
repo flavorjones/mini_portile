@@ -116,6 +116,10 @@ class MiniPortile
     end
   end
 
+  def path
+    File.expand_path(port_path)
+  end
+
 private
 
   def tmp_path

@@ -37,6 +37,13 @@ namespace :ports do
 
     recipe.activate
   end
+
+  desc "Install all ports and display installation location"
+  task :all => [:libiconv, :sqlite3] do
+    $recipes.each do |_, recipe|
+      puts "Artifacts of '#{recipe.name}' in '#{recipe.path}'"
+    end
+  end
 end
 
 desc "Adjust all recipes host for cross-compilation"
