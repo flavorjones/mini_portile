@@ -1,3 +1,8 @@
+=== 0.2.1 / 2011-04-06
+
+* Minor enhancements:
+  * Provide MiniPortile#path to obtain full path to installation directory. Closes GH-5
+
 === 0.2.0 / 2011-04-05
 
 * Enhancements:
