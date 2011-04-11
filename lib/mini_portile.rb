@@ -114,6 +114,17 @@ class MiniPortile
         ENV[var] = "#{full_path}#{File::PATH_SEPARATOR}#{old_value}"
       end
     end
+
+    # rely on LDFLAGS when cross-compiling
+    if @host != @original_host
+      full_path = File.expand_path File.join(port_path, "lib")
+
+      old_value = ENV.fetch("LDFLAGS", "")
+
+      unless old_value.include?(full_path)
+        ENV["LDFLAGS"] = "-L#{full_path} #{old_value}".strip
+      end
+    end
   end
 
   def path

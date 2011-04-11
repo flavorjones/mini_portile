@@ -1,5 +1,8 @@
 === (In Git)
 
+* Minor enhancements:
+  * Use LDFLAGS when activating recipes for cross-compilation. Closes #6
+
 * Bugfixes:
   * Remove memoization of *_path helpers. Closes #7
 
