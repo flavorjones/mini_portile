@@ -43,6 +43,7 @@ namespace :ports do
     $recipes.each do |_, recipe|
       puts "Artifacts of '#{recipe.name}' in '#{recipe.path}'"
     end
+    puts "LDFLAGS: " << ENV['LDFLAGS'].inspect
   end
 end
 

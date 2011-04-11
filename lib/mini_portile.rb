@@ -5,7 +5,7 @@ require 'tempfile'
 require 'digest/md5'
 
 class MiniPortile
-  attr_reader :name, :version
+  attr_reader :name, :version, :original_host
   attr_writer :configure_options
   attr_accessor :host, :files, :target, :logger
 
@@ -16,7 +16,7 @@ class MiniPortile
     @files = []
     @logger = STDOUT
 
-    @host = RbConfig::CONFIG['arch']
+    @original_host = @host = RbConfig::CONFIG['arch']
   end
 
   def download
@@ -94,10 +94,11 @@ class MiniPortile
   end
 
   def activate
+    lib_path = File.join(port_path, "lib")
     vars = {
       'PATH'          => File.join(port_path, 'bin'),
       'CPATH'         => File.join(port_path, 'include'),
-      'LIBRARY_PATH'  => File.join(port_path, 'lib')
+      'LIBRARY_PATH'  => lib_path
     }.reject { |env, path| !File.directory?(path) }
 
     output "Activating #{@name} #{@version} (from #{port_path})..."
@@ -112,6 +113,17 @@ class MiniPortile
 
       unless old_value.include?(full_path)
         ENV[var] = "#{full_path}#{File::PATH_SEPARATOR}#{old_value}"
+      end
+    end
+
+    # rely on LDFLAGS when cross-compiling
+    if File.exist?(lib_path) && (@host != @original_host)
+      full_path = File.expand_path(lib_path)
+
+      old_value = ENV.fetch("LDFLAGS", "")
+
+      unless old_value.include?(full_path)
+        ENV["LDFLAGS"] = "-L#{full_path} #{old_value}".strip
       end
     end
   end
