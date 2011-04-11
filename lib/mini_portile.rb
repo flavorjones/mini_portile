@@ -123,21 +123,19 @@ class MiniPortile
 private
 
   def tmp_path
-    @tmp_path ||= "tmp/#{@host}/ports/#{@name}/#{@version}"
+    "tmp/#{@host}/ports/#{@name}/#{@version}"
   end
 
   def port_path
-    @port_path ||= "#{@target}/#{@host}/#{@name}/#{@version}"
+    "#{@target}/#{@host}/#{@name}/#{@version}"
   end
 
   def archives_path
-    @archives_path ||= "#{@target}/archives"
+    "#{@target}/archives"
   end
 
   def work_path
-    @work_path ||= begin
-      Dir.glob("#{tmp_path}/*").find { |d| File.directory?(d) }
-    end
+    Dir.glob("#{tmp_path}/*").find { |d| File.directory?(d) }
   end
 
   def configure_defaults
