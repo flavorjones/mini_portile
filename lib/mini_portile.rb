@@ -94,10 +94,11 @@ class MiniPortile
   end
 
   def activate
+    lib_path = File.join(port_path, "lib")
     vars = {
       'PATH'          => File.join(port_path, 'bin'),
       'CPATH'         => File.join(port_path, 'include'),
-      'LIBRARY_PATH'  => File.join(port_path, 'lib')
+      'LIBRARY_PATH'  => lib_path
     }.reject { |env, path| !File.directory?(path) }
 
     output "Activating #{@name} #{@version} (from #{port_path})..."
@@ -116,8 +117,8 @@ class MiniPortile
     end
 
     # rely on LDFLAGS when cross-compiling
-    if @host != @original_host
-      full_path = File.expand_path File.join(port_path, "lib")
+    if File.exist?(lib_path) && (@host != @original_host)
+      full_path = File.expand_path(lib_path)
 
       old_value = ENV.fetch("LDFLAGS", "")
 
