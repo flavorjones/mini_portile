@@ -5,7 +5,7 @@ require 'tempfile'
 require 'digest/md5'
 
 class MiniPortile
-  attr_reader :name, :version
+  attr_reader :name, :version, :original_host
   attr_writer :configure_options
   attr_accessor :host, :files, :target, :logger
 
@@ -16,7 +16,7 @@ class MiniPortile
     @files = []
     @logger = STDOUT
 
-    @host = RbConfig::CONFIG['arch']
+    @original_host = @host = RbConfig::CONFIG['arch']
   end
 
   def download
