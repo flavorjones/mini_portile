@@ -1,4 +1,4 @@
-=== (In Git)
+=== 0.2.2 / 2011-04-11
 
 * Minor enhancements:
   * Use LDFLAGS when activating recipes for cross-compilation. Closes #6
