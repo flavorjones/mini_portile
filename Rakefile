@@ -12,7 +12,7 @@ GEM_SPEC = Gem::Specification.new do |s|
   s.description = "Simplistic port-like solution for developers. It provides a standard and simplified way to compile against dependency libraries without messing up your system."
 
   # requirements
-  s.required_ruby_version = ">= 1.8.6"
+  s.required_ruby_version = ">= 1.8.7"
   s.required_rubygems_version = ">= 1.3.5"
 
   # dependencies (add_dependency)
