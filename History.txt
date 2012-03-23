@@ -1,3 +1,9 @@
+* Enhancements:
+  * Use `gcc -v` to determine original host (platform) instead of Ruby one.
+
+* Deprecations:
+  * Dropped support for Rubies older than 1.8.7
+
 === 0.2.2 / 2011-04-11
 
 * Minor enhancements:
