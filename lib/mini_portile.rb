@@ -16,7 +16,7 @@ class MiniPortile
     @files = []
     @logger = STDOUT
 
-    @original_host = @host = RbConfig::CONFIG['arch']
+    @original_host = @host = detect_host
   end
 
   def download
@@ -180,6 +180,17 @@ private
         system("#{c} --version >> #{dev_null} 2>&1")
       }
     end
+  end
+
+  def detect_host
+    return @detect_host if defined?(@detect_host)
+
+    output = `gcc -v 2>&1`
+    if m = output.match(/^Target\: (.*)$/)
+      @detect_host = m[1]
+    end
+
+    @detect_host
   end
 
   def extract_file(file, target)
