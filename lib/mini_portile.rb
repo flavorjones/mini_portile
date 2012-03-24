@@ -189,11 +189,14 @@ private
 
   def tar_exe
     @@tar_exe ||= begin
-      dev_null = RbConfig::CONFIG['host_os'] =~ /mingw|mswin/ ? 'NUL' : '/dev/null'
       %w[tar bsdtar basic-bsdtar].find { |c|
         system("#{c} --version >> #{dev_null} 2>&1")
       }
     end
+  end
+
+  def dev_null
+    @dev_null ||= RbConfig::CONFIG['host_os'] =~ /mingw|mswin/ ? 'NUL' : '/dev/null'
   end
 
   def detect_host
