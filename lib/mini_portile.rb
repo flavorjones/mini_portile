@@ -10,6 +10,11 @@ class MiniPortile
   attr_writer :configure_options
   attr_accessor :host, :files, :patch_files, :target, :logger
 
+  alias :sources :files
+  alias :sources= :files=
+  alias :port_root :target
+  alias :port_root= :target=
+
   def initialize(name, version)
     @name = name
     @version = version
