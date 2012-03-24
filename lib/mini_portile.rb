@@ -97,6 +97,10 @@ class MiniPortile
   end
 
   def cook
+    unless active_toolchain?
+      raise "Unable to build. Please activate a valid build toolchain."
+    end
+
     download unless downloaded?
     extract
     patch
@@ -147,6 +151,12 @@ class MiniPortile
   end
 
 private
+
+  def active_toolchain?
+    %W[#{@make} #{@cc}].all? do |t|
+      system("#{t} --version >> #{dev_null} 2>&1")
+    end
+  end
 
   def tmp_path
     "tmp/#{@host}/ports/#{@name}/#{@version}"
