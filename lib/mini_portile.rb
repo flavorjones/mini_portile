@@ -18,6 +18,9 @@ class MiniPortile
     @patch_files = []
     @logger = STDOUT
 
+    @make = ENV['MAKE'] || 'make'
+    @cc = ENV['CC'] || 'gcc'
+
     @original_host = @host = detect_host
   end
 
@@ -58,12 +61,12 @@ class MiniPortile
   end
 
   def compile
-    execute('compile', 'make')
+    execute('compile', @make)
   end
 
   def install
     return if installed?
-    execute('install', %Q(make install))
+    execute('install', %Q(#{@make} install))
   end
 
   def downloaded?
@@ -196,7 +199,7 @@ private
   def detect_host
     return @detect_host if defined?(@detect_host)
 
-    output = `gcc -v 2>&1`
+    output = `#{@cc} -v 2>&1`
     if m = output.match(/^Target\: (.*)$/)
       @detect_host = m[1]
     end
