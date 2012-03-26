@@ -158,7 +158,7 @@ class MiniPortile
 private
 
   def active_toolchain?
-    %W[#{@make} #{@cc}].all? do |t|
+    %W[#{@make} #{@cc} sh].all? do |t|
       system("#{t} --version >> #{dev_null} 2>&1")
     end
   end
