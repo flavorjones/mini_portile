@@ -10,10 +10,13 @@ class MiniPortile
   attr_writer :configure_options
   attr_accessor :host, :files, :patch_files, :target, :logger
 
+  # API backward compatibility indirection
+  # TODO remove *all* aliases once API mods reviewed with Luis
   alias :sources :files
   alias :sources= :files=
   alias :port_root :target
   alias :port_root= :target=
+
 
   def initialize(name, version)
     @name = name
@@ -29,19 +32,21 @@ class MiniPortile
     @original_host = @host = detect_host
   end
 
-  def download
+  def fetch
     @files.each do |url|
       filename = File.basename(url)
       download_file(url, File.join(archives_path, filename))
     end
   end
+  alias :download :fetch
 
-  def extract
+  def prepare
     @files.each do |url|
       filename = File.basename(url)
       extract_file(File.join(archives_path, filename), tmp_path)
     end
   end
+  alias :extract :prepare
 
   def patch
     @patch_files.each do |full_path|
@@ -74,7 +79,7 @@ class MiniPortile
     execute('install', %Q(#{@make} install))
   end
 
-  def downloaded?
+  def fetched?
     missing = @files.detect do |url|
       filename = File.basename(url)
       !File.exist?(File.join(archives_path, filename))
@@ -82,6 +87,7 @@ class MiniPortile
 
     missing ? false : true
   end
+  alias :downloaded? :fetched?
 
   def configured?
     configure = File.join(work_path, 'configure')
@@ -106,8 +112,8 @@ class MiniPortile
       raise "Unable to build. Please activate a valid build toolchain."
     end
 
-    download unless downloaded?
-    extract
+    fetch unless fetched?
+    prepare
     patch
     configure unless configured?
     compile
