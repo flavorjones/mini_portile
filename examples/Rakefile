@@ -4,7 +4,7 @@ $recipes = {}
 
 ICONV_VERSION = "1.13.1"
 $recipes[:libiconv] = MiniPortile.new "libiconv", ICONV_VERSION
-$recipes[:libiconv].files << "http://ftp.gnu.org/pub/gnu/libiconv/libiconv-#{ICONV_VERSION}.tar.gz"
+$recipes[:libiconv].files << "ftp://ftp.gnu.org/pub/gnu/libiconv/libiconv-#{ICONV_VERSION}.tar.gz"
 
 $recipes[:sqlite3] = MiniPortile.new "sqlite3", "3.7.5"
 $recipes[:sqlite3].files << "http://sqlite.org/sqlite-autoconf-3070500.tar.gz"
