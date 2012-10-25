@@ -324,7 +324,7 @@ private
         remote_dir = File.dirname(uri.path)
         ftp.chdir(remote_dir) unless remote_dir == '.'
         total = ftp.size(filename)
-        ftp.getbinaryfile(filename, full_path, 8192) do |chunk|
+        ftp.getbinaryfile(filename, nil, 8192) do |chunk|
           temp_file << chunk
           size += chunk.size
           new_progress = (size * 100) / total
