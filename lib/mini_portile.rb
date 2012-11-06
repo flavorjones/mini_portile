@@ -8,13 +8,14 @@ require 'digest/md5'
 class MiniPortile
   attr_reader :name, :version, :original_host
   attr_writer :configure_options
-  attr_accessor :host, :files, :target, :logger
+  attr_accessor :host, :files, :patch_files, :target, :logger
 
   def initialize(name, version)
     @name = name
     @version = version
     @target = 'ports'
     @files = []
+    @patch_files = []
     @logger = STDOUT
 
     @original_host = @host = detect_host
@@ -32,6 +33,14 @@ class MiniPortile
       filename = File.basename(url)
       extract_file(File.join(archives_path, filename), tmp_path)
     end
+  end
+
+  def patch
+    @patch_files.each do |full_path|
+      next unless File.exists?(full_path)
+      output "Running patch with #{full_path}..."
+      execute('patch', %Q(patch -p1 < #{full_path}))
+    end   
   end
 
   def configure_options
@@ -87,6 +96,7 @@ class MiniPortile
   def cook
     download unless downloaded?
     extract
+    patch
     configure unless configured?
     compile
     install unless installed?
