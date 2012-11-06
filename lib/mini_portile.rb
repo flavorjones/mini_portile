@@ -38,8 +38,8 @@ class MiniPortile
   def patch
     @patch_files.each do |full_path|
       next unless File.exists?(full_path)
-      output "Running patch with #{full_path}..."
-      execute('patch', %Q(patch -p1 < #{full_path}))
+      output "Running git apply with #{full_path}..."
+      execute('patch', %Q(git apply #{full_path}))
     end   
   end
 
