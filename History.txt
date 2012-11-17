@@ -1,4 +1,4 @@
-=== (in git)
+=== 0.5.0 / 2012-11-17
 
 * Enhancements:
   * Allow patching extracted files using `git apply`. [metaskills]
