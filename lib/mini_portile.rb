@@ -10,6 +10,14 @@ class MiniPortile
   attr_writer :configure_options
   attr_accessor :host, :files, :patch_files, :target, :logger
 
+  # API backward compatibility indirection
+  # TODO remove *all* aliases once API mods reviewed with Luis
+  alias :sources :files
+  alias :sources= :files=
+  alias :port_root :target
+  alias :port_root= :target=
+
+
   def initialize(name, version)
     @name = name
     @version = version
@@ -18,22 +26,27 @@ class MiniPortile
     @patch_files = []
     @logger = STDOUT
 
+    @make = ENV['MAKE'] || 'make'
+    @cc = ENV['CC'] || 'gcc'
+
     @original_host = @host = detect_host
   end
 
-  def download
+  def fetch
     @files.each do |url|
       filename = File.basename(url)
       download_file(url, File.join(archives_path, filename))
     end
   end
+  alias :download :fetch
 
-  def extract
+  def prepare
     @files.each do |url|
       filename = File.basename(url)
       extract_file(File.join(archives_path, filename), tmp_path)
     end
   end
+  alias :extract :prepare
 
   def patch
     @patch_files.each do |full_path|
@@ -58,15 +71,15 @@ class MiniPortile
   end
 
   def compile
-    execute('compile', 'make')
+    execute('compile', @make)
   end
 
   def install
     return if installed?
-    execute('install', %Q(make install))
+    execute('install', %Q(#{@make} install))
   end
 
-  def downloaded?
+  def fetched?
     missing = @files.detect do |url|
       filename = File.basename(url)
       !File.exist?(File.join(archives_path, filename))
@@ -74,6 +87,7 @@ class MiniPortile
 
     missing ? false : true
   end
+  alias :downloaded? :fetched?
 
   def configured?
     configure = File.join(work_path, 'configure')
@@ -94,8 +108,12 @@ class MiniPortile
   end
 
   def cook
-    download unless downloaded?
-    extract
+    unless active_toolchain?
+      raise "Unable to build. Please activate a valid build toolchain."
+    end
+
+    fetch unless fetched?
+    prepare
     patch
     configure unless configured?
     compile
@@ -145,6 +163,12 @@ class MiniPortile
 
 private
 
+  def active_toolchain?
+    %W[#{@make} #{@cc} sh].all? do |t|
+      system("#{t} --version >> #{dev_null} 2>&1")
+    end
+  end
+
   def tmp_path
     "tmp/#{@host}/ports/#{@name}/#{@version}"
   end
@@ -186,17 +210,20 @@ private
 
   def tar_exe
     @@tar_exe ||= begin
-      dev_null = RbConfig::CONFIG['host_os'] =~ /mingw|mswin/ ? 'NUL' : '/dev/null'
       %w[tar bsdtar basic-bsdtar].find { |c|
         system("#{c} --version >> #{dev_null} 2>&1")
       }
     end
   end
 
+  def dev_null
+    @dev_null ||= RbConfig::CONFIG['host_os'] =~ /mingw|mswin/ ? 'NUL' : '/dev/null'
+  end
+
   def detect_host
     return @detect_host if defined?(@detect_host)
 
-    output = `gcc -v 2>&1`
+    output = `#{@cc} -v 2>&1`
     if m = output.match(/^Target\: (.*)$/)
       @detect_host = m[1]
     end
