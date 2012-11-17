@@ -54,9 +54,9 @@ quick example:
   recipe.cook
   recipe.activate
 
-That's all. <tt>cook</tt> will download, extract, configure and compile the
-library into a namespaced structure. <tt>activate</tt> ensures GCC find this
-library and prefers it over a system-wide installation.
+That's all. <tt>cook</tt> will download, extract, patch, configure and compile
+the library into a namespaced structure. <tt>activate</tt> ensures GCC find
+this library and prefers it over a system-wide installation.
 
 === Structure
 

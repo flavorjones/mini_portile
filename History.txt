@@ -1,3 +1,8 @@
+=== (in git)
+
+* Enhancements:
+  * Allow patching extracted files using `git apply`. [metaskills]
+
 === 0.4.1 / 2012-10-24
 
 * Bugfixes:
