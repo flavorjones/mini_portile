@@ -40,7 +40,7 @@ class MiniPortile
       next unless File.exists?(full_path)
       output "Running git apply with #{full_path}..."
       execute('patch', %Q(git apply #{full_path}))
-    end   
+    end
   end
 
   def configure_options
@@ -186,11 +186,27 @@ private
 
   def tar_exe
     @@tar_exe ||= begin
-      dev_null = RbConfig::CONFIG['host_os'] =~ /mingw|mswin/ ? 'NUL' : '/dev/null'
       %w[tar bsdtar basic-bsdtar].find { |c|
-        system("#{c} --version >> #{dev_null} 2>&1")
+        which(c)
       }
     end
+  end
+
+  # From: http://stackoverflow.com/a/5471032/7672
+  # Thanks, Mislav!
+  #
+  # Cross-platform way of finding an executable in the $PATH.
+  #
+  #   which('ruby') #=> /usr/bin/ruby
+  def which(cmd)
+    exts = ENV['PATHEXT'] ? ENV['PATHEXT'].split(';') : ['']
+    ENV['PATH'].split(File::PATH_SEPARATOR).each do |path|
+      exts.each { |ext|
+        exe = File.join(path, "#{cmd}#{ext}")
+        return exe if File.executable? exe
+      }
+    end
+    return nil
   end
 
   def detect_host
