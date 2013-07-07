@@ -1,3 +1,8 @@
+=== (in Git)
+
+* Bugfixes:
+  * Detect tar executable without shelling out. [jtimberman]
+
 === 0.5.0 / 2012-11-17
 
 * Enhancements:
