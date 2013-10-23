@@ -2,6 +2,8 @@
 
 * Bugfixes:
   * Change tar detection order to support NetBSD 'gtar'. Closes #24
+  * Trick 'git-apply' when applying patches on nested Git checkouts. [larskanis]
+  * Respect ENV's MAKE before fallback to 'make'. [larskanis]
 
 === 0.5.1 / 2013-07-07
 
