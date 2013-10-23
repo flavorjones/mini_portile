@@ -220,7 +220,7 @@ private
   def detect_host
     return @detect_host if defined?(@detect_host)
 
-    output = `gcc -v 2>&1`
+    output = `#{gcc_cmd} -v 2>&1`
     if m = output.match(/^Target\: (.*)$/)
       @detect_host = m[1]
     end
@@ -384,6 +384,11 @@ private
     File.unlink full_path if File.exists?(full_path)
     FileUtils.mkdir_p File.dirname(full_path)
     FileUtils.mv temp_file.path, full_path, :force => true
+  end
+
+  def gcc_cmd
+    cc = ENV["CC"] || "gcc"
+    return cc.dup
   end
 
   def make_cmd
