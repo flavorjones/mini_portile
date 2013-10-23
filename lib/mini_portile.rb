@@ -36,10 +36,18 @@ class MiniPortile
   end
 
   def patch
-    @patch_files.each do |full_path|
-      next unless File.exists?(full_path)
-      output "Running git apply with #{full_path}..."
-      execute('patch', %Q(git apply #{full_path}))
+    # Set GIT_DIR while appying patches to work around
+    # git-apply doing nothing when started within another
+    # git directory.
+    ENV['GIT_DIR'], old_git = '.', ENV['GIT_DIR']
+    begin
+      @patch_files.each do |full_path|
+        next unless File.exists?(full_path)
+        output "Running git apply with #{full_path}..."
+        execute('patch', %Q(git apply #{full_path}))
+      end
+    ensure
+      ENV['GIT_DIR'] = old_git
     end
   end
 
