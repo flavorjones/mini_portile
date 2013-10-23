@@ -395,5 +395,4 @@ private
     m = ENV['MAKE'] || ENV['make'] || 'make'
     return m.dup
   end
-
 end
