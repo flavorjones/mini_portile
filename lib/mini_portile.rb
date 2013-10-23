@@ -220,7 +220,7 @@ private
   def detect_host
     return @detect_host if defined?(@detect_host)
 
-    output = `gcc -v 2>&1`
+    output = `gcc -v 2>&1`.encode("US-ASCII", :invalid=>:replace, :replace=>"?")
     if m = output.match(/^Target\: (.*)$/)
       @detect_host = m[1]
     end
