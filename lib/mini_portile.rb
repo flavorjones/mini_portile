@@ -194,7 +194,7 @@ private
 
   def tar_exe
     @@tar_exe ||= begin
-      %w[tar bsdtar basic-bsdtar].find { |c|
+      %w[gtar bsdtar tar basic-bsdtar].find { |c|
         which(c)
       }
     end
