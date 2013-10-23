@@ -58,12 +58,12 @@ class MiniPortile
   end
 
   def compile
-    execute('compile', 'make')
+    execute('compile', make_cmd)
   end
 
   def install
     return if installed?
-    execute('install', %Q(make install))
+    execute('install', %Q(#{make_cmd} install))
   end
 
   def downloaded?
@@ -376,6 +376,11 @@ private
     File.unlink full_path if File.exists?(full_path)
     FileUtils.mkdir_p File.dirname(full_path)
     FileUtils.mv temp_file.path, full_path, :force => true
+  end
+
+  def make_cmd
+    m = ENV['MAKE'] || ENV['make'] || 'make'
+    return m.dup
   end
 
 end
