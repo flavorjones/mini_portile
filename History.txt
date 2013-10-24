@@ -1,4 +1,4 @@
-=== (in Git)
+=== 0.5.2 / 2013-10-23
 
 * Bugfixes:
   * Change tar detection order to support NetBSD 'gtar'. Closes #24
