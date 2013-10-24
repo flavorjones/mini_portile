@@ -220,12 +220,18 @@ private
   def detect_host
     return @detect_host if defined?(@detect_host)
 
-    output = `#{gcc_cmd} -v 2>&1`
-    if m = output.match(/^Target\: (.*)$/)
-      @detect_host = m[1]
-    end
+    begin
+      ENV["LC_ALL"], old_lc_all = "C", ENV["LC_ALL"]
 
-    @detect_host
+      output = `#{gcc_cmd} -v 2>&1`
+      if m = output.match(/^Target\: (.*)$/)
+        @detect_host = m[1]
+      end
+
+      @detect_host
+    ensure
+      ENV["LC_ALL"] = old_lc_all
+    end
   end
 
   def extract_file(file, target)

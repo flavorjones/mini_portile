@@ -5,6 +5,7 @@
   * Trick 'git-apply' when applying patches on nested Git checkouts. [larskanis]
   * Respect ENV's MAKE before fallback to 'make'. [larskanis]
   * Respect ENV's CC variable before fallback to 'gcc'.
+  * Avoid non-ASCII output of GCC cause host detection issues. Closes #22
 
 === 0.5.1 / 2013-07-07
 
