@@ -62,7 +62,7 @@ class MiniPortile
     digest   = Digest::MD5.hexdigest(computed_options)
     File.open(md5_file, "w") { |f| f.write digest }
 
-    execute('configure', %Q(sh configure #{computed_options}))
+    execute('configure', %Q(chmod +x c* && ./configure #{computed_options}))
   end
 
   def compile
@@ -200,21 +200,11 @@ private
     end
   end
 
-  # From: http://stackoverflow.com/a/5471032/7672
-  # Thanks, Mislav!
-  #
-  # Cross-platform way of finding an executable in the $PATH.
-  #
-  #   which('ruby') #=> /usr/bin/ruby
+  # From: http://stackoverflow.com/a/5471032/7672 # And new answer.
+  #  which('ruby') #=> /usr/bin/ruby
+
   def which(cmd)
-    exts = ENV['PATHEXT'] ? ENV['PATHEXT'].split(';') : ['']
-    ENV['PATH'].split(File::PATH_SEPARATOR).each do |path|
-      exts.each { |ext|
-        exe = File.join(path, "#{cmd}#{ext}")
-        return exe if File.executable? exe
-      }
-    end
-    return nil
+     c = %x(/bin/sh -c 'command -v #{cmd}').strip; return c != '' ? c : nil
   end
 
   def detect_host
@@ -393,7 +383,7 @@ private
   end
 
   def gcc_cmd
-    cc = ENV["CC"] || "gcc"
+    cc = ENV["CC"] || "cc"
     return cc.dup
   end
 
