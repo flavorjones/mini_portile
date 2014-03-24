@@ -200,6 +200,19 @@ private
     end
   end
 
+  def tar_compression_switch(filename)
+    case File.extname(filename)
+      when '.gz', '.tgz'
+        'z'
+      when '.bz2', '.tbz2'
+        'j'
+      when '.Z'
+        'Z'
+      else
+        ''
+    end
+  end
+
   # From: http://stackoverflow.com/a/5471032/7672
   # Thanks, Mislav!
   #
@@ -239,7 +252,7 @@ private
     FileUtils.mkdir_p target
 
     message "Extracting #{filename} into #{target}... "
-    result = `#{tar_exe} xf "#{file}" -C "#{target}" 2>&1`
+    result = `#{tar_exe} #{tar_compression_switch(filename)}xf "#{file}" -C "#{target}" 2>&1`
     if $?.success?
       output "OK"
     else
