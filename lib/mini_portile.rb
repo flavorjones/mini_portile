@@ -406,7 +406,7 @@ private
   end
 
   def gcc_cmd
-    cc = ENV["CC"] || "gcc"
+    cc = ENV["CC"] || RbConfig::CONFIG["CC"] || "gcc"
     return cc.dup
   end
 

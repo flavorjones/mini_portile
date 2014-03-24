@@ -4,6 +4,7 @@
   * Shell escape paths in tar command. Pull #29. [quickshiftin]
   * Support older versions of tar that cannot auto-detect
     the compression type. Pull #27. Closes #21. [b-dean]
+  * Try RbConfig's CC before fall back to 'gcc'. Ref #28.
 
 === 0.5.2 / 2013-10-23
 
