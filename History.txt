@@ -1,4 +1,4 @@
-=== (In Git)
+=== 0.5.3 / 2014-03-24
 
 * Bugfixes:
   * Shell escape paths in tar command. Pull #29. [quickshiftin]
