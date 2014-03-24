@@ -239,7 +239,7 @@ private
     FileUtils.mkdir_p target
 
     message "Extracting #{filename} into #{target}... "
-    result = `#{tar_exe} xf #{file} -C #{target} 2>&1`
+    result = `#{tar_exe} xf "#{file}" -C "#{target}" 2>&1`
     if $?.success?
       output "OK"
     else
