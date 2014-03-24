@@ -2,7 +2,7 @@ require File.expand_path("mini_portile", File.join(File.dirname(__FILE__), "../l
 
 $recipes = {}
 
-ICONV_VERSION = "1.13.1"
+ICONV_VERSION = "1.14"
 $recipes[:libiconv] = MiniPortile.new "libiconv", ICONV_VERSION
 $recipes[:libiconv].files << "ftp://ftp.gnu.org/pub/gnu/libiconv/libiconv-#{ICONV_VERSION}.tar.gz"
 
