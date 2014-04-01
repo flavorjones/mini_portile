@@ -331,36 +331,39 @@ private
     end
 
     message "Downloading #{filename} "
-    http.get_response(URI.parse(url)) do |response|
-      case response
-      when Net::HTTPNotFound
-        output "404 - Not Found"
-        return false
+    uri = URI.parse(url)
+    http.start(uri.hostname, uri.port, :use_ssl => URI::HTTPS === uri) do |h|
+      h.request_get(uri.path, 'Accept-Encoding' => 'identity') do |response|
+        case response
+        when Net::HTTPNotFound
+          output "404 - Not Found"
+          return false
 
-      when Net::HTTPClientError
-        output "Error: Client Error: #{response.inspect}"
-        return false
+        when Net::HTTPClientError
+          output "Error: Client Error: #{response.inspect}"
+          return false
 
-      when Net::HTTPRedirection
-        raise "Too many redirections for the original URL, halting." if count <= 0
-        url = response["location"]
-        return download_file(url, full_path, count - 1)
+        when Net::HTTPRedirection
+          raise "Too many redirections for the original URL, halting." if count <= 0
+          url = response["location"]
+          return download_file(url, full_path, count - 1)
 
-      when Net::HTTPOK
-        with_tempfile(filename, full_path) do |temp_file|
-          size = 0
-          progress = 0
-          total = response.header["Content-Length"].to_i
-          response.read_body do |chunk|
-            temp_file << chunk
-            size += chunk.size
-            new_progress = (size * 100) / total
-            unless new_progress == progress
-              message "\rDownloading %s (%3d%%) " % [filename, new_progress]
+        when Net::HTTPOK
+          return with_tempfile(filename, full_path) do |temp_file|
+            size = 0
+            progress = 0
+            total = response.header["Content-Length"].to_i
+            response.read_body do |chunk|
+              temp_file << chunk
+              size += chunk.size
+              new_progress = (size * 100) / total
+              unless new_progress == progress
+                message "\rDownloading %s (%3d%%) " % [filename, new_progress]
+              end
+              progress = new_progress
             end
-            progress = new_progress
+            output
           end
-          output
         end
       end
     end
