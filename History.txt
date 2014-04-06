@@ -1,4 +1,4 @@
-=== (In Git)
+=== 0.5.4 / 2014-04-06
 
 * Bugfixes:
   * Specify Accept-Encoding to make sure a raw file content is downloaded.
