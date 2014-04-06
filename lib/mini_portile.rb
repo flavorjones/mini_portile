@@ -334,6 +334,10 @@ private
       if URI::HTTPS === uri
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+
+        if ENV.has_key?("SSL_CERT_FILE") && File.exist?(ENV["SSL_CERT_FILE"])
+          http.ca_file = ENV["SSL_CERT_FILE"]
+        end
       end
     end
 
