@@ -42,3 +42,12 @@ Gem::PackageTask.new(GEM_SPEC) do |pkg|
   pkg.need_tar = false
   pkg.need_zip = false
 end
+
+desc "Test MiniPortile by compiling examples"
+task :test do
+  Dir.chdir("examples") do
+    sh "rake ports:all"
+  end
+end
+
+task :default => [:test]
