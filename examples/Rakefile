@@ -9,6 +9,9 @@ $recipes[:libiconv].files << "ftp://ftp.gnu.org/pub/gnu/libiconv/libiconv-#{ICON
 $recipes[:sqlite3] = MiniPortile.new "sqlite3", "3.8.4.1"
 $recipes[:sqlite3].files << "http://sqlite.org/2014/sqlite-autoconf-3080401.tar.gz"
 
+$recipes[:cares] = MiniPortile.new "c-ares", "1.7.5"
+$recipes[:cares].files << "https://s3.amazonaws.com/distfiles.openknapsack.org/c-ares/c-ares-1.7.5.tar.gz"
+
 namespace :ports do
   directory "ports"
 
