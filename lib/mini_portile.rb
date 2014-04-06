@@ -1,5 +1,6 @@
 require 'rbconfig'
 require 'net/http'
+require 'net/https'
 require 'net/ftp'
 require 'fileutils'
 require 'tempfile'
@@ -321,18 +322,23 @@ private
 
   def download_file_http(url, full_path, count = 3)
     filename = File.basename(full_path)
+    uri = URI.parse(url)
 
     if ENV['http_proxy']
-      protocol, userinfo, host, port  = URI::split(ENV['http_proxy'])
+      _, userinfo, p_host, p_port = URI.split(ENV['http_proxy'])
       proxy_user, proxy_pass = userinfo.split(/:/) if userinfo
-      http = Net::HTTP::Proxy(host, port, proxy_user, proxy_pass)
+      http = Net::HTTP.new(uri.host, uri.port, p_host, p_port, proxy_user, proxy_pass)
     else
-      http = Net::HTTP
+      http = Net::HTTP.new(uri.host, uri.port)
+
+      if URI::HTTPS === uri
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      end
     end
 
     message "Downloading #{filename} "
-    uri = URI.parse(url)
-    http.start(uri.hostname, uri.port, :use_ssl => URI::HTTPS === uri) do |h|
+    http.start do |h|
       h.request_get(uri.path, 'Accept-Encoding' => 'identity') do |response|
         case response
         when Net::HTTPNotFound
