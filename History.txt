@@ -1,8 +1,10 @@
-=== 0.5.4 / 2014-04-06
+=== 0.5.5 / 2014-04-06
 
 * Bugfixes:
   * Specify Accept-Encoding to make sure a raw file content is downloaded.
     Pull #30. [knu]
+  * Use `SSL_CERT_FILE` if defined. Workaround for old Ruby's OpenSSL
+    implementation
 
 === 0.5.3 / 2014-03-24
 
