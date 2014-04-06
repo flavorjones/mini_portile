@@ -12,34 +12,22 @@ $recipes[:sqlite3].files << "http://sqlite.org/2014/sqlite-autoconf-3080401.tar.
 namespace :ports do
   directory "ports"
 
-  desc "Install port libiconv #{ICONV_VERSION}"
-  task :libiconv => ["ports"] do |t|
-    recipe = $recipes[:libiconv]
-    checkpoint = "ports/.#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
+  $recipes.each do |key, recipe|
+    desc "Install port #{recipe.name} #{recipe.version}"
+    task key => ["ports"] do |t|
+      checkpoint = "ports/.#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
 
-    unless File.exist?(checkpoint)
-      recipe.cook
-      touch checkpoint
+      unless File.exist?(checkpoint)
+        recipe.cook
+        touch checkpoint
+      end
+
+      recipe.activate
     end
-
-    recipe.activate
-  end
-
-  desc "Install port sqlite3 #{$recipes[:sqlite3].version}"
-  task :sqlite3 => ["ports"] do |t|
-    recipe = $recipes[:sqlite3]
-    checkpoint = "ports/.#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
-
-    unless File.exist?(checkpoint)
-      recipe.cook
-      touch checkpoint
-    end
-
-    recipe.activate
   end
 
   desc "Install all ports and display installation location"
-  task :all => [:libiconv, :sqlite3] do
+  task :all => $recipes.keys do
     $recipes.each do |_, recipe|
       puts "Artifacts of '#{recipe.name}' in '#{recipe.path}'"
     end
