@@ -12,6 +12,48 @@ $recipes[:sqlite3].files << "http://sqlite.org/2014/sqlite-autoconf-3080401.tar.
 $recipes[:cares] = MiniPortile.new "c-ares", "1.7.5"
 $recipes[:cares].files << "https://s3.amazonaws.com/distfiles.openknapsack.org/c-ares/c-ares-1.7.5.tar.gz"
 
+# zlib
+$recipes[:zlib] = MiniPortile.new "zlib", "1.2.8"
+
+recipe = $recipes[:zlib]
+recipe.files << "http://zlib.net/#{recipe.name}-#{recipe.version}.tar.gz"
+
+class << recipe
+  def configure
+    Dir.chdir work_path do
+      mk = File.read 'win32/Makefile.gcc'
+      File.open 'win32/Makefile.gcc', 'wb' do |f|
+        f.puts "BINARY_PATH = #{path}/bin"
+        f.puts "LIBRARY_PATH = #{path}/lib"
+        f.puts "INCLUDE_PATH = #{path}/include"
+
+        cross_build? and
+          mk.sub!(/^PREFIX\s*=\s*$/, "PREFIX = #{host}-")
+
+        f.puts mk
+      end
+    end
+  end
+
+  def configured?
+    Dir.chdir work_path do
+      !!(File.read('win32/Makefile.gcc') =~ /^BINARY_PATH/)
+    end
+  end
+
+  def compile
+    execute "compile", "make -f win32/Makefile.gcc"
+  end
+
+  def install
+    execute "install", "make -f win32/Makefile.gcc install"
+  end
+
+  def cross_build?
+    host != original_host
+  end
+end
+
 namespace :ports do
   directory "ports"
 
