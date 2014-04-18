@@ -21,11 +21,14 @@ c_ares.files << "https://s3.amazonaws.com/distfiles.openknapsack.org/#{c_ares.na
 recipes.push c_ares
 
 # zlib
-zlib = MiniPortile.new "zlib", "1.2.8"
-zlib.files << "http://zlib.net/#{zlib.name}-#{zlib.version}.tar.gz"
+class ZlibRecipe < MiniPortile
+  def windows?
+    !(host =~ /mswin|mingw/).nil?
+  end
 
-class << zlib
   def configure
+    return super unless windows?
+
     Dir.chdir work_path do
       mk = File.read 'win32/Makefile.gcc'
       File.open 'win32/Makefile.gcc', 'wb' do |f|
@@ -41,24 +44,36 @@ class << zlib
     end
   end
 
+  def configure_defaults
+    ["--static"]
+  end
+
   def configured?
-    Dir.chdir work_path do
-      !!(File.read('win32/Makefile.gcc') =~ /^BINARY_PATH/)
-    end
+    return super unless windows?
+
+    !!(File.read(File.join(work_path, 'win32/Makefile.gcc')) =~ /^BINARY_PATH/)
   end
 
   def compile
+    return super unless windows?
+
     execute "compile", "make -f win32/Makefile.gcc"
   end
 
   def install
-    execute "install", "make -f win32/Makefile.gcc install"
+    return if installed?
+    return super unless windows?
+
+    execute "install", %Q(#{make_cmd} -f win32/Makefile.gcc install)
   end
 
   def cross_build?
     host != original_host
   end
 end
+
+zlib = ZlibRecipe.new "zlib", "1.2.8"
+zlib.files << "http://zlib.net/#{zlib.name}-#{zlib.version}.tar.gz"
 
 recipes.push zlib
 
