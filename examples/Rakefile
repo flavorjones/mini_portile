@@ -1,24 +1,30 @@
 require File.expand_path("mini_portile", File.join(File.dirname(__FILE__), "../lib"))
 
-$recipes = {}
+recipes = []
 
-ICONV_VERSION = "1.14"
-$recipes[:libiconv] = MiniPortile.new "libiconv", ICONV_VERSION
-$recipes[:libiconv].files << "ftp://ftp.gnu.org/pub/gnu/libiconv/libiconv-#{ICONV_VERSION}.tar.gz"
+# libiconv
+libiconv = MiniPortile.new "libiconv", "1.14"
+libiconv.files << "ftp://ftp.gnu.org/pub/gnu/#{libiconv.name}/#{libiconv.name}-#{libiconv.version}.tar.gz"
 
-$recipes[:sqlite3] = MiniPortile.new "sqlite3", "3.8.4.1"
-$recipes[:sqlite3].files << "http://sqlite.org/2014/sqlite-autoconf-3080401.tar.gz"
+recipes.push libiconv
 
-$recipes[:cares] = MiniPortile.new "c-ares", "1.7.5"
-$recipes[:cares].files << "https://s3.amazonaws.com/distfiles.openknapsack.org/c-ares/c-ares-1.7.5.tar.gz"
+# sqlite3
+sqlite3 = MiniPortile.new "sqlite3", "3.8.4.1"
+sqlite3.files << "http://sqlite.org/2014/sqlite-autoconf-3080401.tar.gz"
+
+recipes.push sqlite3
+
+# c-ares
+c_ares = MiniPortile.new "c-ares", "1.7.5"
+c_ares.files << "https://s3.amazonaws.com/distfiles.openknapsack.org/#{c_ares.name}/#{c_ares.name}-#{c_ares.version}.tar.gz"
+
+recipes.push c_ares
 
 # zlib
-$recipes[:zlib] = MiniPortile.new "zlib", "1.2.8"
+zlib = MiniPortile.new "zlib", "1.2.8"
+zlib.files << "http://zlib.net/#{zlib.name}-#{zlib.version}.tar.gz"
 
-recipe = $recipes[:zlib]
-recipe.files << "http://zlib.net/#{recipe.name}-#{recipe.version}.tar.gz"
-
-class << recipe
+class << zlib
   def configure
     Dir.chdir work_path do
       mk = File.read 'win32/Makefile.gcc'
@@ -54,12 +60,14 @@ class << recipe
   end
 end
 
+recipes.push zlib
+
 namespace :ports do
   directory "ports"
 
-  $recipes.each do |key, recipe|
+  recipes.each do |recipe|
     desc "Install port #{recipe.name} #{recipe.version}"
-    task key => ["ports"] do |t|
+    task recipe.name => ["ports"] do |t|
       checkpoint = "ports/.#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
 
       unless File.exist?(checkpoint)
@@ -69,11 +77,13 @@ namespace :ports do
 
       recipe.activate
     end
+
+    task :all => recipe.name
   end
 
   desc "Install all ports and display installation location"
-  task :all => $recipes.keys do
-    $recipes.each do |_, recipe|
+  task :all do
+    recipes.each do |recipe|
       puts "Artifacts of '#{recipe.name}' in '#{recipe.path}'"
     end
     puts "LDFLAGS: " << ENV['LDFLAGS'].inspect
@@ -82,7 +92,7 @@ end
 
 desc "Adjust all recipes host for cross-compilation"
 task :cross do
-  $recipes.each do |_, recipe|
+  recipes.each do |recipe|
     recipe.host = "i686-w64-mingw32"
   end
 end
