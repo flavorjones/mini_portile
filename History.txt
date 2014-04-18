@@ -1,3 +1,12 @@
+=== (In Git)
+
+* Enhancements:
+  * Add default cert store and custom certs from `SSL_CERT_FILE` if present.
+    This increases compatibility with Ruby 1.8.7.
+
+* Internal:
+  * Improve examples and use them as test harness.
+
 === 0.5.5 / 2014-04-06
 
 * Bugfixes:
