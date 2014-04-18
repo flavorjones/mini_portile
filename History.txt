@@ -1,4 +1,4 @@
-=== (In Git)
+=== 0.6.0 / 2014-04-18
 
 * Enhancements:
   * Add default cert store and custom certs from `SSL_CERT_FILE` if present.

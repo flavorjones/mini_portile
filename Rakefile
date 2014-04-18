@@ -4,7 +4,7 @@ require "rubygems/package_task"
 GEM_SPEC = Gem::Specification.new do |s|
   # basic information
   s.name        = "mini_portile"
-  s.version     = "0.5.5"
+  s.version     = "0.6.0"
   s.platform    = Gem::Platform::RUBY
 
   # description and details
