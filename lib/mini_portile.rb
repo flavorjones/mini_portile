@@ -335,9 +335,16 @@ private
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_PEER
 
+        store = OpenSSL::X509::Store.new
+
+        # Auto-include system-provided certificates
+        store.set_default_paths
+
         if ENV.has_key?("SSL_CERT_FILE") && File.exist?(ENV["SSL_CERT_FILE"])
-          http.ca_file = ENV["SSL_CERT_FILE"]
+          store.add_file ENV["SSL_CERT_FILE"]
         end
+
+        http.cert_store = store
       end
     end
 
