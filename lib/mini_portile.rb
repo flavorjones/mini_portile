@@ -275,7 +275,7 @@ private
         output "OK"
         return true
       else
-        output "ERROR, review '#{log}' to see what happened."
+        output "ERROR, review '#{log_out}' to see what happened."
         raise "Failed to complete #{action} task"
       end
     end
