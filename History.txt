@@ -1,4 +1,4 @@
-=== (in Git)
+=== 0.6.1 / 2014-08-03
 
 * Enhancements:
   * Expand path to logfile to easier debugging on failures.
