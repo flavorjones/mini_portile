@@ -1,6 +1,7 @@
 === 0.7.0 / unreleased
 
 * Enhancements:
+  * Append outputs to patch.log instead of clobbering it for every patch command.
   * Shell escape paths and stuff when building a command line.
     Please unescape configure_options where you have been doing it yourself.
 

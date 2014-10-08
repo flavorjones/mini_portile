@@ -18,6 +18,7 @@ class MiniPortile
     @target = 'ports'
     @files = []
     @patch_files = []
+    @log_files = {}
     @logger = STDOUT
 
     @original_host = @host = detect_host
@@ -191,7 +192,10 @@ private
   end
 
   def log_file(action)
-    File.join(tmp_path, "#{action}.log")
+    @log_files[action] ||=
+      File.expand_path("#{action}.log", tmp_path).tap { |file|
+        File.unlink(file) if File.exist?(file)
+      }
   end
 
   def tar_exe
@@ -270,9 +274,8 @@ private
   end
 
   def execute(action, command)
-    log        = log_file(action)
-    log_out    = File.expand_path(log)
-    redirected = "#{command} >#{log_out.shellescape} 2>&1"
+    log_out    = log_file(action)
+    redirected = "#{command} >>#{log_out.shellescape} 2>&1"
 
     Dir.chdir work_path do
       message "Running '#{action}' for #{@name} #{@version}... "
