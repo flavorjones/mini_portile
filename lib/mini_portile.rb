@@ -5,6 +5,7 @@ require 'net/ftp'
 require 'fileutils'
 require 'tempfile'
 require 'digest/md5'
+require 'shellwords'
 
 class MiniPortile
   attr_reader :name, :version, :original_host
@@ -45,7 +46,7 @@ class MiniPortile
       @patch_files.each do |full_path|
         next unless File.exists?(full_path)
         output "Running git apply with #{full_path}..."
-        execute('patch', %Q(git apply #{full_path}))
+        execute('patch', %Q(git apply #{full_path.shellescape}))
       end
     ensure
       ENV['GIT_DIR'] = old_git
@@ -143,7 +144,7 @@ class MiniPortile
       old_value = ENV.fetch("LDFLAGS", "")
 
       unless old_value.include?(full_path)
-        ENV["LDFLAGS"] = "-L#{full_path} #{old_value}".strip
+        ENV["LDFLAGS"] = "-L#{full_path.shellescape} #{old_value}".strip
       end
     end
   end
@@ -186,7 +187,7 @@ private
     [
       configure_options,     # customized or default options
       configure_prefix,      # installation target
-    ].flatten.join(' ')
+    ].flatten.shelljoin
   end
 
   def log_file(action)
@@ -253,7 +254,12 @@ private
     FileUtils.mkdir_p target
 
     message "Extracting #{filename} into #{target}... "
-    result = `#{tar_exe} #{tar_compression_switch(filename)}xf "#{file}" -C "#{target}" 2>&1`
+    command = [
+      tar_exe,
+      "#{tar_compression_switch(filename)}xf", file,
+      '-C', target
+    ].shelljoin
+    result = `#{command} 2>&1`
     if $?.success?
       output "OK"
     else
@@ -266,7 +272,7 @@ private
   def execute(action, command)
     log        = log_file(action)
     log_out    = File.expand_path(log)
-    redirected = "#{command} >#{log_out} 2>&1"
+    redirected = "#{command} >#{log_out.shellescape} 2>&1"
 
     Dir.chdir work_path do
       message "Running '#{action}' for #{@name} #{@version}... "

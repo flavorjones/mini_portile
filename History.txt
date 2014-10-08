@@ -1,3 +1,9 @@
+=== 0.7.0 / unreleased
+
+* Enhancements:
+  * Shell escape paths and stuff when building a command line.
+    Please unescape configure_options where you have been doing it yourself.
+
 === 0.6.1 / 2014-08-03
 
 * Enhancements:
