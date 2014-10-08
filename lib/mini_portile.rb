@@ -266,7 +266,7 @@ private
   def execute(action, command)
     log        = log_file(action)
     log_out    = File.expand_path(log)
-    redirected = command << " >#{log_out} 2>&1"
+    redirected = "#{command} >#{log_out} 2>&1"
 
     Dir.chdir work_path do
       message "Running '#{action}' for #{@name} #{@version}... "
@@ -426,12 +426,10 @@ private
   end
 
   def gcc_cmd
-    cc = ENV["CC"] || RbConfig::CONFIG["CC"] || "gcc"
-    return cc.dup
+    (ENV["CC"] || RbConfig::CONFIG["CC"] || "gcc").dup
   end
 
   def make_cmd
-    m = ENV['MAKE'] || ENV['make'] || 'make'
-    return m.dup
+    (ENV['MAKE'] || ENV['make'] || 'make').dup
   end
 end
