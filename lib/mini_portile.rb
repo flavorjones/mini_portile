@@ -5,6 +5,7 @@ require 'net/ftp'
 require 'fileutils'
 require 'tempfile'
 require 'digest/md5'
+require 'shellwords'
 
 class MiniPortile
   attr_reader :name, :version, :original_host
@@ -17,6 +18,7 @@ class MiniPortile
     @target = 'ports'
     @files = []
     @patch_files = []
+    @log_files = {}
     @logger = STDOUT
 
     @original_host = @host = detect_host
@@ -36,19 +38,33 @@ class MiniPortile
     end
   end
 
-  def patch
-    # Set GIT_DIR while appying patches to work around
-    # git-apply doing nothing when started within another
-    # git directory.
-    ENV['GIT_DIR'], old_git = '.', ENV['GIT_DIR']
-    begin
-      @patch_files.each do |full_path|
-        next unless File.exists?(full_path)
-        output "Running git apply with #{full_path}..."
-        execute('patch', %Q(git apply #{full_path}))
+  def apply_patch(patch_file)
+    (
+      # Not a class variable because closures will capture self.
+      @apply_patch ||=
+      case
+      when which('patch')
+        lambda { |file|
+          message "Running patch with #{file}..."
+          execute('patch', "patch -p1 -i #{file.shellescape}")
+        }
+      when which('git')
+        lambda { |file|
+          message "Running git apply with #{file}..."
+          # By --work-tree=. git-apply uses the current directory as
+          # the project root and will not search upwards for .git.
+          execute('patch', "git --work-tree=. apply #{file.shellescape}")
+        }
+      else
+        raise "Failed to complete patch task; patch(1) or git(1) is required."
       end
-    ensure
-      ENV['GIT_DIR'] = old_git
+    ).call(patch_file)
+  end
+
+  def patch
+    @patch_files.each do |full_path|
+      next unless File.exists?(full_path)
+      apply_patch(full_path)
     end
   end
 
@@ -143,7 +159,7 @@ class MiniPortile
       old_value = ENV.fetch("LDFLAGS", "")
 
       unless old_value.include?(full_path)
-        ENV["LDFLAGS"] = "-L#{full_path} #{old_value}".strip
+        ENV["LDFLAGS"] = "-L#{full_path.shellescape} #{old_value}".strip
       end
     end
   end
@@ -186,11 +202,14 @@ private
     [
       configure_options,     # customized or default options
       configure_prefix,      # installation target
-    ].flatten.join(' ')
+    ].flatten.shelljoin
   end
 
   def log_file(action)
-    File.join(tmp_path, "#{action}.log")
+    @log_files[action] ||=
+      File.expand_path("#{action}.log", tmp_path).tap { |file|
+        File.unlink(file) if File.exist?(file)
+      }
   end
 
   def tar_exe
@@ -253,7 +272,12 @@ private
     FileUtils.mkdir_p target
 
     message "Extracting #{filename} into #{target}... "
-    result = `#{tar_exe} #{tar_compression_switch(filename)}xf "#{file}" -C "#{target}" 2>&1`
+    command = [
+      tar_exe,
+      "#{tar_compression_switch(filename)}xf", file,
+      '-C', target
+    ].shelljoin
+    result = `#{command} 2>&1`
     if $?.success?
       output "OK"
     else
@@ -264,9 +288,8 @@ private
   end
 
   def execute(action, command)
-    log        = log_file(action)
-    log_out    = File.expand_path(log)
-    redirected = command << " >#{log_out} 2>&1"
+    log_out    = log_file(action)
+    redirected = "#{command} >>#{log_out.shellescape} 2>&1"
 
     Dir.chdir work_path do
       message "Running '#{action}' for #{@name} #{@version}... "
@@ -426,12 +449,10 @@ private
   end
 
   def gcc_cmd
-    cc = ENV["CC"] || RbConfig::CONFIG["CC"] || "gcc"
-    return cc.dup
+    (ENV["CC"] || RbConfig::CONFIG["CC"] || "gcc").dup
   end
 
   def make_cmd
-    m = ENV['MAKE'] || ENV['make'] || 'make'
-    return m.dup
+    (ENV['MAKE'] || ENV['make'] || 'make').dup
   end
 end

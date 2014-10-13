@@ -1,3 +1,11 @@
+=== 0.7.0 / unreleased
+
+* Enhancements:
+  * In patch task, use patch(1) or git(1), whichever is available.
+  * Append outputs to patch.log instead of clobbering it for every patch command.
+  * Shell escape paths and stuff when building a command line.
+    Please unescape configure_options where you have been doing it yourself.
+
 === 0.6.1 / 2014-08-03
 
 * Enhancements:
