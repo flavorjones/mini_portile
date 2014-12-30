@@ -1,3 +1,8 @@
+=== 0.6.2 / 2014-12-30
+
+* Updated gemspec, license and README to reflect new maintainer.
+
+
 === 0.6.1 / 2014-08-03
 
 * Enhancements:

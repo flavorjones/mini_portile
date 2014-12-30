@@ -4,7 +4,7 @@ require "rubygems/package_task"
 GEM_SPEC = Gem::Specification.new do |s|
   # basic information
   s.name        = "mini_portile"
-  s.version     = "0.6.1"
+  s.version     = "0.6.2"
   s.platform    = Gem::Platform::RUBY
 
   # description and details
@@ -30,12 +30,12 @@ GEM_SPEC = Gem::Specification.new do |s|
   s.extra_rdoc_files = %w(README.rdoc History.txt LICENSE.txt)
 
   # project information
-  s.homepage          = 'http://github.com/luislavena/mini_portile'
+  s.homepage          = 'http://github.com/flavorjones/mini_portile'
   s.licenses          = ['MIT']
 
   # author and contributors
-  s.author      = 'Luis Lavena'
-  s.email       = 'luislavena@gmail.com'
+  s.authors     = ['Luis Lavena', 'Mike Dalessio']
+  s.email       = 'mike.dalessio@gmail.com'
 end
 
 Gem::PackageTask.new(GEM_SPEC) do |pkg|

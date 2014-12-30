@@ -1,7 +1,7 @@
 = MiniPortile
 
-* {Source Code}[https://github.com/luislavena/mini_portile]
-* {Bug Reports}[https://github.com/luislavena/mini_portile/issues]
+* {Source Code}[https://github.com/flavorjones/mini_portile]
+* {Bug Reports}[https://github.com/flavorjones/mini_portile/issues]
 
 This project is a minimalistic, simplistic and stupid implementation of a port/recipe
 system <b>for developers</b>.
