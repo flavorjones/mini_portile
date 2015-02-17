@@ -86,7 +86,7 @@ In above structure, <tt>platform</tt> refers to the architecture that represents
 the operating system you're using (e.g. i686-linux, i386-mingw32, etc).
 
 Inside this folder, MiniPortile will store the artifacts that result from the
-compilation process. As you cans see, it versions out the library so you can
+compilation process. As you can see, it versions out the library so you can
 run multiple version combination without compromising these overlap each other.
 
 <tt>archives</tt> is where downloaded source files are stored. It is recommended
@@ -142,7 +142,7 @@ Above examples cover the normal use case: compile support libraries natively.
 MiniPortile also covers another use case, which is the cross-compilation of the
 support libraries to be used as part of a binary gem compilation.
 
-It is the perfect complementary tool for rake-compiler and it's <tt>cross</tt>
+It is the perfect complementary tool for rake-compiler and its <tt>cross</tt>
 Rake task.
 
 Depending on your usage of rake-compiler, you will need to use <tt>host</tt> to
