@@ -2,8 +2,9 @@
 
 ![travis status](https://travis-ci.org/flavorjones/mini_portile.svg?branch=master)
 
-* [Source Code](https://github.com/flavorjones/mini_portile)
-* [Bug Reports](https://github.com/flavorjones/mini_portile/issues)
+* Documentation: http://www.rubydoc.info/github/flavorjones/mini_portile
+* Source Code: https://github.com/flavorjones/mini_portile
+* Bug Reports: https://github.com/flavorjones/mini_portile/issues
 
 This project is a minimalistic implementation of a port/recipe system
 **for developers**.

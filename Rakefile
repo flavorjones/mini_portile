@@ -19,15 +19,9 @@ GEM_SPEC = Gem::Specification.new do |s|
   # development dependencies (add_development_dependency)
 
   # components, files and paths
-  s.files = FileList["examples/Rakefile", "lib/**/*.rb", "Rakefile", "*.{rdoc,txt}"]
+  s.files = FileList["examples/Rakefile", "lib/**/*.rb", "Rakefile", "*.{txt,md}"]
 
   s.require_path = 'lib'
-
-  # documentation
-  s.has_rdoc = true
-  s.rdoc_options << '--main'  << 'README.rdoc' << '--title' << 'MiniPortile -- Documentation'
-
-  s.extra_rdoc_files = %w(README.rdoc History.txt LICENSE.txt)
 
   # project information
   s.homepage          = 'http://github.com/flavorjones/mini_portile'

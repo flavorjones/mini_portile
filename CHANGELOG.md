@@ -1,15 +1,15 @@
-=== 0.6.2 / 2014-12-30
+### 0.6.2 / 2014-12-30
 
 * Updated gemspec, license and README to reflect new maintainer.
 
 
-=== 0.6.1 / 2014-08-03
+### 0.6.1 / 2014-08-03
 
 * Enhancements:
   * Expand path to logfile to easier debugging on failures.
     Pull #33 [marvin2k]
 
-=== 0.6.0 / 2014-04-18
+### 0.6.0 / 2014-04-18
 
 * Enhancements:
   * Add default cert store and custom certs from `SSL_CERT_FILE` if present.
@@ -22,7 +22,7 @@
 * Internal:
   * Improve examples and use them as test harness.
 
-=== 0.5.3 / 2014-03-24
+### 0.5.3 / 2014-03-24
 
 * Bugfixes:
   * Shell escape paths in tar command. Pull #29. [quickshiftin]
@@ -30,7 +30,7 @@
     the compression type. Pull #27. Closes #21. [b-dean]
   * Try RbConfig's CC before fall back to 'gcc'. Ref #28.
 
-=== 0.5.2 / 2013-10-23
+### 0.5.2 / 2013-10-23
 
 * Bugfixes:
   * Change tar detection order to support NetBSD 'gtar'. Closes #24
@@ -39,27 +39,27 @@
   * Respect ENV's CC variable before fallback to 'gcc'.
   * Avoid non-ASCII output of GCC cause host detection issues. Closes #22
 
-=== 0.5.1 / 2013-07-07
+### 0.5.1 / 2013-07-07
 
 * Bugfixes:
   * Detect tar executable without shelling out. [jtimberman]
 
-=== 0.5.0 / 2012-11-17
+### 0.5.0 / 2012-11-17
 
 * Enhancements:
   * Allow patching extracted files using `git apply`. [metaskills]
 
-=== 0.4.1 / 2012-10-24
+### 0.4.1 / 2012-10-24
 
 * Bugfixes:
   * Syntax to process FTp binary chunks differs between Ruby 1.8.7 and 1.9.x
 
-=== 0.4.0 / 2012-10-24
+### 0.4.0 / 2012-10-24
 
 * Enhancements:
   * Allow fetching of FTP URLs along HTTP ones. [metaskills]
 
-=== 0.3.0 / 2012-03-23
+### 0.3.0 / 2012-03-23
 
 * Enhancements:
   * Use `gcc -v` to determine original host (platform) instead of Ruby one.
@@ -67,7 +67,7 @@
 * Deprecations:
   * Dropped support for Rubies older than 1.8.7
 
-=== 0.2.2 / 2011-04-11
+### 0.2.2 / 2011-04-11
 
 * Minor enhancements:
   * Use LDFLAGS when activating recipes for cross-compilation. Closes #6
@@ -75,12 +75,12 @@
 * Bugfixes:
   * Remove memoization of *_path helpers. Closes #7
 
-=== 0.2.1 / 2011-04-06
+### 0.2.1 / 2011-04-06
 
 * Minor enhancements:
   * Provide MiniPortile#path to obtain full path to installation directory. Closes GH-5
 
-=== 0.2.0 / 2011-04-05
+### 0.2.0 / 2011-04-05
 
 * Enhancements:
   * Improve tar detection
@@ -92,6 +92,6 @@
   * MiniPortile#target can be changed now. Closes GH-2
   * Always redirect tar output properly
 
-=== 0.1.0 / 2011-03-08
+### 0.1.0 / 2011-03-08
 
 * Initial release. Welcome to this world!
