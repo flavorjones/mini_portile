@@ -366,7 +366,7 @@ private
     if ENV['http_proxy']
       _, userinfo, p_host, p_port = URI.split(ENV['http_proxy'])
       proxy_user, proxy_pass = userinfo.split(/:/) if userinfo
-      http = Net::HTTP.new(uri.host, uri.port, p_host, p_port, proxy_user, proxy_pass)
+      http = Net::HTTP.new(uri.host, uri.port, p_host, p_port, URI.unescape(proxy_user), URI.unescape(proxy_pass))
     else
       http = Net::HTTP.new(uri.host, uri.port)
 
