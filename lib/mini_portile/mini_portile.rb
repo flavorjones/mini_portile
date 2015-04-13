@@ -5,6 +5,7 @@ require 'net/ftp'
 require 'fileutils'
 require 'tempfile'
 require 'digest/md5'
+require 'open-uri'
 
 class MiniPortile
   attr_reader :name, :version, :original_host
@@ -428,30 +429,29 @@ private
   def download_file_ftp(uri, full_path)
     filename = File.basename(uri.path)
     with_tempfile(filename, full_path) do |temp_file|
-      size = 0
       progress = 0
-      Net::FTP.open(uri.host, uri.user, uri.password) do |ftp|
-        ftp.passive = true
-        ftp.login
-        remote_dir = File.dirname(uri.path)
-        ftp.chdir(remote_dir) unless remote_dir == '.'
-        total = ftp.size(filename)
-        ftp.getbinaryfile(filename, temp_file.path, 8192) do |chunk|
-          # Ruby 1.8.7 already wrote the chunk into the file
-          unless RUBY_VERSION < "1.9"
-            temp_file << chunk
-          end
-
-          size += chunk.size
-          new_progress = (size * 100) / total
-          unless new_progress == progress
-            message "\rDownloading %s (%3d%%) " % [filename, new_progress]
-          end
+      total = 0
+      params = {
+        :content_length_proc => lambda{|length| total = length },
+        :progress_proc => lambda{|bytes|
+          new_progress = (bytes * 100) / total
+          message "\rDownloading %s (%3d%%) " % [filename, new_progress]
           progress = new_progress
-        end
+        }
+      }
+      if ENV["ftp_proxy"]
+        protocol, userinfo, p_host, p_port = URI.split(ENV['ftp_proxy'])
+        proxy_user, proxy_pass = userinfo.split(/:/).map{|s| URI.unescape(s) } if userinfo
+        params[:proxy_http_basic_authentication] =
+          [ENV['ftp_proxy'], proxy_user, proxy_pass]
+      end
+      OpenURI.open_uri(uri, 'rb', params) do |io|
+        temp_file << io.read
       end
       output
     end
+  rescue Net::FTPError
+    return false
   end
 
   def with_tempfile(filename, full_path)
