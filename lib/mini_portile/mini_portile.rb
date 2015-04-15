@@ -362,66 +362,35 @@ private
 
   def download_file_http(url, full_path, count = 3)
     filename = File.basename(full_path)
-    uri = URI.parse(url)
-
-    if ENV['http_proxy']
-      _, userinfo, p_host, p_port = URI.split(ENV['http_proxy'])
-      proxy_user, proxy_pass = userinfo.split(/:/) if userinfo
-      http = Net::HTTP.new(uri.host, uri.port, p_host, p_port, URI.unescape(proxy_user), URI.unescape(proxy_pass))
-    else
-      http = Net::HTTP.new(uri.host, uri.port)
-
-      if URI::HTTPS === uri
-        http.use_ssl = true
-        http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-
-        store = OpenSSL::X509::Store.new
-
-        # Auto-include system-provided certificates
-        store.set_default_paths
-
-        if ENV.has_key?("SSL_CERT_FILE") && File.exist?(ENV["SSL_CERT_FILE"])
-          store.add_file ENV["SSL_CERT_FILE"]
-        end
-
-        http.cert_store = store
+    with_tempfile(filename, full_path) do |temp_file|
+      progress = 0
+      total = 0
+      params = {
+        :content_length_proc => lambda{|length| total = length },
+        :progress_proc => lambda{|bytes|
+          new_progress = (bytes * 100) / total
+          message "\rDownloading %s (%3d%%) " % [filename, new_progress]
+          progress = new_progress
+        }
+      }
+      if ENV["http_proxy"]
+        _, userinfo, p_host, p_port = URI.split(ENV['http_proxy'])
+        proxy_user, proxy_pass = userinfo.split(/:/).map{|s| URI.unescape(s) } if userinfo
+        params[:proxy_http_basic_authentication] =
+          [ENV['http_proxy'], proxy_user, proxy_pass]
       end
-    end
-
-    message "Downloading #{filename} "
-    http.start do |h|
-      h.request_get(uri.path, 'Accept-Encoding' => 'identity') do |response|
-        case response
-        when Net::HTTPNotFound
-          output "404 - Not Found"
-          return false
-
-        when Net::HTTPClientError
-          output "Error: Client Error: #{response.inspect}"
-          return false
-
-        when Net::HTTPRedirection
-          raise "Too many redirections for the original URL, halting." if count <= 0
-          url = response["location"]
-          return download_file(url, full_path, count - 1)
-
-        when Net::HTTPOK
-          return with_tempfile(filename, full_path) do |temp_file|
-            size = 0
-            progress = 0
-            total = response.header["Content-Length"].to_i
-            response.read_body do |chunk|
-              temp_file << chunk
-              size += chunk.size
-              new_progress = (size * 100) / total
-              unless new_progress == progress
-                message "\rDownloading %s (%3d%%) " % [filename, new_progress]
-              end
-              progress = new_progress
-            end
-            output
-          end
+      begin
+        OpenURI.open_uri(url, 'rb', params) do |io|
+          temp_file << io.read
         end
+        output
+      rescue OpenURI::HTTPRedirect => redirect
+        raise "Too many redirections for the original URL, halting." if count <= 0
+        count = count - 1
+        return download_file(redirect.url, full_path, count - 1)
+      rescue => e
+        output e.message
+        return false
       end
     end
   end
@@ -440,7 +409,7 @@ private
         }
       }
       if ENV["ftp_proxy"]
-        protocol, userinfo, p_host, p_port = URI.split(ENV['ftp_proxy'])
+        _, userinfo, p_host, p_port = URI.split(ENV['ftp_proxy'])
         proxy_user, proxy_pass = userinfo.split(/:/).map{|s| URI.unescape(s) } if userinfo
         params[:proxy_http_basic_authentication] =
           [ENV['ftp_proxy'], proxy_user, proxy_pass]
