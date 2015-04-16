@@ -382,6 +382,7 @@ private
       progress = 0
       total = 0
       params = {
+        "Accept-Encoding" => 'identity'
         :content_length_proc => lambda{|length| total = length },
         :progress_proc => lambda{|bytes|
           new_progress = (bytes * 100) / total
