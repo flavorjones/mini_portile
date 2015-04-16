@@ -339,6 +339,7 @@ private
 
   def download_file_http(url, full_path, count = 3)
     filename = File.basename(full_path)
+<<<<<<< HEAD
     with_tempfile(filename, full_path) do |temp_file|
       progress = 0
       total = 0
@@ -355,6 +356,31 @@ private
         proxy_user, proxy_pass = userinfo.split(/:/).map{|s| URI.unescape(s) } if userinfo
         params[:proxy_http_basic_authentication] =
           [ENV['http_proxy'], proxy_user, proxy_pass]
+=======
+    uri = URI.parse(url)
+
+    if ENV['http_proxy']
+      _, userinfo, p_host, p_port = URI.split(ENV['http_proxy'])
+      proxy_user, proxy_pass = userinfo.split(/:/) if userinfo
+      http = Net::HTTP.new(uri.host, uri.port, p_host, p_port, URI.unescape(proxy_user), URI.unescape(proxy_pass))
+    else
+      http = Net::HTTP.new(uri.host, uri.port)
+
+      if URI::HTTPS === uri
+        http.use_ssl = true
+        http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+
+        store = OpenSSL::X509::Store.new
+
+        # Auto-include system-provided certificates
+        store.set_default_paths
+
+        if ENV.has_key?("SSL_CERT_FILE") && File.exist?(ENV["SSL_CERT_FILE"])
+          store.add_file ENV["SSL_CERT_FILE"]
+        end
+
+        http.cert_store = store
+>>>>>>> 8e06ce7141cad18f4de544524b9bede99a549ca9
       end
       begin
         OpenURI.open_uri(url, 'rb', params) do |io|
@@ -386,7 +412,11 @@ private
         }
       }
       if ENV["ftp_proxy"]
+<<<<<<< HEAD
         _, userinfo, p_host, p_port = URI.split(ENV['ftp_proxy'])
+=======
+        protocol, userinfo, p_host, p_port = URI.split(ENV['ftp_proxy'])
+>>>>>>> 8e06ce7141cad18f4de544524b9bede99a549ca9
         proxy_user, proxy_pass = userinfo.split(/:/).map{|s| URI.unescape(s) } if userinfo
         params[:proxy_http_basic_authentication] =
           [ENV['ftp_proxy'], proxy_user, proxy_pass]
