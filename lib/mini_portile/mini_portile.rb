@@ -7,6 +7,22 @@ require 'tempfile'
 require 'digest/md5'
 require 'open-uri'
 
+# Monkey patch for Net::HTTP by ruby open-uri fix(58835a9) apply.
+class Net::HTTP
+  private
+  def edit_path(path)
+    if proxy?
+      if path.start_with?("ftp://") || use_ssl?
+        path
+      else
+        "http://#{addr_port}#{path}"
+      end
+    else
+      path
+    end
+  end
+end
+
 class MiniPortile
   attr_reader :name, :version, :original_host
   attr_writer :configure_options
