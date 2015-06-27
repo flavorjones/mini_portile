@@ -1,4 +1,5 @@
 require "rake/clean"
+require 'bundler/gem_tasks'
 
 desc "Test MiniPortile by compiling examples"
 task :test do
