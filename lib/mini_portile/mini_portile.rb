@@ -44,8 +44,8 @@ class MiniPortile
     begin
       @patch_files.each do |full_path|
         next unless File.exists?(full_path)
-        output "Running git apply with #{full_path}..."
-        execute('patch', %Q(git apply #{full_path}))
+        output "Running git apply with #{full_path}... "
+        execute('patch', %w(git apply) + [full_path], :initial_message => false)
       end
     ensure
       ENV['GIT_DIR'] = old_git
@@ -60,10 +60,10 @@ class MiniPortile
     return if configured?
 
     md5_file = File.join(tmp_path, 'configure.md5')
-    digest   = Digest::MD5.hexdigest(computed_options)
+    digest   = Digest::MD5.hexdigest(computed_options.to_s)
     File.open(md5_file, "w") { |f| f.write digest }
 
-    execute('configure', %Q(sh configure #{computed_options}))
+    execute('configure', %w(sh configure) + computed_options)
   end
 
   def compile
@@ -90,7 +90,7 @@ class MiniPortile
     md5_file  = File.join(tmp_path, 'configure.md5')
 
     stored_md5  = File.exist?(md5_file) ? File.read(md5_file) : ""
-    current_md5 = Digest::MD5.hexdigest(computed_options)
+    current_md5 = Digest::MD5.hexdigest(computed_options.to_s)
 
     (current_md5 == stored_md5) && newer?(makefile, configure)
   end
@@ -186,7 +186,7 @@ private
     [
       configure_options,     # customized or default options
       configure_prefix,      # installation target
-    ].flatten.join(' ')
+    ].flatten
   end
 
   def log_file(action)
@@ -263,14 +263,29 @@ private
     end
   end
 
-  def execute(action, command)
+  def execute(action, command, options={})
     log        = log_file(action)
     log_out    = File.expand_path(log)
-    redirected = command << " >#{log_out} 2>&1"
 
     Dir.chdir work_path do
-      message "Running '#{action}' for #{@name} #{@version}... "
-      system redirected
+      if options.fetch(:initial_message){ true }
+        message "Running '#{action}' for #{@name} #{@version}... "
+      end
+
+      if Process.respond_to?(:spawn)
+        args = [command].flatten + [{[:out, :err]=>[log_out, "w"]}]
+        pid = spawn(*args)
+        Process.wait(pid)
+      else
+        # Ruby-1.8 compatibility:
+        if command.kind_of?(Array)
+          system(*command)
+        else
+          redirected = command << " >#{log_out} 2>&1"
+          system(redirected)
+        end
+      end
+
       if $?.success?
         output "OK"
         return true
