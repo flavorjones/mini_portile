@@ -17,6 +17,7 @@ class MiniPortile
     @target = 'ports'
     @files = []
     @patch_files = []
+    @log_files = {}
     @logger = STDOUT
 
     @original_host = @host = detect_host
@@ -36,19 +37,33 @@ class MiniPortile
     end
   end
 
-  def patch
-    # Set GIT_DIR while appying patches to work around
-    # git-apply doing nothing when started within another
-    # git directory.
-    ENV['GIT_DIR'], old_git = '.', ENV['GIT_DIR']
-    begin
-      @patch_files.each do |full_path|
-        next unless File.exists?(full_path)
-        output "Running git apply with #{full_path}..."
-        execute('patch', %Q(git apply #{full_path}))
+  def apply_patch(patch_file)
+    (
+      # Not a class variable because closures will capture self.
+      @apply_patch ||=
+      case
+      when which('patch')
+        lambda { |file|
+          message "Running patch with #{file}..."
+          execute('patch', ["patch", "-p1", "-i", file])
+        }
+      when which('git')
+        lambda { |file|
+          message "Running git apply with #{file}..."
+          # By --work-tree=. git-apply uses the current directory as
+          # the project root and will not search upwards for .git.
+          execute('patch', ["git", "--work-tree=.", "apply", file])
+        }
+      else
+        raise "Failed to complete patch task; patch(1) or git(1) is required."
       end
-    ensure
-      ENV['GIT_DIR'] = old_git
+    ).call(patch_file)
+  end
+
+  def patch
+    @patch_files.each do |full_path|
+      next unless File.exists?(full_path)
+      apply_patch(full_path)
     end
   end
 
@@ -60,10 +75,10 @@ class MiniPortile
     return if configured?
 
     md5_file = File.join(tmp_path, 'configure.md5')
-    digest   = Digest::MD5.hexdigest(computed_options)
+    digest   = Digest::MD5.hexdigest(computed_options.to_s)
     File.open(md5_file, "w") { |f| f.write digest }
 
-    execute('configure', %Q(sh configure #{computed_options}))
+    execute('configure', %w(sh configure) + computed_options)
   end
 
   def compile
@@ -90,7 +105,7 @@ class MiniPortile
     md5_file  = File.join(tmp_path, 'configure.md5')
 
     stored_md5  = File.exist?(md5_file) ? File.read(md5_file) : ""
-    current_md5 = Digest::MD5.hexdigest(computed_options)
+    current_md5 = Digest::MD5.hexdigest(computed_options.to_s)
 
     (current_md5 == stored_md5) && newer?(makefile, configure)
   end
@@ -186,11 +201,14 @@ private
     [
       configure_options,     # customized or default options
       configure_prefix,      # installation target
-    ].flatten.join(' ')
+    ].flatten
   end
 
   def log_file(action)
-    File.join(tmp_path, "#{action}.log")
+    @log_files[action] ||=
+      File.expand_path("#{action}.log", tmp_path).tap { |file|
+        File.unlink(file) if File.exist?(file)
+      }
   end
 
   def tar_exe
@@ -253,7 +271,14 @@ private
     FileUtils.mkdir_p target
 
     message "Extracting #{filename} into #{target}... "
-    result = `#{tar_exe} #{tar_compression_switch(filename)}xf "#{file}" -C "#{target}" 2>&1`
+    result = if RUBY_VERSION < "1.9"
+      `#{tar_exe} #{tar_compression_switch(filename)}xf "#{file}" -C "#{target}" 2>&1`
+    else
+      IO.popen([tar_exe,
+                "#{tar_compression_switch(filename)}xf", file,
+                "-C", target,
+                {:err=>[:child, :out]}], &:read)
+    end
     if $?.success?
       output "OK"
     else
@@ -264,13 +289,23 @@ private
   end
 
   def execute(action, command)
-    log        = log_file(action)
-    log_out    = File.expand_path(log)
-    redirected = command << " >#{log_out} 2>&1"
+    log_out    = log_file(action)
 
     Dir.chdir work_path do
       message "Running '#{action}' for #{@name} #{@version}... "
-      system redirected
+      if Process.respond_to?(:spawn)
+        args = [command].flatten + [{[:out, :err]=>[log_out, "a"]}]
+        pid = spawn(*args)
+        Process.wait(pid)
+      else
+        # Ruby-1.8 compatibility:
+        if command.kind_of?(Array)
+          system(*command)
+        else
+          redirected = "#{command} >#{log_out} 2>&1"
+          system(redirected)
+        end
+      end
       if $?.success?
         output "OK"
         return true

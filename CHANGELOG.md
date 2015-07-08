@@ -1,3 +1,11 @@
+=== 0.7.0 / unreleased
+
+* Enhancements:
+  * In patch task, use patch(1) or git(1), whichever is available.
+  * Append outputs to patch.log instead of clobbering it for every patch command.
+  * Take configure_options literally without running a subshell.
+    Please unescape configure_options where you have been doing it yourself.
+
 ### 0.6.2 / 2014-12-30
 
 * Updated gemspec, license and README to reflect new maintainer.
