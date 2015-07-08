@@ -281,7 +281,7 @@ private
         if command.kind_of?(Array)
           system(*command)
         else
-          redirected = command << " >#{log_out} 2>&1"
+          redirected = "#{command} >#{log_out} 2>&1"
           system(redirected)
         end
       end
