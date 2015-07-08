@@ -37,19 +37,33 @@ class MiniPortile
     end
   end
 
-  def patch
-    # Set GIT_DIR while appying patches to work around
-    # git-apply doing nothing when started within another
-    # git directory.
-    ENV['GIT_DIR'], old_git = '.', ENV['GIT_DIR']
-    begin
-      @patch_files.each do |full_path|
-        next unless File.exists?(full_path)
-        output "Running git apply with #{full_path}..."
-        execute('patch', %w(git apply) + [full_path])
+  def apply_patch(patch_file)
+    (
+      # Not a class variable because closures will capture self.
+      @apply_patch ||=
+      case
+      when which('patch')
+        lambda { |file|
+          message "Running patch with #{file}..."
+          execute('patch', ["patch", "-p1", "-i", file])
+        }
+      when which('git')
+        lambda { |file|
+          message "Running git apply with #{file}..."
+          # By --work-tree=. git-apply uses the current directory as
+          # the project root and will not search upwards for .git.
+          execute('patch', ["git", "--work-tree=.", "apply", file])
+        }
+      else
+        raise "Failed to complete patch task; patch(1) or git(1) is required."
       end
-    ensure
-      ENV['GIT_DIR'] = old_git
+    ).call(patch_file)
+  end
+
+  def patch
+    @patch_files.each do |full_path|
+      next unless File.exists?(full_path)
+      apply_patch(full_path)
     end
   end
 
