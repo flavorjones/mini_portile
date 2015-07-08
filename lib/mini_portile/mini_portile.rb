@@ -253,7 +253,14 @@ private
     FileUtils.mkdir_p target
 
     message "Extracting #{filename} into #{target}... "
-    result = `#{tar_exe} #{tar_compression_switch(filename)}xf "#{file}" -C "#{target}" 2>&1`
+    result = if RUBY_VERSION < "1.9"
+      `#{tar_exe} #{tar_compression_switch(filename)}xf "#{file}" -C "#{target}" 2>&1`
+    else
+      IO.popen([tar_exe,
+                "#{tar_compression_switch(filename)}xf", file,
+                "-C", target,
+                {:err=>[:child, :out]}], &:read)
+    end
     if $?.success?
       output "OK"
     else
