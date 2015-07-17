@@ -1,7 +1,7 @@
 # MiniPortile
 
 [![travis Status](https://travis-ci.org/flavorjones/mini_portile.svg?branch=master)](https://travis-ci.org/flavorjones/mini_portile)
-[![appveyor status](https://ci.appveyor.com/api/projects/status/pxm0qf21306wet60?svg=true)](https://ci.appveyor.com/project/luislavena/mini-portile)
+[![appveyor status](https://ci.appveyor.com/api/projects/status/rjji6y9uteaw4oua/branch/master?svg=true)](https://ci.appveyor.com/project/flavorjones/mini-portile)
 
 * Documentation: http://www.rubydoc.info/github/flavorjones/mini_portile
 * Source Code: https://github.com/flavorjones/mini_portile
