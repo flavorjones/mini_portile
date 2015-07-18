@@ -1,8 +1,5 @@
 ---
 version: "{build}"
-branches:
-  only:
-    - master
 clone_depth: 10
 install:
   - ps: ((New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/bagder/ca-bundle/master/ca-bundle.crt', "$env:TMP\ca-bundle.crt"))
