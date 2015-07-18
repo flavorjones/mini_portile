@@ -331,7 +331,11 @@ private
         output "OK"
         return true
       else
-        output "ERROR, review '#{log_out}' to see what happened."
+        output "ERROR, review '#{log_out}' to see what happened. Last lines are:"
+        output("=" * 72)
+        log_lines = File.readlines(log_out)
+        output(log_lines[-[log_lines.length, 20].min .. -1])
+        output("=" * 72)
         raise "Failed to complete #{action} task"
       end
     end
