@@ -390,11 +390,16 @@ private
           progress = new_progress
         }
       }
-      if ENV["http_proxy"]
-        _, userinfo, p_host, p_port = URI.split(ENV['http_proxy'])
-        proxy_user, proxy_pass = userinfo.split(/:/).map{|s| URI.unescape(s) } if userinfo
-        params[:proxy_http_basic_authentication] =
-          [ENV['http_proxy'], proxy_user, proxy_pass]
+      proxy_uri = URI.parse(url).scheme.downcase == 'https' ?
+                  ENV["https_proxy"] :
+                  ENV["http_proxy"]
+      if proxy_uri
+        _, userinfo, p_host, p_port = URI.split(proxy_uri)
+        if userinfo
+          proxy_user, proxy_pass = userinfo.split(/:/).map{|s| URI.unescape(s) }
+          params[:proxy_http_basic_authentication] =
+            [proxy_uri, proxy_user, proxy_pass]
+        end
       end
       begin
         OpenURI.open_uri(url, 'rb', params) do |io|
@@ -427,9 +432,11 @@ private
       }
       if ENV["ftp_proxy"]
         _, userinfo, p_host, p_port = URI.split(ENV['ftp_proxy'])
-        proxy_user, proxy_pass = userinfo.split(/:/).map{|s| URI.unescape(s) } if userinfo
-        params[:proxy_http_basic_authentication] =
-          [ENV['ftp_proxy'], proxy_user, proxy_pass]
+        if userinfo
+          proxy_user, proxy_pass = userinfo.split(/:/).map{|s| URI.unescape(s) }
+          params[:proxy_http_basic_authentication] =
+            [ENV['ftp_proxy'], proxy_user, proxy_pass]
+        end
       end
       OpenURI.open_uri(uri, 'rb', params) do |io|
         temp_file << io.read
