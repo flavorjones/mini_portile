@@ -7,14 +7,15 @@ install:
   - SET PATH=C:\Ruby%ruby_version%\bin;%PATH%
   - ruby --version
   - gem --version
+  - bundle install
 build: off
 test_script:
-  - rake -rdevkit test
+  - bundle exec rake -rdevkit test
 
 environment:
   matrix:
     - ruby_version: "193"
-    - ruby_version: "200"
-    - ruby_version: "200-x64"
-    - ruby_version: "21"
+#    - ruby_version: "200"
+#    - ruby_version: "200-x64"
+#    - ruby_version: "21"
     - ruby_version: "21-x64"
