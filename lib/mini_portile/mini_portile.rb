@@ -59,17 +59,17 @@ class MiniPortile
       # Not a class variable because closures will capture self.
       @apply_patch ||=
       case
-      when which('patch')
-        lambda { |file|
-          message "Running patch with #{file}... "
-          execute('patch', ["patch", "-p1", "-i", file], :initial_message => false)
-        }
       when which('git')
         lambda { |file|
           message "Running git apply with #{file}... "
           # By --work-tree=. git-apply uses the current directory as
           # the project root and will not search upwards for .git.
           execute('patch', ["git", "--work-tree=.", "apply", file], :initial_message => false)
+        }
+      when which('patch')
+        lambda { |file|
+          message "Running patch with #{file}... "
+          execute('patch', ["patch", "-p1", "-i", file], :initial_message => false)
         }
       else
         raise "Failed to complete patch task; patch(1) or git(1) is required."
