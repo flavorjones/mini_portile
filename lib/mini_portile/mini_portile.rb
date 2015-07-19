@@ -6,6 +6,7 @@ require 'fileutils'
 require 'tempfile'
 require 'digest/md5'
 require 'open-uri'
+require 'cgi'
 
 # Monkey patch for Net::HTTP by ruby open-uri fix:
 # https://github.com/ruby/ruby/commit/58835a9
@@ -402,7 +403,7 @@ private
       if proxy_uri
         _, userinfo, _p_host, _p_port = URI.split(proxy_uri)
         if userinfo
-          proxy_user, proxy_pass = userinfo.split(/:/).map{|s| URI.unescape(s) }
+          proxy_user, proxy_pass = userinfo.split(/:/).map{|s| CGI.unescape(s) }
           params[:proxy_http_basic_authentication] =
             [proxy_uri, proxy_user, proxy_pass]
         end
@@ -439,7 +440,7 @@ private
       if ENV["ftp_proxy"]
         _, userinfo, _p_host, _p_port = URI.split(ENV['ftp_proxy'])
         if userinfo
-          proxy_user, proxy_pass = userinfo.split(/:/).map{|s| URI.unescape(s) }
+          proxy_user, proxy_pass = userinfo.split(/:/).map{|s| CGI.unescape(s) }
           params[:proxy_http_basic_authentication] =
             [ENV['ftp_proxy'], proxy_user, proxy_pass]
         end
