@@ -7,9 +7,11 @@ require 'tempfile'
 require 'digest/md5'
 require 'open-uri'
 
-# Monkey patch for Net::HTTP by ruby open-uri fix(58835a9) apply.
+# Monkey patch for Net::HTTP by ruby open-uri fix:
+# https://github.com/ruby/ruby/commit/58835a9
 class Net::HTTP
   private
+  remove_method(:edit_path)
   def edit_path(path)
     if proxy?
       if path.start_with?("ftp://") || use_ssl?
@@ -79,7 +81,7 @@ class MiniPortile
 
   def patch
     @patch_files.each do |full_path|
-      next unless File.exists?(full_path)
+      next unless File.exist?(full_path)
       apply_patch(full_path)
     end
   end
@@ -374,7 +376,7 @@ private
         download_file_http(url, full_path, count)
       end
     rescue Exception => e
-      File.unlink full_path if File.exists?(full_path)
+      File.unlink full_path if File.exist?(full_path)
       output "ERROR: #{e.message}"
       raise "Failed to complete download task"
     end
@@ -398,7 +400,7 @@ private
                   ENV["https_proxy"] :
                   ENV["http_proxy"]
       if proxy_uri
-        _, userinfo, p_host, p_port = URI.split(proxy_uri)
+        _, userinfo, _p_host, _p_port = URI.split(proxy_uri)
         if userinfo
           proxy_user, proxy_pass = userinfo.split(/:/).map{|s| URI.unescape(s) }
           params[:proxy_http_basic_authentication] =
@@ -435,7 +437,7 @@ private
         }
       }
       if ENV["ftp_proxy"]
-        _, userinfo, p_host, p_port = URI.split(ENV['ftp_proxy'])
+        _, userinfo, _p_host, _p_port = URI.split(ENV['ftp_proxy'])
         if userinfo
           proxy_user, proxy_pass = userinfo.split(/:/).map{|s| URI.unescape(s) }
           params[:proxy_http_basic_authentication] =
@@ -456,7 +458,7 @@ private
     temp_file.binmode
     yield temp_file
     temp_file.close
-    File.unlink full_path if File.exists?(full_path)
+    File.unlink full_path if File.exist?(full_path)
     FileUtils.mkdir_p File.dirname(full_path)
     FileUtils.mv temp_file.path, full_path, :force => true
   end
