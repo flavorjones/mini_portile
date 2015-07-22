@@ -1,8 +1,5 @@
 require File.expand_path('../helper', __FILE__)
-require 'webrick'
 require 'fileutils'
-require 'zlib'
-require 'archive/tar/minitar'
 require 'mini_portile'
 require 'erb'
 
