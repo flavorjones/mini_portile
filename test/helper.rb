@@ -1,8 +1,14 @@
 require 'test/unit'
+require 'webrick'
+require 'fileutils'
+require 'zlib'
+require 'archive/tar/minitar'
 
 class TestCase < Test::Unit::TestCase
   class << self
     HTTP_PORT = 23523
+
+    attr_accessor :webrick
 
     def start_webrick(path)
       @webrick = WEBrick::HTTPServer.new(:Port => HTTP_PORT, :DocumentRoot => path).tap do |w|

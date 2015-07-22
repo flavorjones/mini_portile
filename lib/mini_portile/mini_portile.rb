@@ -44,16 +44,15 @@ class MiniPortile
   end
 
   def download
-    @files.each do |url|
-      filename = File.basename(url)
-      download_file(url, File.join(archives_path, filename))
+    files_hashs.each do |file|
+      download_file(file[:url], file[:local_path])
+      verify_file(file)
     end
   end
 
   def extract
-    @files.each do |url|
-      filename = File.basename(url)
-      extract_file(File.join(archives_path, filename), tmp_path)
+    files_hashs.each do |file|
+      extract_file(file[:local_path], tmp_path)
     end
   end
 
@@ -111,9 +110,8 @@ class MiniPortile
   end
 
   def downloaded?
-    missing = @files.detect do |url|
-      filename = File.basename(url)
-      !File.exist?(File.join(archives_path, filename))
+    missing = files_hashs.detect do |file|
+      !File.exist?(file[:local_path])
     end
 
     missing ? false : true
@@ -222,6 +220,38 @@ private
       configure_options,     # customized or default options
       configure_prefix,      # installation target
     ].flatten
+  end
+
+  def files_hashs
+    @files.map do |file|
+      hash = case file
+      when String
+        { :url => file }
+      when Hash
+        file.dup
+      else
+        raise ArgumentError, "files must be an Array of Stings or Hashs"
+      end
+
+      url = hash.fetch(:url){ raise ArgumentError, "no url given" }
+      filename = File.basename(url)
+      hash[:local_path] = File.join(archives_path, filename)
+      hash
+    end
+  end
+
+  def verify_file(file)
+    digest = case
+      when exp=file[:sha256] then Digest::SHA256
+      when exp=file[:sha1] then Digest::SHA1
+      when exp=file[:md5] then Digest::MD5
+    end
+    if digest
+      is = digest.file(file[:local_path]).hexdigest
+      unless is == exp.downcase
+        raise "Downloaded file '#{file[:local_path]}' has wrong hash: expected: #{exp} is: #{is}"
+      end
+    end
   end
 
   def log_file(action)
