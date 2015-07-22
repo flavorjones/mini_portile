@@ -6,6 +6,7 @@
   * Take configure_options literally without running a subshell.
     Please unescape configure_options where you have been doing it yourself.
   * Print last 20 lines of the given log file, for convenience.
+  * Allow SHA1, SHA256 and MD5 hash verification of downloads
 
 * Bugfixes:
   * Fix issue when proxy username/password use escaped characters.
