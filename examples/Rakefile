@@ -1,4 +1,5 @@
-require File.expand_path("mini_portile", File.join(File.dirname(__FILE__), "../lib"))
+$: << File.expand_path(File.join(File.dirname(__FILE__), "../lib"))
+require "mini_portile"
 
 recipes = []
 
