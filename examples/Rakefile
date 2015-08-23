@@ -75,7 +75,11 @@ class ZlibRecipe < MiniPortile
 end
 
 zlib = ZlibRecipe.new "zlib", "1.2.8"
-zlib.files << "http://zlib.net/#{zlib.name}-#{zlib.version}.tar.gz"
+zlib.files << {
+  url: "http://zlib.net/#{zlib.name}-#{zlib.version}.tar.gz",
+  md5: "44d667c142d7cda120332623eab69f40",
+}
+
 
 recipes.push zlib
 

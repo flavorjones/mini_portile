@@ -5,6 +5,27 @@ require 'net/ftp'
 require 'fileutils'
 require 'tempfile'
 require 'digest/md5'
+require 'open-uri'
+require 'cgi'
+require 'rbconfig'
+
+# Monkey patch for Net::HTTP by ruby open-uri fix:
+# https://github.com/ruby/ruby/commit/58835a9
+class Net::HTTP
+  private
+  remove_method(:edit_path)
+  def edit_path(path)
+    if proxy?
+      if path.start_with?("ftp://") || use_ssl?
+        path
+      else
+        "http://#{addr_port}#{path}"
+      end
+    else
+      path
+    end
+  end
+end
 
 class MiniPortile
   attr_reader :name, :version, :original_host
@@ -17,38 +38,52 @@ class MiniPortile
     @target = 'ports'
     @files = []
     @patch_files = []
+    @log_files = {}
     @logger = STDOUT
 
     @original_host = @host = detect_host
   end
 
   def download
-    @files.each do |url|
-      filename = File.basename(url)
-      download_file(url, File.join(archives_path, filename))
+    files_hashs.each do |file|
+      download_file(file[:url], file[:local_path])
+      verify_file(file)
     end
   end
 
   def extract
-    @files.each do |url|
-      filename = File.basename(url)
-      extract_file(File.join(archives_path, filename), tmp_path)
+    files_hashs.each do |file|
+      extract_file(file[:local_path], tmp_path)
     end
   end
 
-  def patch
-    # Set GIT_DIR while appying patches to work around
-    # git-apply doing nothing when started within another
-    # git directory.
-    ENV['GIT_DIR'], old_git = '.', ENV['GIT_DIR']
-    begin
-      @patch_files.each do |full_path|
-        next unless File.exists?(full_path)
-        output "Running git apply with #{full_path}..."
-        execute('patch', %Q(git apply #{full_path}))
+  def apply_patch(patch_file)
+    (
+      # Not a class variable because closures will capture self.
+      @apply_patch ||=
+      case
+      when which('git')
+        lambda { |file|
+          message "Running git apply with #{file}... "
+          # By --work-tree=. git-apply uses the current directory as
+          # the project root and will not search upwards for .git.
+          execute('patch', ["git", "--work-tree=.", "apply", file], :initial_message => false)
+        }
+      when which('patch')
+        lambda { |file|
+          message "Running patch with #{file}... "
+          execute('patch', ["patch", "-p1", "-i", file], :initial_message => false)
+        }
+      else
+        raise "Failed to complete patch task; patch(1) or git(1) is required."
       end
-    ensure
-      ENV['GIT_DIR'] = old_git
+    ).call(patch_file)
+  end
+
+  def patch
+    @patch_files.each do |full_path|
+      next unless File.exist?(full_path)
+      apply_patch(full_path)
     end
   end
 
@@ -60,10 +95,10 @@ class MiniPortile
     return if configured?
 
     md5_file = File.join(tmp_path, 'configure.md5')
-    digest   = Digest::MD5.hexdigest(computed_options)
+    digest   = Digest::MD5.hexdigest(computed_options.to_s)
     File.open(md5_file, "w") { |f| f.write digest }
 
-    execute('configure', %Q(sh configure #{computed_options}))
+    execute('configure', %w(sh configure) + computed_options)
   end
 
   def compile
@@ -76,9 +111,8 @@ class MiniPortile
   end
 
   def downloaded?
-    missing = @files.detect do |url|
-      filename = File.basename(url)
-      !File.exist?(File.join(archives_path, filename))
+    missing = files_hashs.detect do |file|
+      !File.exist?(file[:local_path])
     end
 
     missing ? false : true
@@ -90,7 +124,7 @@ class MiniPortile
     md5_file  = File.join(tmp_path, 'configure.md5')
 
     stored_md5  = File.exist?(md5_file) ? File.read(md5_file) : ""
-    current_md5 = Digest::MD5.hexdigest(computed_options)
+    current_md5 = Digest::MD5.hexdigest(computed_options.to_s)
 
     (current_md5 == stored_md5) && newer?(makefile, configure)
   end
@@ -186,11 +220,46 @@ private
     [
       configure_options,     # customized or default options
       configure_prefix,      # installation target
-    ].flatten.join(' ')
+    ].flatten
+  end
+
+  def files_hashs
+    @files.map do |file|
+      hash = case file
+      when String
+        { :url => file }
+      when Hash
+        file.dup
+      else
+        raise ArgumentError, "files must be an Array of Stings or Hashs"
+      end
+
+      url = hash.fetch(:url){ raise ArgumentError, "no url given" }
+      filename = File.basename(url)
+      hash[:local_path] = File.join(archives_path, filename)
+      hash
+    end
+  end
+
+  def verify_file(file)
+    digest = case
+      when exp=file[:sha256] then Digest::SHA256
+      when exp=file[:sha1] then Digest::SHA1
+      when exp=file[:md5] then Digest::MD5
+    end
+    if digest
+      is = digest.file(file[:local_path]).hexdigest
+      unless is == exp.downcase
+        raise "Downloaded file '#{file[:local_path]}' has wrong hash: expected: #{exp} is: #{is}"
+      end
+    end
   end
 
   def log_file(action)
-    File.join(tmp_path, "#{action}.log")
+    @log_files[action] ||=
+      File.expand_path("#{action}.log", tmp_path).tap { |file|
+        File.unlink(file) if File.exist?(file)
+      }
   end
 
   def tar_exe
@@ -253,7 +322,10 @@ private
     FileUtils.mkdir_p target
 
     message "Extracting #{filename} into #{target}... "
-    result = `#{tar_exe} #{tar_compression_switch(filename)}xf "#{file}" -C "#{target}" 2>&1`
+    result = IO.popen([tar_exe,
+        "#{tar_compression_switch(filename)}xf", file,
+        "-C", target,
+        {:err=>[:child, :out]}], &:read)
     if $?.success?
       output "OK"
     else
@@ -263,19 +335,36 @@ private
     end
   end
 
-  def execute(action, command)
-    log        = log_file(action)
-    log_out    = File.expand_path(log)
-    redirected = command << " >#{log_out} 2>&1"
+  def execute(action, command, options={})
+    log_out    = log_file(action)
 
     Dir.chdir work_path do
-      message "Running '#{action}' for #{@name} #{@version}... "
-      system redirected
+      if options.fetch(:initial_message){ true }
+        message "Running '#{action}' for #{@name} #{@version}... "
+      end
+
+      if Process.respond_to?(:spawn) && ! RbConfig.respond_to?(:java)
+        args = [command].flatten + [{[:out, :err]=>[log_out, "a"]}]
+        pid = spawn(*args)
+        Process.wait(pid)
+      else
+        if command.kind_of?(Array)
+          system(*command)
+        else
+          redirected = %Q{#{command} > "#{log_out}" 2>&1}
+          system(redirected)
+        end
+      end
+
       if $?.success?
         output "OK"
         return true
       else
-        output "ERROR, review '#{log_out}' to see what happened."
+        output "ERROR, review '#{log_out}' to see what happened. Last lines are:"
+        output("=" * 72)
+        log_lines = File.readlines(log_out)
+        output(log_lines[-[log_lines.length, 20].min .. -1])
+        output("=" * 72)
         raise "Failed to complete #{action} task"
       end
     end
@@ -314,7 +403,7 @@ private
         download_file_http(url, full_path, count)
       end
     rescue Exception => e
-      File.unlink full_path if File.exists?(full_path)
+      File.unlink full_path if File.exist?(full_path)
       output "ERROR: #{e.message}"
       raise "Failed to complete download task"
     end
@@ -322,66 +411,41 @@ private
 
   def download_file_http(url, full_path, count = 3)
     filename = File.basename(full_path)
-    uri = URI.parse(url)
-
-    if ENV['http_proxy']
-      _, userinfo, p_host, p_port = URI.split(ENV['http_proxy'])
-      proxy_user, proxy_pass = userinfo.split(/:/) if userinfo
-      http = Net::HTTP.new(uri.host, uri.port, p_host, p_port, proxy_user, proxy_pass)
-    else
-      http = Net::HTTP.new(uri.host, uri.port)
-
-      if URI::HTTPS === uri
-        http.use_ssl = true
-        http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-
-        store = OpenSSL::X509::Store.new
-
-        # Auto-include system-provided certificates
-        store.set_default_paths
-
-        if ENV.has_key?("SSL_CERT_FILE") && File.exist?(ENV["SSL_CERT_FILE"])
-          store.add_file ENV["SSL_CERT_FILE"]
+    with_tempfile(filename, full_path) do |temp_file|
+      progress = 0
+      total = 0
+      params = {
+        "Accept-Encoding" => 'identity',
+        :content_length_proc => lambda{|length| total = length },
+        :progress_proc => lambda{|bytes|
+          new_progress = (bytes * 100) / total
+          message "\rDownloading %s (%3d%%) " % [filename, new_progress]
+          progress = new_progress
+        }
+      }
+      proxy_uri = URI.parse(url).scheme.downcase == 'https' ?
+                  ENV["https_proxy"] :
+                  ENV["http_proxy"]
+      if proxy_uri
+        _, userinfo, _p_host, _p_port = URI.split(proxy_uri)
+        if userinfo
+          proxy_user, proxy_pass = userinfo.split(/:/).map{|s| CGI.unescape(s) }
+          params[:proxy_http_basic_authentication] =
+            [proxy_uri, proxy_user, proxy_pass]
         end
-
-        http.cert_store = store
       end
-    end
-
-    message "Downloading #{filename} "
-    http.start do |h|
-      h.request_get(uri.path, 'Accept-Encoding' => 'identity') do |response|
-        case response
-        when Net::HTTPNotFound
-          output "404 - Not Found"
-          return false
-
-        when Net::HTTPClientError
-          output "Error: Client Error: #{response.inspect}"
-          return false
-
-        when Net::HTTPRedirection
-          raise "Too many redirections for the original URL, halting." if count <= 0
-          url = response["location"]
-          return download_file(url, full_path, count - 1)
-
-        when Net::HTTPOK
-          return with_tempfile(filename, full_path) do |temp_file|
-            size = 0
-            progress = 0
-            total = response.header["Content-Length"].to_i
-            response.read_body do |chunk|
-              temp_file << chunk
-              size += chunk.size
-              new_progress = (size * 100) / total
-              unless new_progress == progress
-                message "\rDownloading %s (%3d%%) " % [filename, new_progress]
-              end
-              progress = new_progress
-            end
-            output
-          end
+      begin
+        OpenURI.open_uri(url, 'rb', params) do |io|
+          temp_file << io.read
         end
+        output
+      rescue OpenURI::HTTPRedirect => redirect
+        raise "Too many redirections for the original URL, halting." if count <= 0
+        count = count - 1
+        return download_file(redirect.url, full_path, count - 1)
+      rescue => e
+        output e.message
+        return false
       end
     end
   end
@@ -389,30 +453,31 @@ private
   def download_file_ftp(uri, full_path)
     filename = File.basename(uri.path)
     with_tempfile(filename, full_path) do |temp_file|
-      size = 0
       progress = 0
-      Net::FTP.open(uri.host, uri.user, uri.password) do |ftp|
-        ftp.passive = true
-        ftp.login
-        remote_dir = File.dirname(uri.path)
-        ftp.chdir(remote_dir) unless remote_dir == '.'
-        total = ftp.size(filename)
-        ftp.getbinaryfile(filename, temp_file.path, 8192) do |chunk|
-          # Ruby 1.8.7 already wrote the chunk into the file
-          unless RUBY_VERSION < "1.9"
-            temp_file << chunk
-          end
-
-          size += chunk.size
-          new_progress = (size * 100) / total
-          unless new_progress == progress
-            message "\rDownloading %s (%3d%%) " % [filename, new_progress]
-          end
+      total = 0
+      params = {
+        :content_length_proc => lambda{|length| total = length },
+        :progress_proc => lambda{|bytes|
+          new_progress = (bytes * 100) / total
+          message "\rDownloading %s (%3d%%) " % [filename, new_progress]
           progress = new_progress
+        }
+      }
+      if ENV["ftp_proxy"]
+        _, userinfo, _p_host, _p_port = URI.split(ENV['ftp_proxy'])
+        if userinfo
+          proxy_user, proxy_pass = userinfo.split(/:/).map{|s| CGI.unescape(s) }
+          params[:proxy_http_basic_authentication] =
+            [ENV['ftp_proxy'], proxy_user, proxy_pass]
         end
+      end
+      OpenURI.open_uri(uri, 'rb', params) do |io|
+        temp_file << io.read
       end
       output
     end
+  rescue Net::FTPError
+    return false
   end
 
   def with_tempfile(filename, full_path)
@@ -420,7 +485,7 @@ private
     temp_file.binmode
     yield temp_file
     temp_file.close
-    File.unlink full_path if File.exists?(full_path)
+    File.unlink full_path if File.exist?(full_path)
     FileUtils.mkdir_p File.dirname(full_path)
     FileUtils.mv temp_file.path, full_path, :force => true
   end

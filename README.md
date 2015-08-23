@@ -124,7 +124,10 @@ Example:
 ```ruby
 task :libiconv do
   recipe = MiniPortile.new("libiconv", "1.13.1")
-  recipe.files = ["http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.13.1.tar.gz"]
+  recipe.files << {
+    url: "http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.13.1.tar.gz"],
+    md5: "7ab33ebd26687c744a37264a330bbe9a"
+  }
   checkpoint = ".#{recipe.name}-#{recipe.version}.installed"
 
   unless File.exist?(checkpoint)
@@ -142,6 +145,7 @@ end
 
 The above example will:
 
+* **download** and verify integrity the sources only once
 * **compile** the library only once (using a timestamp file)
 * ensure compiled library is **activated**
 * make the compile task depend upon compiled library activation
