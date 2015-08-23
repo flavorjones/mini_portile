@@ -17,7 +17,7 @@ recipes.push sqlite3
 
 # c-ares
 c_ares = MiniPortile.new "c-ares", "1.7.5"
-c_ares.files << "https://distfiles.openknapsack.org/#{c_ares.name}/#{c_ares.name}-#{c_ares.version}.tar.gz"
+c_ares.files << "http://distfiles.openknapsack.org/#{c_ares.name}/#{c_ares.name}-#{c_ares.version}.tar.gz"
 
 recipes.push c_ares
 
