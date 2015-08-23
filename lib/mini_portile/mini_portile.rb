@@ -7,6 +7,7 @@ require 'tempfile'
 require 'digest/md5'
 require 'open-uri'
 require 'cgi'
+require 'rbconfig'
 
 # Monkey patch for Net::HTTP by ruby open-uri fix:
 # https://github.com/ruby/ruby/commit/58835a9
@@ -346,7 +347,7 @@ private
         message "Running '#{action}' for #{@name} #{@version}... "
       end
 
-      if Process.respond_to?(:spawn)
+      if Process.respond_to?(:spawn) && ! RbConfig.respond_to?(:java)
         args = [command].flatten + [{[:out, :err]=>[log_out, "a"]}]
         pid = spawn(*args)
         Process.wait(pid)
@@ -355,7 +356,7 @@ private
         if command.kind_of?(Array)
           system(*command)
         else
-          redirected = "#{command} >#{log_out} 2>&1"
+          redirected = %Q{#{command} > "#{log_out}" 2>&1}
           system(redirected)
         end
       end
