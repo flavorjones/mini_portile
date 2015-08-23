@@ -7,4 +7,8 @@ task :test do
   end
 end
 
+task :clean do
+  FileUtils.rm_rf ["examples/ports", "examples/tmp"], :verbose => true
+end
+
 task :default => [:test]
