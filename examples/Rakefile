@@ -5,6 +5,7 @@ recipes = []
 # libiconv
 libiconv = MiniPortile.new "libiconv", "1.14"
 libiconv.files << "ftp://ftp.gnu.org/pub/gnu/#{libiconv.name}/#{libiconv.name}-#{libiconv.version}.tar.gz"
+libiconv.patch_files = Dir["libiconv-patches/*.patch"].map { |dir| File.expand_path dir }
 
 recipes.push libiconv
 
