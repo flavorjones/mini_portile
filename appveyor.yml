@@ -11,6 +11,8 @@ install:
   - ruby --version
   - gem --version
   - bundle install
+build:
+  verbosity: detailed
 test_script:
   - bundle exec rake -rdevkit test
 
