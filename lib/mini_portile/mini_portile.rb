@@ -322,23 +322,13 @@ private
     FileUtils.mkdir_p target
 
     message "Extracting #{filename} into #{target}... "
-    result = IO.popen([tar_exe,
-        "#{tar_compression_switch(filename)}xf", file,
-        "-C", target,
-        {:err=>[:child, :out]}], &:read)
-    if $?.success?
-      output "OK"
-    else
-      output "ERROR"
-      output result
-      raise "Failed to complete extract task"
-    end
+    execute('extract', [tar_exe, "#{tar_compression_switch(filename)}xf", file, "-C", target], {:cd => Dir.pwd})
   end
 
   def execute(action, command, options={})
     log_out    = log_file(action)
 
-    Dir.chdir work_path do
+    Dir.chdir (options.fetch(:cd){ work_path }) do
       if options.fetch(:initial_message){ true }
         message "Running '#{action}' for #{@name} #{@version}... "
       end
