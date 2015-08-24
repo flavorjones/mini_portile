@@ -1,5 +1,9 @@
 ---
-version: "{build}"
+#
+# see http://www.appveyor.com/docs/appveyor-yml for documentation
+#
+version: "{branch}-{build}"
+shallow_clone: true
 clone_depth: 10
 install:
   - ps: ((New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/bagder/ca-bundle/master/ca-bundle.crt', "$env:TMP\ca-bundle.crt"))
@@ -8,7 +12,6 @@ install:
   - ruby --version
   - gem --version
   - bundle install
-build: off
 test_script:
   - bundle exec rake -rdevkit test
 
