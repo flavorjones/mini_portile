@@ -1,4 +1,5 @@
 require "rake/clean"
+require 'bundler/gem_tasks'
 
 namespace :test do
   desc "Test MiniPortile by running unit tests"
