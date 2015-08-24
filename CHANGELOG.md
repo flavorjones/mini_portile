@@ -1,20 +1,23 @@
-### 0.7.0 / unreleased
+### 0.7.0.rc1 / 2015-08-24
+
+Many thanks to @larskanis, @knu, and @kirikak2, who all contributed
+code, ideas, or both to this release.
 
 #### Enhancements
 
-  * In patch task, use git(1) or patch(1), whichever is available.
-  * Append outputs to patch.log instead of clobbering it for every patch command.
-  * Take `configure_options` literally without running a subshell.
-    This changes allows for embedded spaces in a path, among other things.
-    Please unescape `configure_options` where you have been doing it yourself.
-  * Print last 20 lines of the given log file, for convenience.
-  * Allow SHA1, SHA256 and MD5 hash verification of downloads
+* In patch task, use git(1) or patch(1), whichever is available.
+* Append outputs to patch.log instead of clobbering it for every patch command.
+* Take `configure_options` literally without running a subshell.
+  This changes allows for embedded spaces in a path, among other things.
+  Please unescape `configure_options` where you have been doing it yourself.
+* Print last 20 lines of the given log file, for convenience.
+* Allow SHA1, SHA256 and MD5 hash verification of downloads
 
 
 #### Bugfixes
 
-  * Fix issue when proxy username/password use escaped characters.
-  * Fix use of https and ftp proxy.
+* Fix issue when proxy username/password use escaped characters.
+* Fix use of https and ftp proxy.
 
 
 ### 0.6.2 / 2014-12-30
