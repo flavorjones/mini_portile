@@ -322,7 +322,7 @@ private
     FileUtils.mkdir_p target
 
     message "Extracting #{filename} into #{target}... "
-    execute('extract', [tar_exe, "#{tar_compression_switch(filename)}xf", file, "-C", target], {:cd => Dir.pwd})
+    execute('extract', [tar_exe, "#{tar_compression_switch(filename)}xf", file, "-C", target], {:cd => Dir.pwd, :initial_message => false})
   end
 
   def execute(action, command, options={})
