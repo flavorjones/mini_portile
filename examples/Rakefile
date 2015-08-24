@@ -1,12 +1,20 @@
+require 'rbconfig'
+
 $: << File.expand_path(File.join(File.dirname(__FILE__), "../lib"))
 require "mini_portile"
 
 recipes = []
 
+def windows?
+  RbConfig::CONFIG['target_os'] =~ /mswin|mingw32/
+end
+
 # libiconv
 libiconv = MiniPortile.new "libiconv", "1.14"
 libiconv.files << "ftp://ftp.gnu.org/pub/gnu/#{libiconv.name}/#{libiconv.name}-#{libiconv.version}.tar.gz"
-libiconv.patch_files = Dir["libiconv-patches/*.patch"].map { |dir| File.expand_path dir }
+unless windows?
+  libiconv.patch_files = Dir["libiconv-patches/*.patch"].map { |dir| File.expand_path dir }
+end
 
 recipes.push libiconv
 
