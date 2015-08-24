@@ -2,8 +2,7 @@
 #
 # see http://www.appveyor.com/docs/appveyor-yml for documentation
 #
-version: "{branch}-{build}"
-shallow_clone: true
+version: "{build}"
 clone_depth: 10
 install:
   - ps: ((New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/bagder/ca-bundle/master/ca-bundle.crt', "$env:TMP\ca-bundle.crt"))
