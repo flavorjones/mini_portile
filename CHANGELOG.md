@@ -1,3 +1,14 @@
+### 0.7.0.rc3 / 2015-08-24
+
+* Restore backwards-compatible behavior with respect to escaped strings.
+
+
+### 0.7.0.rc2 / 2015-08-24
+
+* Restore support for Ruby 1.9.2
+* Add Ruby 2.0.0 and Ruby 2.1.x to Appveyor suite
+
+
 ### 0.7.0.rc1 / 2015-08-24
 
 Many thanks to @larskanis, @knu, and @kirikak2, who all contributed
