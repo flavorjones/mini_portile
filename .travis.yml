@@ -8,8 +8,4 @@ rvm:
   - 2.2
   - ruby-head
   - jruby-1.7.22
-  - jruby-9.0.0.0
-
-matrix:
-  allow_failures:
-    - rvm: jruby-9.0.0.0
+  - jruby-9.0.1.0
