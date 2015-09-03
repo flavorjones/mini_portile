@@ -10,7 +10,7 @@ class TestUnescapingCommands < TestCase
 
   def echo_helper recipe, string
     FileUtils.mkdir_p File.join(recipe.send(:tmp_path), "workdir")
-    recipe.send :execute, "echo", ["echo", "-en", string]
+    recipe.send :execute, "echo", ["/usr/bin/env", "echo", "-en", string]
     File.read Dir.glob("tmp/**/echo.log").first
   end
 

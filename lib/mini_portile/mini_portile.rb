@@ -8,6 +8,7 @@ require 'digest/md5'
 require 'open-uri'
 require 'cgi'
 require 'rbconfig'
+require 'shellwords'
 
 # Monkey patch for Net::HTTP by ruby open-uri fix:
 # https://github.com/ruby/ruby/commit/58835a9
@@ -342,12 +343,12 @@ private
         pid = spawn(*args)
         Process.wait(pid)
       else
-        if command.kind_of?(Array)
-          system(*command)
-        else
-          redirected = %Q{#{command} > "#{log_out}" 2>&1}
-          system(redirected)
-        end
+        redirected = if command.kind_of?(Array)
+                       %Q{#{command.map(&:shellescape).join(" ")} > #{log_out.shellescape} 2>&1}
+                     else
+                       %Q{#{command} > #{log_out.shellescape} 2>&1}
+                     end
+        system redirected
       end
 
       if $?.success?
@@ -497,8 +498,8 @@ private
   end
 
   def unescape_options_from command
-    return command unless unescape_commands
-    [command].flatten.map do |opt|
+    return command unless unescape_commands && command.kind_of?(Array)
+    command.map do |opt|
       if opt =~ /\\/
         warn "NOTICE: MiniPortile: escaping shell characters is not necessary in MiniPortile 0.7.0+ (\"#{opt}\"). Set the `:unescape_commands` option to false if you actually want to preserve escapes."
         opt.gsub!(/\\/, "")
