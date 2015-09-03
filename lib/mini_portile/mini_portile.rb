@@ -28,11 +28,11 @@ class Net::HTTP
 end
 
 class MiniPortile
-  attr_reader :name, :version, :original_host
+  attr_reader :name, :version, :original_host, :unescape_commands
   attr_writer :configure_options
   attr_accessor :host, :files, :patch_files, :target, :logger
 
-  def initialize(name, version)
+  def initialize(name, version, options={})
     @name = name
     @version = version
     @target = 'ports'
@@ -42,6 +42,8 @@ class MiniPortile
     @logger = STDOUT
 
     @original_host = @host = detect_host
+
+    @unescape_commands = options.fetch(:unescape_commands) { true }
   end
 
   def download
@@ -333,6 +335,8 @@ private
         message "Running '#{action}' for #{@name} #{@version}... "
       end
 
+      command = unescape_options_from command
+
       if Process.respond_to?(:spawn) && ! RbConfig.respond_to?(:java)
         args = [command].flatten + [{[:out, :err]=>[log_out, "a"]}]
         pid = spawn(*args)
@@ -490,5 +494,17 @@ private
   def make_cmd
     m = ENV['MAKE'] || ENV['make'] || 'make'
     return m.dup
+  end
+
+  def unescape_options_from command
+    return command unless unescape_commands
+    [command].flatten.map do |opt|
+      if opt =~ /\\/
+        warn "NOTICE: MiniPortile: escaping shell characters is not necessary in MiniPortile 0.7.0+ (\"#{opt}\"). Set the `:unescape_commands` option to false if you actually want to preserve escapes."
+        opt.gsub!(/\\/, "")
+      else
+        opt
+      end
+    end
   end
 end
