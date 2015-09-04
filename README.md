@@ -56,7 +56,7 @@ quick example:
 
 ```ruby
 gem "mini_portile", "~>0.7.0"   # if used in extconf.rb
-require "mini_portile"
+require "mini_portile2"
 recipe = MiniPortile.new("libiconv", "1.13.1")
 recipe.files = ["http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.13.1.tar.gz"]
 recipe.cook

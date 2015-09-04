@@ -1,6 +1,6 @@
 require File.expand_path('../helper', __FILE__)
 require 'fileutils'
-require 'mini_portile'
+require 'mini_portile2'
 require 'erb'
 
 class TestDigest < TestCase
