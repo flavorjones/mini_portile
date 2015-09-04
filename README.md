@@ -55,6 +55,7 @@ Now that you know the catch, and you're still reading this, here is a
 quick example:
 
 ```ruby
+gem "mini_portile", "~>0.7.0"   # if used in extconf.rb
 require "mini_portile"
 recipe = MiniPortile.new("libiconv", "1.13.1")
 recipe.files = ["http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.13.1.tar.gz"]
@@ -62,7 +63,9 @@ recipe.cook
 recipe.activate
 ```
 
-That's all. `#cook` will download, extract, patch, configure and
+That's all. The gem version constraint makes sure that your extconf.rb
+is future-proof to possible incompatible changes of MiniPortile.
+`#cook` will download, extract, patch, configure and
 compile the library into a namespaced structure. `#activate` ensures
 GCC will find this library and prefer it over a system-wide
 installation.
