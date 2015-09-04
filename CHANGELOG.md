@@ -1,3 +1,8 @@
+### 0.7.0.rc4 / 2015-08-24
+
+* Updated tests for Windows. No functional change. Final release candidate?
+
+
 ### 0.7.0.rc3 / 2015-08-24
 
 * Restore backwards-compatible behavior with respect to escaped strings.
