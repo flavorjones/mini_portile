@@ -63,12 +63,19 @@ recipe.cook
 recipe.activate
 ```
 
-That's all. The gem version constraint makes sure that your extconf.rb
+That's all. The gem version constraint makes sure that your `extconf.rb`
 is future-proof to possible incompatible changes of MiniPortile.
 `#cook` will download, extract, patch, configure and
 compile the library into a namespaced structure. `#activate` ensures
 GCC will find this library and prefer it over a system-wide
 installation.
+
+**Note:** The non-standard require name `mini_portile2` is intensional. It
+it used since MiniPortile-0.7.0 to make sure, that this README is read
+before the gem is used in an `extconf.rb` file and in a result, that a gem
+version constraint is placed before the require statement. Please also make
+sure, that your gemspec meets the same version requirement which is used in
+`extconf.rb`.
 
 
 ### Directory Structure Conventions
