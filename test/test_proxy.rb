@@ -4,7 +4,7 @@ require File.expand_path('../helper', __FILE__)
 require 'fileutils'
 require 'socket'
 require 'erb'
-require 'mini_portile'
+require 'mini_portile2'
 
 class TestProxy < TestCase
   def with_dummy_proxy(username=nil, password=nil)
@@ -28,7 +28,7 @@ class TestProxy < TestCase
     else
       yield "http://localhost:#{gs.addr[1]}"
     end
-    
+
     # Set timeout for reception of the request
     Thread.new do
       sleep 1
