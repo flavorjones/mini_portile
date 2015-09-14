@@ -1,10 +1,10 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'mini_portile/version'
+require 'mini_portile2/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "mini_portile"
+  spec.name          = "mini_portile2"
   spec.version       = MiniPortile::VERSION
 
   spec.authors       = ['Luis Lavena', 'Mike Dalessio']

@@ -3,6 +3,9 @@ require 'webrick'
 require 'fileutils'
 require 'zlib'
 require 'archive/tar/minitar'
+require 'fileutils'
+require 'erb'
+require 'mini_portile2'
 
 class TestCase < Test::Unit::TestCase
   class << self

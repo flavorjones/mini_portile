@@ -15,7 +15,7 @@ Because _"Works on my machine"_ is unacceptable for a library maintainer.
 
 ## Not Another Package Management System
 
-`mini_portile` is not a general package management system. It is not
+`mini_portile2` is not a general package management system. It is not
 aimed to replace apt, macports or homebrew.
 
 It's intended primarily to make sure that you, as the developer of a
@@ -24,7 +24,7 @@ specifying a specific version of an underlying dependency that you'd
 like to use.
 
 So, if a user says, "This bug happens on my system that uses libiconv
-1.13.1", `mini_portile` should make it easy for you to download,
+1.13.1", `mini_portile2` should make it easy for you to download,
 compile and link against libiconv 1.13.1; and run your test suite
 against it.
 
@@ -55,8 +55,8 @@ Now that you know the catch, and you're still reading this, here is a
 quick example:
 
 ```ruby
-gem "mini_portile", "~>0.7.0"   # if used in extconf.rb
-require "mini_portile"
+gem "mini_portile2", "~> 2.0.0" # if used in extconf.rb
+require "mini_portile2"
 recipe = MiniPortile.new("libiconv", "1.13.1")
 recipe.files = ["http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.13.1.tar.gz"]
 recipe.cook

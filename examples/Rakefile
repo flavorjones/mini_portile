@@ -1,7 +1,7 @@
 require 'rbconfig'
 
 $: << File.expand_path(File.join(File.dirname(__FILE__), "../lib"))
-require "mini_portile"
+require "mini_portile2"
 
 recipes = []
 

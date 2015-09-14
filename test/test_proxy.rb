@@ -1,10 +1,7 @@
 # Encoding: utf-8
 
 require File.expand_path('../helper', __FILE__)
-require 'fileutils'
 require 'socket'
-require 'erb'
-require 'mini_portile'
 
 class TestProxy < TestCase
   def with_dummy_proxy(username=nil, password=nil)
