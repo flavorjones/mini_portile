@@ -252,15 +252,31 @@ private
   end
 
   def verify_file(file)
-    digest = case
-      when exp=file[:sha256] then Digest::SHA256
-      when exp=file[:sha1] then Digest::SHA1
-      when exp=file[:md5] then Digest::MD5
-    end
-    if digest
-      is = digest.file(file[:local_path]).hexdigest
-      unless is == exp.downcase
-        raise "Downloaded file '#{file[:local_path]}' has wrong hash: expected: #{exp} is: #{is}"
+    if file.has_key?(:gpg)
+      gpg = file[:gpg]
+
+      sig_file = Tempfile.new('signature')
+      sig_file.write(file[:gpg][:signature])
+      sig_file.close
+
+      raise "key download failed" unless system("gpg --keyserver pgpkeys.mit.edu --recv-key #{gpg[:key]} 2>&1")
+
+      fingerprint     = `gpg --status-fd 1 --fingerprint #{gpg[:key]} 2>&1`
+      key_fingerprint = fingerprint.match(/Key fingerprint = (.*)$/)[1].gsub(/[^A-Z0-9]/, '')
+
+      gpg_status      = `gpg --status-fd 1 --verify #{sig_file.path} #{file[:local_path]} 2>&1`
+      raise "signature mismatch" unless gpg_status.match(/^\[GNUPG:\] VALIDSIG #{key_fingerprint}/)
+    else
+      digest = case
+        when exp=file[:sha256] then Digest::SHA256
+        when exp=file[:sha1] then Digest::SHA1
+        when exp=file[:md5] then Digest::MD5
+      end
+      if digest
+        is = digest.file(file[:local_path]).hexdigest
+        unless is == exp.downcase
+          raise "Downloaded file '#{file[:local_path]}' has wrong hash: expected: #{exp} is: #{is}"
+        end
       end
     end
   end
