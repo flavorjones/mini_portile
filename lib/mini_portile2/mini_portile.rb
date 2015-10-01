@@ -434,6 +434,7 @@ private
             [proxy_uri, proxy_user, proxy_pass]
         end
       end
+      retries = 0
       begin
         OpenURI.open_uri(url, 'rb', params) do |io|
           temp_file << io.read
@@ -444,6 +445,9 @@ private
         count = count - 1
         return download_file(redirect.url, full_path, count - 1)
       rescue => e
+        retries = retries + 1
+        (sleep(0.5 * (2 ** retries)); puts "Retry ##{retries} for #{filename}"; retry) if retries <= 3
+
         output e.message
         return false
       end
