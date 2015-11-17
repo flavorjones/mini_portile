@@ -8,6 +8,9 @@ instead became 2.0.0 due to backwards-incompatible behavioral changes
 which can appear because rubygems doesn't enforce loading the declared
 dependency version at installation-time (only run-time).
 
+If you use MiniPortile in an `extconf.rb` file, please make sure you're
+setting a gem version constraint before `require "mini_portile2"` .
+
 Note also that 2.0.0 doesn't include the backwards-compatible "escaped
 string" behavior from 0.7.0.rc3.
 
