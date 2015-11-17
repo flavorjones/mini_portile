@@ -1,4 +1,4 @@
-### 2.0.0.rc1 / unreleased
+### 2.0.0.rc1 / 2015-11-17
 
 Many thanks to @larskanis, @knu, and @kirikak2, who all contributed
 code, ideas, or both to this release.
