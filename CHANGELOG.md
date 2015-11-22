@@ -1,3 +1,37 @@
+### 2.0.0.rc1 / 2015-11-17
+
+Many thanks to @larskanis, @knu, and @kirikak2, who all contributed
+code, ideas, or both to this release.
+
+Note that the 0.7.0.rc* series was not released as 0.7.0 final, and
+instead became 2.0.0 due to backwards-incompatible behavioral changes
+which can appear because rubygems doesn't enforce loading the declared
+dependency version at installation-time (only run-time).
+
+If you use MiniPortile in an `extconf.rb` file, please make sure you're
+setting a gem version constraint before `require "mini_portile2"` .
+
+Note also that 2.0.0 doesn't include the backwards-compatible "escaped
+string" behavior from 0.7.0.rc3.
+
+
+#### Enhancements
+
+* In patch task, use git(1) or patch(1), whichever is available.
+* Append outputs to patch.log instead of clobbering it for every patch command.
+* Take `configure_options` literally without running a subshell.
+  This changes allows for embedded spaces in a path, among other things.
+  Please unescape `configure_options` where you have been doing it yourself.
+* Print last 20 lines of the given log file, for convenience.
+* Allow SHA1, SHA256 and MD5 hash verification of downloads
+
+
+#### Bugfixes
+
+* Fix issue when proxy username/password use escaped characters.
+* Fix use of https and ftp proxy.
+
+
 ### 0.7.0.rc4 / 2015-08-24
 
 * Updated tests for Windows. No functional change. Final release candidate?

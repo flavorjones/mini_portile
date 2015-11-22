@@ -1,7 +1,4 @@
 require File.expand_path('../helper', __FILE__)
-require 'fileutils'
-require 'mini_portile'
-require 'erb'
 
 class TestCook < TestCase
   class << self
