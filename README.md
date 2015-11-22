@@ -1,5 +1,10 @@
 # MiniPortile
 
+This documents versions 2 and up, for which the require file was
+renamed to `mini_portile2`. For mini_portile versions 0.6.x and
+previous, please visit
+[the v0.6.x branch](https://github.com/flavorjones/mini_portile/tree/v0.6.x).
+
 [![travis status](https://travis-ci.org/flavorjones/mini_portile.svg?branch=master)](https://travis-ci.org/flavorjones/mini_portile?branch=master)
 [![appveyor status](https://ci.appveyor.com/api/projects/status/509669xx1qlhqqab/branch/master?svg=true)](https://ci.appveyor.com/project/flavorjones/mini-portile/branch/master)
 
@@ -41,9 +46,9 @@ appropriate `ENV` variables.)
 
 ## Sounds easy, but where's the catch?
 
-You got me, there is a catch. At this time (and highly likely will be
-always) `MiniPortile` is only compatible with **GCC compilers** and
-**autoconf**- or **configure**-based projects.
+At this time (and highly likely will be always) `mini_portile2` is
+only compatible with **GCC compilers** and **autoconf**- or
+**configure**-based projects.
 
 That is, it assumes the library you want to build contains a
 `configure` script, which all the autoconf-based libraries do.
@@ -65,7 +70,7 @@ recipe.activate
 
 The gem version constraint makes sure that your extconf.rb is
 protected against possible backwards-incompatible changes to
-MiniPortile. This constraint is REQUIRED if you're using
+`mini_portile2`. This constraint is REQUIRED if you're using
 `mini_portile2` within a gem installation process (e.g., extconf.rb),
 because Bundler doesn't enforce gem version constraints at
 install-time (only at run-time.
@@ -79,7 +84,7 @@ system-wide installation.
 
 ### Directory Structure Conventions
 
-`MiniPortile` follows the principle of **convention over configuration** and
+`mini_portile2` follows the principle of **convention over configuration** and
 established a folder structure where is going to place files and perform work.
 
 Take the above example, and let's draw some picture:
@@ -104,7 +109,7 @@ In above structure, `<platform>` refers to the architecture that
 represents the operating system you're using (e.g. i686-linux,
 i386-mingw32, etc).
 
-Inside the platform folder, `MiniPortile` will store the artifacts
+Inside the platform folder, `mini_portile2` will store the artifacts
 that result from the compilation process. The library is versioned so
 you can keep multiple versions around on disk without clobbering
 anything.
@@ -126,7 +131,7 @@ recipe.path # => /home/luis/projects/myapp/ports/i686-linux/libiconv/1.13.1
 ### How can I combine this with my compilation task?
 
 In the simplest case, your rake `compile` task will depend on
-`MiniPortile` compilation and most important, activation.
+`mini_portile2` compilation and most important, activation.
 
 Example:
 
