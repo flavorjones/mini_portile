@@ -99,7 +99,12 @@ class MiniPortile
     digest   = Digest::MD5.hexdigest(computed_options.to_s)
     File.open(md5_file, "w") { |f| f.write digest }
 
-    execute('configure', %w(sh configure) + computed_options)
+    if RUBY_PLATFORM=~/mingw|mswin/
+      # Windows doesn't recognize the shebang.
+      execute('configure', %w(sh ./configure) + computed_options)
+    else
+      execute('configure', %w(./configure) + computed_options)
+    end
   end
 
   def compile
