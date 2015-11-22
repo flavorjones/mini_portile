@@ -55,7 +55,7 @@ Now that you know the catch, and you're still reading this, here is a
 quick example:
 
 ```ruby
-gem "mini_portile2", "~> 2.0.0" # if used in extconf.rb
+gem "mini_portile2", "~> 2.0.0" # NECESSARY if used in extconf.rb. see below.
 require "mini_portile2"
 recipe = MiniPortile.new("libiconv", "1.13.1")
 recipe.files = ["http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.13.1.tar.gz"]
@@ -63,12 +63,18 @@ recipe.cook
 recipe.activate
 ```
 
-That's all. The gem version constraint makes sure that your extconf.rb
-is future-proof to possible incompatible changes of MiniPortile.
-`#cook` will download, extract, patch, configure and
-compile the library into a namespaced structure. `#activate` ensures
-GCC will find this library and prefer it over a system-wide
-installation.
+The gem version constraint makes sure that your extconf.rb is
+protected against possible backwards-incompatible changes to
+MiniPortile. This constraint is REQUIRED if you're using
+`mini_portile2` within a gem installation process (e.g., extconf.rb),
+because Bundler doesn't enforce gem version constraints at
+install-time (only at run-time.
+
+`#cook` will download, extract, patch, configure and compile the
+library into a namespaced structure.
+
+`#activate` ensures GCC will find this library and prefer it over a
+system-wide installation.
 
 
 ### Directory Structure Conventions
