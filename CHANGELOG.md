@@ -1,6 +1,4 @@
-### 2.0.0.rc2 / 2015-11-22
-
-(Please note that 2.0.0.rc2 was not released.)
+### 2.0.0 / 2015-11-30
 
 Many thanks to @larskanis, @knu, and @kirikak2, who all contributed
 code, ideas, or both to this release.
