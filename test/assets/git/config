@@ -1,0 +1,2 @@
+[core]
+  whitespace=fix,tab-in-indent,-indent-with-non-tab

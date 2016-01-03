@@ -6,6 +6,14 @@ class TestCook < TestCase
     attr_accessor :tar_path
     attr_accessor :recipe
 
+    def with_custom_git_dir(dir)
+      old = ENV['GIT_DIR']
+      ENV['GIT_DIR'] = dir
+      yield
+    ensure
+      ENV['GIT_DIR'] = old
+    end
+
     def startup
       @assets_path = File.expand_path("../assets", __FILE__)
       @tar_path = File.expand_path("../../tmp/test mini portile-1.0.0.tar.gz", __FILE__)
@@ -20,7 +28,10 @@ class TestCook < TestCase
         recipe.files << "http://localhost:#{HTTP_PORT}/#{ERB::Util.url_encode(File.basename(@tar_path))}"
         recipe.patch_files << File.join(@assets_path, "patch 1.diff")
         recipe.configure_options << "--option=\"path with 'space'\""
-        recipe.cook
+        git_dir = File.join(@assets_path, "git")
+        with_custom_git_dir(git_dir) do
+          recipe.cook
+        end
       end
     end
 
@@ -44,7 +55,7 @@ class TestCook < TestCase
   def test_patch
     patch1 = File.join(self.class.work_dir, "patch 1.txt")
     assert File.exist?(patch1), patch1
-    assert_match( /^change 1/, IO.read(patch1) )
+    assert_match( /^\tchange 1/, IO.read(patch1) )
   end
 
   def test_configure
