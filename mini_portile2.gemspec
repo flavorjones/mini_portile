@@ -17,6 +17,12 @@ Gem::Specification.new do |spec|
   spec.licenses      = ['MIT']
 
   spec.files         = `git ls-files -z`.split("\x0")
+
+  # omit the `examples` directory from the gem, because it's large and
+  # not necessary to be packaged in the gem.
+  example_files      = spec.files.grep(%r{^examples/})
+  spec.files -= example_files
+
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features|examples)/})
   spec.require_paths = ["lib"]
