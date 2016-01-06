@@ -393,18 +393,20 @@ private
   def download_file(url, full_path, count = 3)
     return if File.exist?(full_path)
     uri = URI.parse(url)
-    begin
-      case uri.scheme.downcase
-      when /ftp/
-        download_file_ftp(uri, full_path)
-      when /http|https/
-        download_file_http(url, full_path, count)
-      end
-    rescue Exception => e
-      File.unlink full_path if File.exist?(full_path)
-      output "ERROR: #{e.message}"
-      raise "Failed to complete download task"
+
+    case uri.scheme.downcase
+    when /ftp/
+      download_file_ftp(uri, full_path)
+    when /http|https/
+      download_file_http(url, full_path, count)
+    when /file/
+      download_file_file(uri, full_path)
+    else
+      raise ArgumentError.new("Unsupported protocol for #{url}")
     end
+  rescue Exception => e
+    File.unlink full_path if File.exist?(full_path)
+    raise e
   end
 
   def download_file_http(url, full_path, count = 3)
@@ -446,6 +448,11 @@ private
         return false
       end
     end
+  end
+
+  def download_file_file(uri, full_path)
+    FileUtils.mkdir_p File.dirname(full_path)
+    FileUtils.cp uri.path, full_path
   end
 
   def download_file_ftp(uri, full_path)
