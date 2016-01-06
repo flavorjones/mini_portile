@@ -1,3 +1,16 @@
+### 2.1.0 / 2016-01-06
+
+#### Enhancements
+
+* Add support for `file:` protocol for tarballs
+
+
+#### Bugfixes
+
+* Raise exception on unsupported URI protocols
+* Ignore git whitespace config when patching (Thanks, @e2!) (#67)
+
+
 ### 2.0.0 / 2015-11-30
 
 Many thanks to @larskanis, @knu, and @kirikak2, who all contributed
