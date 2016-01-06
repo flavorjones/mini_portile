@@ -27,7 +27,7 @@ recipes.push sqlite3
 # c-ares
 c_ares = MiniPortile.new "c-ares", "1.7.5"
 c_ares.files << {
-  url: "file:///#{File.dirname(__FILE__)}/c-ares-1.7.5.tar.gz",
+  url: "file://#{File.dirname(__FILE__)}/c-ares-1.7.5.tar.gz",
   md5: "800875fc23cd8e1924d8af9172ed33e7"
 }
 
@@ -88,7 +88,7 @@ end
 zlib = ZlibRecipe.new "zlib", "1.2.8"
 zlib.files << {
   # url: "http://zlib.net/#{zlib.name}-#{zlib.version}.tar.gz",
-  url: "file:///#{File.dirname(__FILE__)}/#{zlib.name}-#{zlib.version}.tar.gz",
+  url: "file://#{File.dirname(__FILE__)}/#{zlib.name}-#{zlib.version}.tar.gz",
   md5: "44d667c142d7cda120332623eab69f40",
 }
 
