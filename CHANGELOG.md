@@ -2,6 +2,8 @@
 
 #### Enhancements
 
+* Add experimental support for cmake-based projects
+
 
 ### 2.1.0 / 2016-01-06
 

@@ -46,15 +46,17 @@ appropriate `ENV` variables.)
 
 ## Sounds easy, but where's the catch?
 
-At this time (and highly likely will be always) `mini_portile2` is
-only compatible with **GCC compilers** and **autoconf**- or
-**configure**-based projects.
+At this time `mini_portile2` only supports **autoconf**- or
+**configure**-based projects. (That is, it assumes the library you
+want to build contains a `configure` script, which all the
+autoconf-based libraries do.)
 
-That is, it assumes the library you want to build contains a
-`configure` script, which all the autoconf-based libraries do.
+As of v2.2.0, there is experimental support for **CMake**-based
+projects. We welcome your feedback on this, particularly for Windows
+platforms.
 
 
-### How to use
+### How to use (for autoconf projects)
 
 Now that you know the catch, and you're still reading this, here is a
 quick example:
@@ -80,6 +82,11 @@ library into a namespaced structure.
 
 `#activate` ensures GCC will find this library and prefer it over a
 system-wide installation.
+
+
+### How to use (for cmake projects)
+
+Same as above, but instead of `MiniPortile.new`, call `MiniPortileCMake.new`.
 
 
 ### Directory Structure Conventions
