@@ -1,7 +1,5 @@
 require File.expand_path('../helper', __FILE__)
 
-cert_name = [['CN', 'localhost', OpenSSL::ASN1::PRINTABLESTRING]]
-
 describe "recipe download" do
   include Minitest::Hooks
 
