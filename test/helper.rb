@@ -37,16 +37,24 @@ class TestCase < Minitest::Test
     end
   end
 
-  def create_tar(tar_path, assets_path)
+  def create_tar(tar_path, assets_path, directory)
     FileUtils.mkdir_p(File.dirname(tar_path))
     Zlib::GzipWriter.open(tar_path) do |fdtgz|
       Dir.chdir(assets_path) do
-        Archive::Tar::Minitar.pack("test mini portile-1.0.0", fdtgz)
+        Archive::Tar::Minitar.pack(directory, fdtgz)
       end
     end
   end
 
   def work_dir(r=recipe)
     "tmp/#{r.host}/ports/#{r.name}/#{r.version}/#{r.name}-#{r.version}"
+  end
+
+  def with_custom_git_dir(dir)
+    old = ENV['GIT_DIR']
+    ENV['GIT_DIR'] = dir
+    yield
+  ensure
+    ENV['GIT_DIR'] = old
   end
 end

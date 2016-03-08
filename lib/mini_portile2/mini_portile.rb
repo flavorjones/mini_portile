@@ -33,6 +33,10 @@ class MiniPortile
   attr_writer :configure_options
   attr_accessor :host, :files, :patch_files, :target, :logger
 
+  def self.windows?
+    RbConfig::CONFIG['target_os'] =~ /mswin|mingw32/
+  end
+
   def initialize(name, version)
     @name = name
     @version = version

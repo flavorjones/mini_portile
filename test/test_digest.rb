@@ -11,11 +11,12 @@ class TestDigest < TestCase
     # remove any previous test files
     FileUtils.rm_rf("tmp")
 
-    create_tar(@tar_path, @assets_path)
+    create_tar(@tar_path, @assets_path, "test mini portile-1.0.0")
     start_webrick(File.dirname(@tar_path))
   end
 
   def after_all
+    super
     stop_webrick
     # leave test files for inspection
   end

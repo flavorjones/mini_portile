@@ -3,14 +3,6 @@ require File.expand_path('../helper', __FILE__)
 class TestCook < TestCase
   attr_accessor :assets_path, :tar_path, :recipe
 
-  def with_custom_git_dir(dir)
-    old = ENV['GIT_DIR']
-    ENV['GIT_DIR'] = dir
-    yield
-  ensure
-    ENV['GIT_DIR'] = old
-  end
-
   def before_all
     super
     @assets_path = File.expand_path("../assets", __FILE__)
@@ -19,7 +11,7 @@ class TestCook < TestCase
     # remove any previous test files
     FileUtils.rm_rf("tmp")
 
-    create_tar(@tar_path, @assets_path)
+    create_tar(@tar_path, @assets_path, "test mini portile-1.0.0")
     start_webrick(File.dirname(@tar_path))
 
     @recipe = MiniPortile.new("test mini portile", "1.0.0").tap do |recipe|
