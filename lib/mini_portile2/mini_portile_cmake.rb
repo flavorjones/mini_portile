@@ -5,6 +5,14 @@ class MiniPortileCMake < MiniPortile
     "-DCMAKE_INSTALL_PREFIX=#{File.expand_path(port_path)}"
   end
 
+  def configure_defaults
+    if MiniPortile.windows?
+      ['-G "NMake Makefiles"']
+    else
+      []
+    end
+  end
+
   def configure
     return if configured?
 
@@ -24,5 +32,10 @@ class MiniPortileCMake < MiniPortile
     current_md5 = Digest::MD5.hexdigest(computed_options.to_s)
 
     (current_md5 == stored_md5) && newer?(makefile, configure)
+  end
+
+  def make_cmd
+    return "nmake" if MiniPortile.windows?
+    super
   end
 end
