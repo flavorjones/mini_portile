@@ -3,14 +3,6 @@ require File.expand_path('../helper', __FILE__)
 class TestCook < TestCase
   attr_accessor :assets_path, :tar_path, :recipe
 
-  def with_custom_git_dir(dir)
-    old = ENV['GIT_DIR']
-    ENV['GIT_DIR'] = dir
-    yield
-  ensure
-    ENV['GIT_DIR'] = old
-  end
-
   def before_all
     super
     @assets_path = File.expand_path("../assets", __FILE__)

@@ -49,4 +49,12 @@ class TestCase < Minitest::Test
   def work_dir(r=recipe)
     "tmp/#{r.host}/ports/#{r.name}/#{r.version}/#{r.name}-#{r.version}"
   end
+
+  def with_custom_git_dir(dir)
+    old = ENV['GIT_DIR']
+    ENV['GIT_DIR'] = dir
+    yield
+  ensure
+    ENV['GIT_DIR'] = old
+  end
 end
