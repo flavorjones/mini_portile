@@ -1,3 +1,10 @@
+### 2.2.0 / unreleased
+
+#### Enhancements
+
+Retry (with exponential backoff) on HTTP failures. (Thanks, @jtarchie!) (#63)
+
+
 ### 2.1.0 / 2016-01-06
 
 #### Enhancements
