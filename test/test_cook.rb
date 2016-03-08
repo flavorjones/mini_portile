@@ -19,7 +19,7 @@ class TestCook < TestCase
     # remove any previous test files
     FileUtils.rm_rf("tmp")
 
-    create_tar(@tar_path, @assets_path)
+    create_tar(@tar_path, @assets_path, "test mini portile-1.0.0")
     start_webrick(File.dirname(@tar_path))
 
     @recipe = MiniPortile.new("test mini portile", "1.0.0").tap do |recipe|
