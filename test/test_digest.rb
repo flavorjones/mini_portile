@@ -16,6 +16,7 @@ class TestDigest < TestCase
   end
 
   def after_all
+    super
     stop_webrick
     # leave test files for inspection
   end
