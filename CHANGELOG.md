@@ -2,8 +2,6 @@
 
 #### Enhancements
 
-* Add support for gpg signature verification. (Thanks, @jtarchie!) (#62)
-
 
 ### 2.1.0 / 2016-01-06
 
