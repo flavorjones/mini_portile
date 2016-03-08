@@ -2,7 +2,6 @@
 
 #### Enhancements
 
-* Retry (with exponential backoff) on HTTP failures. (Thanks, @jtarchie!) (#63)
 * Add support for gpg signature verification. (Thanks, @jtarchie!) (#62)
 
 

@@ -67,5 +67,5 @@ describe "recipe download" do
       @recipe.files << "foo://foo"
       proc { @recipe.download }.must_raise ArgumentError
     end
- end
+  end
 end
