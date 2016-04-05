@@ -116,7 +116,7 @@ aySUQcOvO67Z14d9E9ziX/E24KWl6xRymmy9VhzawgSmf//3yZVaD6C/8om3qMw=
         :signature => signature
       }
     }
-    exception = assert_raise(RuntimeError){ @recipe.download }
+    exception = assert_raises(RuntimeError){ @recipe.download }
     assert_equal("signature mismatch", exception.message)
   end
 
@@ -143,7 +143,7 @@ aySUQcOvO67Z14d9E9ziX/E24KWl6xRymmy9VhzawgSmf//3yZVaD6C/8om3qMw=
         :signature => signature
       }
     }
-    exception = assert_raise(RuntimeError){ @recipe.download }
+    exception = assert_raises(RuntimeError){ @recipe.download }
     assert_equal("key download failed", exception.message)
   end
 end
