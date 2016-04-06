@@ -255,17 +255,21 @@ private
     if file.has_key?(:gpg)
       gpg = file[:gpg]
 
-      sig_file = Tempfile.new('signature')
-      sig_file.write(file[:gpg][:signature])
-      sig_file.close
+      sig = Tempfile.new('signature')
+      sig.write(file[:gpg][:signature])
+      sig.close
 
-      raise "key download failed" unless system("gpg --keyserver pgpkeys.mit.edu --recv-key #{gpg[:key]} 2>&1")
+      key = Tempfile.new('armored_key')
+      key.write(file[:gpg][:key])
+      key.close
 
-      fingerprint     = `gpg --status-fd 1 --fingerprint #{gpg[:key]} 2>&1`
-      key_fingerprint = fingerprint.match(/Key fingerprint = (.*)$/)[1].gsub(/[^A-Z0-9]/, '')
+      keyring = Tempfile.new('keyring')
+      keyring.close
 
-      gpg_status      = `gpg --status-fd 1 --verify #{sig_file.path} #{file[:local_path]} 2>&1`
-      raise "signature mismatch" unless gpg_status.match(/^\[GNUPG:\] VALIDSIG #{key_fingerprint}/)
+      raise "invalid gpg key provided" unless system("gpg --no-default-keyring --keyring #{keyring.path} --import #{key.path}")
+
+      gpg_status      = `gpg --status-fd 1 --no-default-keyring --keyring #{keyring.path} --verify #{sig.path} #{file[:local_path]} 2>&1`
+      raise "signature mismatch" unless gpg_status.match(/^\[GNUPG:\] VALIDSIG/)
     else
       digest = case
         when exp=file[:sha256] then Digest::SHA256
