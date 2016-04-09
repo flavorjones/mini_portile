@@ -251,6 +251,10 @@ private
     end
   end
 
+  def normalize_path path
+    path.gsub(File::SEPARATOR, File::ALT_SEPARATOR || File::SEPARATOR)
+  end
+
   def verify_file(file)
     if file.has_key?(:gpg)
       gpg = file[:gpg]
@@ -262,14 +266,17 @@ private
       key = Tempfile.new('armored_key')
       key.write(file[:gpg][:key])
       key.close
+      key_path = normalize_path(key.path)
 
       keyring = Tempfile.new('keyring')
       keyring.close
+      keyring_path = normalize_path(keyring.path)
 
-      gpg_status = `gpg --status-fd 1 --no-default-keyring --keyring #{keyring.path} --import #{key.path}`
-      raise "invalid gpg key provided: #{gpg_status}" unless gpg_status.match /\[GNUPG:\] IMPORT_OK/
+      gpg_status = `gpg --status-fd 1 --no-default-keyring --keyring #{keyring_path} --import #{key_path}`
 
-      gpg_status = `gpg --status-fd 1 --no-default-keyring --keyring #{keyring.path} --verify #{signature_file} #{file[:local_path]} 2>&1`
+      raise "invalid gpg key provided" unless gpg_status.match /\[GNUPG:\] IMPORT_OK/
+
+      gpg_status = `gpg --status-fd 1 --no-default-keyring --keyring #{keyring_path} --verify #{signature_file} #{file[:local_path]} 2>&1`
       raise "signature mismatch" unless gpg_status.match(/^\[GNUPG:\] VALIDSIG/)
     else
       digest = case
