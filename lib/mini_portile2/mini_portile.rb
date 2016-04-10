@@ -252,7 +252,8 @@ private
   end
 
   def normalize_path path
-    path.gsub(File::SEPARATOR, File::ALT_SEPARATOR || File::SEPARATOR)
+    path
+    # path.gsub(File::SEPARATOR, File::ALT_SEPARATOR || File::SEPARATOR)
   end
 
   def verify_file(file)
