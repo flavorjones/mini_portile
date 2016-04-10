@@ -259,12 +259,12 @@ private
     if file.has_key?(:gpg)
       gpg = file[:gpg]
 
-      signature_url = file[:gpg][:signature_url] || "#{file[:url]}.asc"
+      signature_url = gpg[:signature_url] || "#{file[:url]}.asc"
       signature_file = file[:local_path] + ".asc"
       download_file(signature_url, signature_file)
 
       key = Tempfile.new('armored_key')
-      key.write(file[:gpg][:key])
+      key.write(gpg[:key])
       key.close
       key_path = normalize_path(key.path)
 
@@ -274,7 +274,7 @@ private
 
       gpg_status = `gpg --status-fd 1 --no-default-keyring --keyring #{keyring_path} --import #{key_path}`
 
-      raise "invalid gpg key provided" unless gpg_status.match /\[GNUPG:\] IMPORT_OK/
+      raise "invalid gpg key provided" unless gpg_status.match(/\[GNUPG:\] IMPORT_OK/)
 
       gpg_status = `gpg --status-fd 1 --no-default-keyring --keyring #{keyring_path} --verify #{signature_file} #{file[:local_path]} 2>&1`
       raise "signature mismatch" unless gpg_status.match(/^\[GNUPG:\] VALIDSIG/)
