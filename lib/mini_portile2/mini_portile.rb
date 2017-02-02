@@ -251,10 +251,7 @@ private
     end
   end
 
-  def normalize_path path
-    path
-    # path.gsub(File::SEPARATOR, File::ALT_SEPARATOR || File::SEPARATOR)
-  end
+  KEYRING_NAME = "mini_portile_keyring.gpg"
 
   def verify_file(file)
     if file.has_key?(:gpg)
@@ -262,23 +259,28 @@ private
 
       signature_url = gpg[:signature_url] || "#{file[:url]}.asc"
       signature_file = file[:local_path] + ".asc"
+      # download the signature file
       download_file(signature_url, signature_file)
 
-      key = Tempfile.new('armored_key')
-      key.write(gpg[:key])
-      key.close
-      key_path = normalize_path(key.path)
+      gpg_exe = which('gpg2') || which('gpg') || raise("Neither GPG nor GPG2 is installed")
 
-      keyring = Tempfile.new('keyring')
-      keyring.close
-      keyring_path = normalize_path(keyring.path)
+      # import the key into our own keyring
+      gpg_status = IO.popen([gpg_exe, "--status-fd", "1", "--no-default-keyring", "--keyring", KEYRING_NAME, "--import"], "w+") do |io|
+        io.write gpg[:key]
+        io.close_write
+        io.read
+      end
+      raise "invalid gpg key provided" unless /\[GNUPG:\] IMPORT_OK \d+ (?<key_id>[0-9a-f]+)/i =~ gpg_status
 
-      gpg_status = `gpg --status-fd 1 --no-default-keyring --keyring #{keyring_path} --import #{key_path}`
+      # verify the signature against our keyring
+      gpg_status = IO.popen([gpg_exe, "--status-fd", "1", "--no-default-keyring", "--keyring", KEYRING_NAME, "--verify", signature_file, file[:local_path]], &:read)
 
-      raise "invalid gpg key provided" unless gpg_status.match(/\[GNUPG:\] IMPORT_OK/)
+      # remove the key from our keyring
+      IO.popen([gpg_exe, "--batch", "--yes", "--no-default-keyring", "--keyring", KEYRING_NAME, "--delete-keys", key_id], &:read)
 
-      gpg_status = `gpg --status-fd 1 --no-default-keyring --keyring #{keyring_path} --verify #{signature_file} #{file[:local_path]} 2>&1`
+      raise "unable to delete the imported key" unless $?.exitstatus==0
       raise "signature mismatch" unless gpg_status.match(/^\[GNUPG:\] VALIDSIG/)
+
     else
       digest = case
         when exp=file[:sha256] then Digest::SHA256
