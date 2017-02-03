@@ -10,7 +10,7 @@ class TestProxy < TestCase
       s = gs.accept
       gs.close
       begin
-        req = ''
+        req = ''.dup
         while (l=s.gets) && !l.chomp.empty?
           req << l
         end
@@ -25,7 +25,7 @@ class TestProxy < TestCase
     else
       yield "http://localhost:#{gs.addr[1]}"
     end
-    
+
     # Set timeout for reception of the request
     Thread.new do
       sleep 1

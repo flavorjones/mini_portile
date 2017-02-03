@@ -119,7 +119,7 @@ namespace :ports do
     recipes.each do |recipe|
       puts "Artifacts of '#{recipe.name}' in '#{recipe.path}'"
     end
-    puts "LDFLAGS: " << ENV['LDFLAGS'].inspect
+    puts "LDFLAGS: " + ENV['LDFLAGS'].inspect
   end
 end
 
