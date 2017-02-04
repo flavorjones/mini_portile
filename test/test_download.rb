@@ -5,15 +5,17 @@ describe "recipe download" do
 
   attr :recipe
 
-  def server_must_receive_connection &block
+  def server_must_receive_connection(connections = 3, &block)
     request_count = 0
 
     server = TCPServer.open('localhost', TestCase::HTTP_PORT)
     thread = Thread.new do
-      conn = server.accept
-      request_count += 1
-      conn.puts "CONNECTION SUCESSFULLY MADE"
-      conn.close
+      connections.times do
+        conn = server.accept
+        request_count += 1
+        conn.puts "CONNECTION SUCESSFULLY MADE"
+        conn.close
+      end
     end
 
     block.call
@@ -32,21 +34,21 @@ describe "recipe download" do
   describe "urls" do
     it "ftp" do
       @recipe.files << "ftp://localhost:#{TestCase::HTTP_PORT}/foo"
-      server_must_receive_connection do
+      server_must_receive_connection 1 do
         @recipe.download
       end
     end
 
     it "handles http" do
       @recipe.files << "http://localhost:#{TestCase::HTTP_PORT}/foo"
-      server_must_receive_connection do
+      server_must_receive_connection 3 do
         @recipe.download
       end
     end
 
     it "handles https" do
       @recipe.files << "https://localhost:#{TestCase::HTTP_PORT}/foo"
-      server_must_receive_connection do
+      server_must_receive_connection 3 do
         @recipe.download
       end
     end

@@ -438,6 +438,7 @@ private
             [proxy_uri, proxy_user, proxy_pass]
         end
       end
+
       begin
         OpenURI.open_uri(url, 'rb', params) do |io|
           temp_file << io.read
@@ -446,8 +447,15 @@ private
       rescue OpenURI::HTTPRedirect => redirect
         raise "Too many redirections for the original URL, halting." if count <= 0
         count = count - 1
-        return download_file(redirect.url, full_path, count - 1)
+        return download_file(redirect.url, full_path, count-1)
       rescue => e
+        count = count - 1
+        puts "#{count} retrie(s) left for #{filename}"
+        if count > 0
+          sleep 1
+          return download_file_http(url, full_path, count)
+        end
+
         output e.message
         return false
       end
