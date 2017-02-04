@@ -13,7 +13,7 @@ describe "recipe download" do
       connections.times do
         conn = server.accept
         request_count += 1
-        conn.puts "CONNECTION SUCESSFULLY MADE"
+        conn.puts "CONNECTION SUCESSFULLY MADE" rescue SystemCallError
         conn.close
       end
     end
@@ -22,7 +22,7 @@ describe "recipe download" do
 
     thread.kill
     server.close
-    
+
     request_count.must_be :>, 0
   end
 
