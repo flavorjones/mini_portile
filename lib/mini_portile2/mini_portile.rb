@@ -251,16 +251,45 @@ private
     end
   end
 
+  def normalize_path path
+    path
+    # path.gsub(File::SEPARATOR, File::ALT_SEPARATOR || File::SEPARATOR)
+  end
+
   def verify_file(file)
-    digest = case
-      when exp=file[:sha256] then Digest::SHA256
-      when exp=file[:sha1] then Digest::SHA1
-      when exp=file[:md5] then Digest::MD5
-    end
-    if digest
-      is = digest.file(file[:local_path]).hexdigest
-      unless is == exp.downcase
-        raise "Downloaded file '#{file[:local_path]}' has wrong hash: expected: #{exp} is: #{is}"
+    if file.has_key?(:gpg)
+      gpg = file[:gpg]
+
+      signature_url = gpg[:signature_url] || "#{file[:url]}.asc"
+      signature_file = file[:local_path] + ".asc"
+      download_file(signature_url, signature_file)
+
+      key = Tempfile.new('armored_key')
+      key.write(gpg[:key])
+      key.close
+      key_path = normalize_path(key.path)
+
+      keyring = Tempfile.new('keyring')
+      keyring.close
+      keyring_path = normalize_path(keyring.path)
+
+      gpg_status = `gpg --status-fd 1 --no-default-keyring --keyring #{keyring_path} --import #{key_path}`
+
+      raise "invalid gpg key provided" unless gpg_status.match(/\[GNUPG:\] IMPORT_OK/)
+
+      gpg_status = `gpg --status-fd 1 --no-default-keyring --keyring #{keyring_path} --verify #{signature_file} #{file[:local_path]} 2>&1`
+      raise "signature mismatch" unless gpg_status.match(/^\[GNUPG:\] VALIDSIG/)
+    else
+      digest = case
+        when exp=file[:sha256] then Digest::SHA256
+        when exp=file[:sha1] then Digest::SHA1
+        when exp=file[:md5] then Digest::MD5
+      end
+      if digest
+        is = digest.file(file[:local_path]).hexdigest
+        unless is == exp.downcase
+          raise "Downloaded file '#{file[:local_path]}' has wrong hash: expected: #{exp} is: #{is}"
+        end
       end
     end
   end
