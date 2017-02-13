@@ -67,3 +67,48 @@ class TestCook < TestCase
     assert_equal( ["install"].inspect, IO.read(txt).chomp )
   end
 end
+
+class TestCookWithBrokenGitDir < TestCase
+  #
+  #  this is a test for #69
+  #  https://github.com/flavorjones/mini_portile/issues/69
+  #
+  attr_accessor :assets_path, :tar_path, :recipe
+
+  def before_all
+    super
+    @assets_path = File.expand_path("../assets", __FILE__)
+    @tar_path = File.expand_path("../../tmp/test-mini-portile-1.0.0.tar.gz", __FILE__)
+
+    @git_dir = File.join(@assets_path, "git-broken")
+    FileUtils.rm_rf @git_dir
+    FileUtils.mkdir_p @git_dir
+    Dir.chdir(@git_dir) do
+      File.open ".git", "w" do |f|
+        f.write "gitdir: /nonexistent"
+      end
+    end
+
+    create_tar(@tar_path, @assets_path, "test mini portile-1.0.0")
+
+    @recipe = MiniPortile.new("test mini portile", "1.0.0").tap do |recipe|
+      recipe.files << "file://#{@tar_path}"
+      recipe.patch_files << File.join(@assets_path, "patch 1.diff")
+      recipe.configure_options << "--option=\"path with 'space'\""
+    end
+
+    Dir.chdir(@git_dir) do
+      @recipe.cook
+    end
+  end
+
+  def after_all
+    FileUtils.rm_rf @git_dir
+  end
+
+  def test_patch
+    patch1 = File.join(work_dir, "patch 1.txt")
+    assert File.exist?(patch1), patch1
+    assert_match( /^\tchange 1/, IO.read(patch1) )
+  end
+end
