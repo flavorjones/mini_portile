@@ -1,8 +1,13 @@
-### 2.2.0.rc1 / 2016-03-08
+### 2.2.0 / unreleased
+
+(2.2.0.rc1 / 2016-03-08)
 
 #### Enhancements
 
-* Add experimental support for cmake-based projects
+* Add experimental support for cmake-based projects.
+* Retry on HTTP failures during downloads. [#63] (Thanks, @jtarchie and @jvshahid!)
+* Support Ruby 2.4 frozen string literals.
+* Support applying patches for users with misconfigured git worktree. [#69]
 
 
 ### 2.1.0 / 2016-01-06
