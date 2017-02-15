@@ -1,0 +1,140 @@
+resources:
+  - name: ci
+    type: git
+    source:
+      uri: https://github.com/flavorjones/mini_portile/
+      branch: master
+      disable_ci_skip: true # always get the latest pipeline configuration
+
+  - name: nokogiri-ci
+    type: git
+    source:
+      uri: https://github.com/sparklemotion/nokogiri/
+      branch: master
+      disable_ci_skip: true # always get the latest pipeline configuration
+
+  - name: mini_portile
+    type: git
+    source:
+      uri: https://github.com/flavorjones/mini_portile/
+      branch: master
+      ignore_paths:
+        - concourse/**
+
+  # - name: mini_portile-pr
+  #   type: pull-request
+  #   source:
+  #     repo: flavorjones/mini_portile
+  #     access_token: {{github-repo-status-access-token}}
+  #     ignore_paths:
+  #       - concourse/**
+
+jobs:
+% ruby_version = RUBIES[:mri].last
+  - name: ruby-<%= ruby_version %>
+    public: true
+    plan:
+      - get: ci
+      - get: mini_portile
+        trigger: true
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "<%= ruby_version %>"}
+          inputs:
+            - name: ci
+            - name: mini_portile
+          run:
+            path: ci/concourse/tasks/rake-test/task.sh
+
+  - name: windows-install-ruby-2.3
+    public: true
+    serial_groups: [windows-configuration]
+    plan:
+      - get: nokogiri-ci
+      - get: mini_portile
+        trigger: true
+      - task: setup
+        config:
+          platform: windows
+          inputs:
+            - name: nokogiri-ci
+              path: ci
+          run:
+            path: powershell
+            args: ["-File", "ci/concourse/tasks/windows-config/install-ruby-and-devkit.ps1"]
+
+  - name: ruby-2.3-devkit
+    public: true
+    plan:
+      - get: ci
+      - get: nokogiri-ci
+      - get: mini_portile
+        trigger: true
+        passed: ["windows-install-ruby-2.3"]
+      - task: rake-test
+        config:
+          platform: windows
+          inputs:
+            - name: ci
+            - name: nokogiri-ci
+            - name: mini_portile
+          run:
+            path: powershell
+            args: ["-File", "ci/concourse/tasks/rake-test/task.ps1"]
+
+  # - name: pr-pending
+  #   public: true
+  #   plan:
+  #     - get: ci
+  #     - get: nokogiri-pr
+  #       trigger: true
+  #       version: every
+  #     - put: nokogiri-pr
+  #       params: {path: nokogiri-pr, status: pending}
+
+  # - name: ruby-<%= ruby_version %>-system-pr
+  #   public: true
+  #   serial_groups: [pr]
+  #   plan:
+  #     - get: ci
+  #     - get: nokogiri-pr
+  #       trigger: true
+  #       version: every
+  #       passed: [pr-pending]
+  #     - task: rake-test
+  #       config:
+  #         platform: linux
+  #         image_resource:
+  #           type: docker-image
+  #           source: {repository: ruby, tag: "<%= ruby_version %>"}
+  #         inputs:
+  #           - name: ci
+  #           - name: nokogiri-pr
+  #             path: nokogiri
+  #         params:
+  #           NOKOGIRI_USE_SYSTEM_LIBRARIES: t
+  #         run:
+  #           path: ci/concourse/tasks/rake-test/run.sh
+  #       on_failure:
+  #         put: nokogiri-pr
+  #         params: {path: nokogiri-pr, status: failure}
+
+  # - name: pr-success
+  #   public: true
+  #   serial_groups: [pr]
+  #   disable_manual_trigger: true
+  #   plan:
+  #     - get: nokogiri-pr
+  #       trigger: true
+  #       version: every
+  #       passed:
+  #         - ruby-<%= RUBIES[:mri].last %>-system-pr
+  #         - ruby-<%= RUBIES[:mri].last %>-vendored-pr
+  #         - ruby-<%= RUBIES[:mri].last %>-valgrind-pr
+  #         - jruby-<%= RUBIES[:jruby].last %>-pr
+  #         - rbx-<%= RUBIES[:rbx].last %>-pr
+  #     - put: nokogiri-pr
+  #       params: {path: nokogiri-pr, status: success}
