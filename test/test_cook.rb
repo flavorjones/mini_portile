@@ -8,8 +8,7 @@ class TestCook < TestCase
     @assets_path = File.expand_path("../assets", __FILE__)
     @tar_path = File.expand_path("../../tmp/test mini portile-1.0.0.tar.gz", __FILE__)
 
-    # remove any previous test files
-    FileUtils.rm_rf("tmp")
+    FileUtils.rm_rf("tmp") # remove any previous test files
 
     create_tar(@tar_path, @assets_path, "test mini portile-1.0.0")
     start_webrick(File.dirname(@tar_path))
@@ -28,7 +27,7 @@ class TestCook < TestCase
   def after_all
     super
     stop_webrick
-    # leave test files for inspection
+    FileUtils.rm_rf("tmp") # remove test files
   end
 
   def test_download
@@ -107,8 +106,10 @@ class TestCookWithBrokenGitDir < TestCase
   end
 
   def test_patch
-    patch1 = File.join(work_dir, "patch 1.txt")
-    assert File.exist?(patch1), patch1
-    assert_match( /^\tchange 1/, IO.read(patch1) )
+    Dir.chdir(@git_dir) do
+      patch1 = File.join(work_dir, "patch 1.txt")
+      assert File.exist?(patch1), patch1
+      assert_match( /^\tchange 1/, IO.read(patch1) )
+    end
   end
 end
