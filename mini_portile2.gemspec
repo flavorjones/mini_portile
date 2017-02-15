@@ -16,7 +16,11 @@ Gem::Specification.new do |spec|
   spec.homepage      = 'http://github.com/flavorjones/mini_portile'
   spec.licenses      = ['MIT']
 
-  spec.files         = `git ls-files -z`.split("\x0")
+  begin
+    spec.files         = `git ls-files -z`.split("\x0")
+  rescue Exception => e
+    warn "WARNING: could not set spec.files: #{e.class}: #{e}"
+  end
 
   # omit the `examples` directory from the gem, because it's large and
   # not necessary to be packaged in the gem.
