@@ -1,3 +1,24 @@
+% ruby_version = RUBIES[:mri].last
+
+groups:
+  - name: master
+    jobs:
+      - ruby-<%= ruby_version %>
+      - windows-install-ruby-2.3
+      - ruby-2.3-devkit
+
+  - name: PRs
+    jobs:
+      - pr-pending
+      - ruby-<%= ruby_version %>-pr
+      - pr-success
+
+resource_types:
+- name: pull-request
+  type: docker-image
+  source:
+    repository: jtarchie/pr
+
 resources:
   - name: ci
     type: git
@@ -21,16 +42,18 @@ resources:
       ignore_paths:
         - concourse/**
 
-  # - name: mini_portile-pr
-  #   type: pull-request
-  #   source:
-  #     repo: flavorjones/mini_portile
-  #     access_token: {{github-repo-status-access-token}}
-  #     ignore_paths:
-  #       - concourse/**
+  - name: mini_portile-pr
+    type: pull-request
+    source:
+      repo: flavorjones/mini_portile
+      access_token: {{github-repo-status-access-token}}
+      ignore_paths:
+        - concourse/**
 
 jobs:
-% ruby_version = RUBIES[:mri].last
+  #
+  #  master
+  #
   - name: ruby-<%= ruby_version %>
     public: true
     plan:
@@ -85,56 +108,53 @@ jobs:
             path: powershell
             args: ["-File", "ci/concourse/tasks/rake-test/task.ps1"]
 
-  # - name: pr-pending
-  #   public: true
-  #   plan:
-  #     - get: ci
-  #     - get: nokogiri-pr
-  #       trigger: true
-  #       version: every
-  #     - put: nokogiri-pr
-  #       params: {path: nokogiri-pr, status: pending}
+  #
+  #  PRs
+  #
+  - name: pr-pending
+    public: true
+    plan:
+      - get: ci
+      - get: mini_portile-pr
+        trigger: true
+        version: every
+      - put: mini_portile-pr
+        params: {path: mini_portile-pr, status: pending}
 
-  # - name: ruby-<%= ruby_version %>-system-pr
-  #   public: true
-  #   serial_groups: [pr]
-  #   plan:
-  #     - get: ci
-  #     - get: nokogiri-pr
-  #       trigger: true
-  #       version: every
-  #       passed: [pr-pending]
-  #     - task: rake-test
-  #       config:
-  #         platform: linux
-  #         image_resource:
-  #           type: docker-image
-  #           source: {repository: ruby, tag: "<%= ruby_version %>"}
-  #         inputs:
-  #           - name: ci
-  #           - name: nokogiri-pr
-  #             path: nokogiri
-  #         params:
-  #           NOKOGIRI_USE_SYSTEM_LIBRARIES: t
-  #         run:
-  #           path: ci/concourse/tasks/rake-test/run.sh
-  #       on_failure:
-  #         put: nokogiri-pr
-  #         params: {path: nokogiri-pr, status: failure}
+  - name: ruby-<%= ruby_version %>-pr
+    public: true
+    serial_groups: [pr]
+    plan:
+      - get: ci
+      - get: mini_portile-pr
+        trigger: true
+        version: every
+        passed: [pr-pending]
+      - task: rake-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: ruby, tag: "<%= ruby_version %>"}
+          inputs:
+            - name: ci
+            - name: mini_portile-pr
+              path: mini_portile
+          run:
+            path: ci/concourse/tasks/rake-test/task.sh
+        on_failure:
+          put: mini_portile-pr
+          params: {path: mini_portile-pr, status: failure}
 
-  # - name: pr-success
-  #   public: true
-  #   serial_groups: [pr]
-  #   disable_manual_trigger: true
-  #   plan:
-  #     - get: nokogiri-pr
-  #       trigger: true
-  #       version: every
-  #       passed:
-  #         - ruby-<%= RUBIES[:mri].last %>-system-pr
-  #         - ruby-<%= RUBIES[:mri].last %>-vendored-pr
-  #         - ruby-<%= RUBIES[:mri].last %>-valgrind-pr
-  #         - jruby-<%= RUBIES[:jruby].last %>-pr
-  #         - rbx-<%= RUBIES[:rbx].last %>-pr
-  #     - put: nokogiri-pr
-  #       params: {path: nokogiri-pr, status: success}
+  - name: pr-success
+    public: true
+    serial_groups: [pr]
+    disable_manual_trigger: true
+    plan:
+      - get: mini_portile-pr
+        trigger: true
+        version: every
+        passed:
+          - ruby-<%= ruby_version %>-pr
+      - put: mini_portile-pr
+        params: {path: mini_portile-pr, status: success}
