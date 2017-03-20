@@ -1,5 +1,6 @@
 require "rake/clean"
 require 'bundler/gem_tasks'
+require 'concourse'
 
 namespace :test do
   desc "Test MiniPortile by running unit tests"
@@ -23,3 +24,6 @@ desc "Run all tests"
 task :test => ["test:unit", "test:examples"]
 
 task :default => [:test]
+
+
+Concourse.new("mini_portile").create_tasks!
