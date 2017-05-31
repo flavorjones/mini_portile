@@ -147,7 +147,7 @@ task :libiconv do
   recipe = MiniPortile.new("libiconv", "1.13.1")
   recipe.files << {
     url: "http://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.13.1.tar.gz"],
-    md5: "7ab33ebd26687c744a37264a330bbe9a"
+    sha256: "55a36168306089009d054ccdd9d013041bfc3ab26be7033d107821f1c4949a49"
   }
   checkpoint = ".#{recipe.name}-#{recipe.version}.installed"
 
