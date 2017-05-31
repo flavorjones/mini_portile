@@ -1,9 +1,8 @@
 ### 2.2.0 / unreleased
 
-(2.2.0.rc1 / 2016-03-08)
-
 #### Enhancements
 
+* Remove MD5 hashing of configure options, not avialbale in FIPS mode. (#78)
 * Add experimental support for cmake-based projects.
 * Retry on HTTP failures during downloads. [#63] (Thanks, @jtarchie and @jvshahid!)
 * Support Ruby 2.4 frozen string literals.
