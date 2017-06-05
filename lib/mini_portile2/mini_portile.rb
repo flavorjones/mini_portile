@@ -58,6 +58,7 @@ class MiniPortile
 
   def extract
     files_hashs.each do |file|
+      verify_file(file)
       extract_file(file[:local_path], tmp_path)
     end
   end
