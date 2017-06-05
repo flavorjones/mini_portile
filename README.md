@@ -174,6 +174,45 @@ The above example will:
 As an exercise for the reader, you could specify the libiconv version
 in an environment variable or a configuration file.
 
+### Download verification
+MiniPortile supports HTTPS, HTTP, FTP and FILE sources for download.
+The integrity of the downloaded file can be verified per hash value or PGP signature.
+This is particular important for untrusted sources (non-HTTPS).
+
+#### Hash digest verification
+MiniPortile can verify the integrity of the downloaded file per SHA256, SHA1 or MD5 hash digest.
+
+```ruby
+  recipe.files << {
+    url: "http://your.host/file.tar.bz2",
+    sha256: "<32 byte hex value>",
+  }
+```
+
+#### PGP signature verification
+MiniPortile can also verify the integrity of the downloaded file per PGP signature.
+
+```ruby
+  public_key = <<-EOT
+    -----BEGIN PGP PUBLIC KEY BLOCK-----
+    Version: GnuPG v1
+
+    mQENBE7SKu8BCADQo6x4ZQfAcPlJMLmL8zBEBUS6GyKMMMDtrTh3Yaq481HB54oR
+    [...]
+    -----END PGP PUBLIC KEY BLOCK-----
+  EOT
+
+  recipe.files << {
+    url: "http://your.host/file.tar.bz2",
+    gpg: {
+      key: public_key,
+      signature_url: "http://your.host/file.tar.bz2.sig"
+    }
+  }
+```
+
+Please note, that the `gpg` executable is required to verify the signature.
+It is therefore recommended to use the hash verification method instead of PGP, when used in `extconf.rb` while `gem install`.
 
 ### Native and/or Cross Compilation
 
