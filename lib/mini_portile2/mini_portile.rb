@@ -4,7 +4,7 @@ require 'net/https'
 require 'net/ftp'
 require 'fileutils'
 require 'tempfile'
-require 'digest/md5'
+require 'digest'
 require 'open-uri'
 require 'cgi'
 require 'rbconfig'
@@ -99,9 +99,8 @@ class MiniPortile
   def configure
     return if configured?
 
-    md5_file = File.join(tmp_path, 'configure.md5')
-    digest   = Digest::MD5.hexdigest(computed_options.to_s)
-    File.open(md5_file, "w") { |f| f.write digest }
+    cache_file = File.join(tmp_path, 'configure.options_cache')
+    File.open(cache_file, "w") { |f| f.write computed_options.to_s }
 
     if RUBY_PLATFORM=~/mingw|mswin/
       # Windows doesn't recognize the shebang.
@@ -131,12 +130,12 @@ class MiniPortile
   def configured?
     configure = File.join(work_path, 'configure')
     makefile  = File.join(work_path, 'Makefile')
-    md5_file  = File.join(tmp_path, 'configure.md5')
+    cache_file  = File.join(tmp_path, 'configure.options_cache')
 
-    stored_md5  = File.exist?(md5_file) ? File.read(md5_file) : ""
-    current_md5 = Digest::MD5.hexdigest(computed_options.to_s)
+    stored_options  = File.exist?(cache_file) ? File.read(cache_file) : ""
+    current_options = computed_options.to_s
 
-    (current_md5 == stored_md5) && newer?(makefile, configure)
+    (current_options == stored_options) && newer?(makefile, configure)
   end
 
   def installed?
