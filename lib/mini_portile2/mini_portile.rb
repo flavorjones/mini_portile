@@ -303,11 +303,12 @@ private
       }
   end
 
+  TAR_EXECUTABLES = %w[gtar bsdtar tar basic-bsdtar]
   def tar_exe
     @@tar_exe ||= begin
-      %w[gtar bsdtar tar basic-bsdtar].find { |c|
+      TAR_EXECUTABLES.find { |c|
         which(c)
-      }
+      } or raise("tar not found - please make sure that one of the following commands is in the PATH: #{TAR_EXECUTABLES.join(", ")}")
     end
   end
 
