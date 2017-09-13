@@ -3,6 +3,7 @@
 #### Enhancements
 
 * Verify checksums of files at extraction time (in addition to at download time). (#56)
+* Clarify error message if a `tar` command can't be found. (#81)
 
 
 ### 2.2.0 / 2017-06-04
