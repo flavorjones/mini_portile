@@ -1,4 +1,4 @@
-### 2.2.1 / unreleased
+### 2.2.1 / 2017-09-13
 
 #### Enhancements
 
