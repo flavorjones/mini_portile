@@ -4,8 +4,7 @@ groups:
   - name: master
     jobs:
       - ruby-<%= ruby_version %>
-      - windows-install-ruby-2.3
-      - ruby-2.3-devkit
+      - win-ruby-<%= ruby_version %>-devkit
 
   - name: PRs
     jobs:
@@ -24,13 +23,6 @@ resources:
     type: git
     source:
       uri: https://github.com/flavorjones/mini_portile/
-      branch: master
-      disable_ci_skip: true # always get the latest pipeline configuration
-
-  - name: nokogiri-ci
-    type: git
-    source:
-      uri: https://github.com/sparklemotion/nokogiri/
       branch: master
       disable_ci_skip: true # always get the latest pipeline configuration
 
@@ -72,38 +64,20 @@ jobs:
           run:
             path: ci/concourse/tasks/rake-test/task.sh
 
-  - name: windows-install-ruby-2.3
-    public: true
-    serial_groups: [windows-configuration]
-    plan:
-      - get: nokogiri-ci
-      - get: mini_portile
-        trigger: true
-      - task: setup
-        config:
-          platform: windows
-          inputs:
-            - name: nokogiri-ci
-              path: ci
-          run:
-            path: powershell
-            args: ["-File", "ci/concourse/tasks/windows-config/install-ruby-and-devkit.ps1"]
-
-  - name: ruby-2.3-devkit
+  - name: win-ruby-<%= ruby_version %>-devkit
     public: true
     plan:
       - get: ci
-      - get: nokogiri-ci
       - get: mini_portile
         trigger: true
-        passed: ["windows-install-ruby-2.3"]
       - task: rake-test
         config:
           platform: windows
           inputs:
             - name: ci
-            - name: nokogiri-ci
             - name: mini_portile
+          params:
+            WIN_RUBY_VERSION: "<%= ruby_version %>"
           run:
             path: powershell
             args: ["-File", "ci/concourse/tasks/rake-test/task.ps1"]
