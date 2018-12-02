@@ -454,9 +454,14 @@ private
         "Accept-Encoding" => 'identity',
         :content_length_proc => lambda{|length| total = length },
         :progress_proc => lambda{|bytes|
-          new_progress = (bytes * 100) / total
-          message "\rDownloading %s (%3d%%) " % [filename, new_progress]
-          progress = new_progress
+          if total
+            new_progress = (bytes * 100) / total
+            message "\rDownloading %s (%3d%%) " % [filename, new_progress]
+            progress = new_progress
+          else
+            # Content-Length is unavailable because Transfer-Encoding is chunked
+            message "\rDownloading %s " % [filename]
+          end
         }
       }
       proxy_uri = URI.parse(url).scheme.downcase == 'https' ?
