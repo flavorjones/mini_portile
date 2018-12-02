@@ -1,3 +1,10 @@
+### 2.4.0 / 2018-12-02
+
+#### Enhancements
+
+* Skip progress report when Content-Length is unavailable. [#85] (Thanks, @eagletmt!)
+
+
 ### 2.3.0 / 2017-09-13
 
 #### Enhancements
