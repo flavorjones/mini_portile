@@ -6,16 +6,16 @@ class TestCook < TestCase
   def before_all
     super
     @assets_path = File.expand_path("../assets", __FILE__)
-    @tar_path = File.expand_path("../../tmp/test mini portile-1.0.0.tar.gz", __FILE__)
+    @tar_path = File.expand_path("../../tmp/test-mini-portile-1.0.0.tar.gz", __FILE__)
 
     FileUtils.rm_rf("tmp") # remove any previous test files
 
-    create_tar(@tar_path, @assets_path, "test mini portile-1.0.0")
+    create_tar(@tar_path, @assets_path, "test-mini-portile-1.0.0")
     start_webrick(File.dirname(@tar_path))
 
-    @recipe = MiniPortile.new("test mini portile", "1.0.0").tap do |recipe|
+    @recipe = MiniPortile.new("test-mini-portile", "1.0.0").tap do |recipe|
       recipe.files << "http://localhost:#{HTTP_PORT}/#{ERB::Util.url_encode(File.basename(@tar_path))}"
-      recipe.patch_files << File.join(@assets_path, "patch 1.diff")
+      recipe.patch_files << File.join(@assets_path, "patch_1.diff")
       recipe.configure_options << "--option=\"path with 'space'\""
       git_dir = File.join(@assets_path, "git")
       with_custom_git_dir(git_dir) do
@@ -42,7 +42,7 @@ class TestCook < TestCase
   end
 
   def test_patch
-    patch1 = File.join(work_dir, "patch 1.txt")
+    patch1 = File.join(work_dir, "patch_1.txt")
     assert File.exist?(patch1), patch1
     assert_match( /^\tchange 1/, IO.read(patch1) )
   end
@@ -88,11 +88,11 @@ class TestCookWithBrokenGitDir < TestCase
       end
     end
 
-    create_tar(@tar_path, @assets_path, "test mini portile-1.0.0")
+    create_tar(@tar_path, @assets_path, "test-mini-portile-1.0.0")
 
-    @recipe = MiniPortile.new("test mini portile", "1.0.0").tap do |recipe|
+    @recipe = MiniPortile.new("test-mini-portile", "1.0.0").tap do |recipe|
       recipe.files << "file://#{@tar_path}"
-      recipe.patch_files << File.join(@assets_path, "patch 1.diff")
+      recipe.patch_files << File.join(@assets_path, "patch_1.diff")
       recipe.configure_options << "--option=\"path with 'space'\""
     end
 
@@ -107,7 +107,7 @@ class TestCookWithBrokenGitDir < TestCase
 
   def test_patch
     Dir.chdir(@git_dir) do
-      patch1 = File.join(work_dir, "patch 1.txt")
+      patch1 = File.join(work_dir, "patch_1.txt")
       assert File.exist?(patch1), patch1
       assert_match( /^\tchange 1/, IO.read(patch1) )
     end
