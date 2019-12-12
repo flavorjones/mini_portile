@@ -270,15 +270,18 @@ private
         io.close_write
         io.read
       end
-      raise "invalid gpg key provided" unless /\[GNUPG:\] IMPORT_OK \d+ (?<key_id>[0-9a-f]+)/i =~ gpg_status
+      key_ids = gpg_status.scan(/\[GNUPG:\] IMPORT_OK \d+ (?<key_id>[0-9a-f]+)/i).map(&:first)
+      raise "invalid gpg key provided" if key_ids.empty?
 
       # verify the signature against our keyring
       gpg_status = IO.popen([gpg_exe, "--status-fd", "1", "--no-default-keyring", "--keyring", KEYRING_NAME, "--verify", signature_file, file[:local_path]], &:read)
 
       # remove the key from our keyring
-      IO.popen([gpg_exe, "--batch", "--yes", "--no-default-keyring", "--keyring", KEYRING_NAME, "--delete-keys", key_id], &:read)
+      key_ids.each do |key_id|
+        IO.popen([gpg_exe, "--batch", "--yes", "--no-default-keyring", "--keyring", KEYRING_NAME, "--delete-keys", key_id], &:read)
+        raise "unable to delete the imported key" unless $?.exitstatus==0
+      end
 
-      raise "unable to delete the imported key" unless $?.exitstatus==0
       raise "signature mismatch" unless gpg_status.match(/^\[GNUPG:\] VALIDSIG/)
 
     else
