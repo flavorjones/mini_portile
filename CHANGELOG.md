@@ -1,3 +1,10 @@
+### Unreleased
+
+#### Enhancements
+
+* When verifying GPG signatures, remove all imported pubkeys from keyring [#90] (Thanks, @hanazuki!)
+    
+
 ### 2.4.0 / 2018-12-02
 
 #### Enhancements
