@@ -7,7 +7,7 @@ apt-get install -y cmake
 
 pushd mini_portile
 
-  bundle update --bundler
+  gem install bundler
   bundle install
   bundle exec rake test
 
