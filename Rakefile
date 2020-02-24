@@ -1,6 +1,5 @@
 require "rake/clean"
 require "bundler/gem_tasks"
-require "concourse"
 
 namespace :test do
   desc "Test MiniPortile by running unit tests"
@@ -25,4 +24,8 @@ task :test => ["test:unit", "test:examples"]
 
 task :default => [:test]
 
-Concourse.new("mini_portile").create_tasks!
+require "concourse"
+Concourse.new("mini_portile", fly_target: "ci") do |c|
+  c.add_pipeline "mini_portile", "mini_portile.yml"
+  c.add_pipeline "mini_portile-pr", "mini_portile-pr.yml"
+end
