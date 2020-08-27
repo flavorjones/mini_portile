@@ -240,6 +240,11 @@ toolchain. This has been tested against Ubuntu, OSX and even Windows
 (RubyInstaller with DevKit)
 
 
+## Security
+
+See [`SECURITY.md`](SECURITY.md) for vulnerability reporting details.
+
+
 ## License
 
 This library is licensed under MIT license. Please see LICENSE.txt for details.
