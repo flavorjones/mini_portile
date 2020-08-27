@@ -240,6 +240,17 @@ toolchain. This has been tested against Ubuntu, OSX and even Windows
 (RubyInstaller with DevKit)
 
 
+## Support
+
+The bug tracker is available here:
+
+* https://github.com/flavorjones/mini_portile/issues
+
+Consider subscribing to [Tidelift][tidelift] which provides license assurances and timely security notifications for your open source dependencies, including Loofah. [Tidelift][tidelift] subscriptions also help the Loofah maintainers fund our [automated testing](https://ci.nokogiri.org) which in turn allows us to ship releases, bugfixes, and security updates more often.
+
+  [tidelift]: https://tidelift.com/subscription/pkg/rubygems-mini.portile2?utm_source=rubygems-mini.portile2&utm_medium=referral&utm_campaign=enterprise
+
+
 ## Security
 
 See [`SECURITY.md`](SECURITY.md) for vulnerability reporting details.
