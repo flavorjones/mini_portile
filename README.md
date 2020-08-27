@@ -5,8 +5,9 @@ renamed to `mini_portile2`. For mini_portile versions 0.6.x and
 previous, please visit
 [the v0.6.x branch](https://github.com/flavorjones/mini_portile/tree/v0.6.x).
 
-[![travis status](https://travis-ci.org/flavorjones/mini_portile.svg?branch=master)](https://travis-ci.org/flavorjones/mini_portile?branch=master)
-[![appveyor status](https://ci.appveyor.com/api/projects/status/509669xx1qlhqqab/branch/master?svg=true)](https://ci.appveyor.com/project/flavorjones/mini-portile/branch/master)
+[![Concourse CI](https://ci.nokogiri.org/api/v1/teams/nokogiri-core/pipelines/mini_portile/jobs/ruby-2.7/badge)](https://ci.nokogiri.org/teams/nokogiri-core/pipelines/mini_portile)
+[![Appveyor](https://ci.appveyor.com/api/projects/status/509669xx1qlhqqab/branch/master?svg=true)](https://ci.appveyor.com/project/flavorjones/mini-portile/branch/master)
+[![Tidelift dependencies](https://tidelift.com/badges/package/rubygems/mini_portile2)](https://tidelift.com/subscription/pkg/rubygems-mini.portile2?utm_source=undefined&utm_medium=referral&utm_campaign=readme)
 
 * Documentation: http://www.rubydoc.info/github/flavorjones/mini_portile
 * Source Code: https://github.com/flavorjones/mini_portile
