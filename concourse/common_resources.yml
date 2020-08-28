@@ -1,5 +1,6 @@
   - name: ci
     type: git
+    icon: cog
     source:
       uri: https://github.com/flavorjones/mini_portile/
       branch: master

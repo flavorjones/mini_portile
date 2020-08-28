@@ -2,16 +2,20 @@
 
 resource_types:
 - name: pull-request
-  type: docker-image
+  type: registry-image
   source:
-    repository: jtarchie/pr
+    repository: teliaoss/github-pr-resource
 
 resources:
 <%= erbify_file "common_resources.yml" -%>
-  - name: mini_portile-pr
+  - name: mini-portile-pr
     type: pull-request
+    icon: github
+    check_every: 15m
+    # https://ci.nokogiri.org/api/v1/teams/nokogiri-core/pipelines/mini_portile-pr/resources/mini_portile-pr/check/webhook?webhook_token=((webhook_token))
+    webhook_token: ((mini-portile-pr-webhook-token))
     source:
-      repo: flavorjones/mini_portile
+      repository: flavorjones/mini_portile
       access_token: ((github-repo-status-access-token))
       ignore_paths: <%= $common_ignore_paths %>
 
@@ -20,11 +24,11 @@ jobs:
     public: true
     plan:
       - get: ci
-      - get: mini_portile-pr
+      - get: mini-portile-pr
         trigger: true
         version: every
-      - put: mini_portile-pr
-        params: {path: mini_portile-pr, status: pending}
+      - put: mini-portile-pr
+        params: {path: mini-portile-pr, status: PENDING}
 
 % RUBIES[:mri].last(2).each do |ruby_version|
   - name: ruby-<%= ruby_version %>-pr
@@ -32,7 +36,7 @@ jobs:
     serial_groups: [pr]
     plan:
       - get: ci
-      - get: mini_portile-pr
+      - get: mini-portile-pr
         trigger: true
         version: every
         passed: [pr-pending]
@@ -44,13 +48,13 @@ jobs:
             source: {repository: ruby, tag: "<%= ruby_version %>"}
           inputs:
             - name: ci
-            - name: mini_portile-pr
-              path: mini_portile
+            - name: mini-portile-pr
+              path: mini-portile
           run:
             path: ci/concourse/tasks/rake-test/task.sh
         on_failure:
-          put: mini_portile-pr
-          params: {path: mini_portile-pr, status: failure}
+          put: mini-portile-pr
+          params: {path: mini-portile-pr, status: FAILURE}
 % end
 
   - name: pr-success
@@ -58,12 +62,12 @@ jobs:
     serial_groups: [pr]
     disable_manual_trigger: true
     plan:
-      - get: mini_portile-pr
+      - get: mini-portile-pr
         trigger: true
         version: every
         passed:
 % RUBIES[:mri].last(2).each do |ruby_version|
           - ruby-<%= ruby_version %>-pr
 % end
-      - put: mini_portile-pr
-        params: {path: mini_portile-pr, status: success}
+      - put: mini-portile-pr
+        params: {path: mini-portile-pr, status: SUCCESS}

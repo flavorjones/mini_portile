@@ -1,94 +1,113 @@
-
+jobs:
+- name: pr-pending
+  plan:
+  - get: ci
+  - get: mini-portile-pr
+    trigger: true
+    version: every
+  - params:
+      path: mini-portile-pr
+      status: PENDING
+    put: mini-portile-pr
+  public: true
+- name: ruby-2.6-pr
+  plan:
+  - get: ci
+  - get: mini-portile-pr
+    passed:
+    - pr-pending
+    trigger: true
+    version: every
+  - config:
+      image_resource:
+        source:
+          repository: ruby
+          tag: "2.6"
+        type: registry-image
+      inputs:
+      - name: ci
+      - name: mini-portile-pr
+        path: mini-portile
+      platform: linux
+      run:
+        path: ci/concourse/tasks/rake-test/task.sh
+    on_failure:
+      params:
+        path: mini-portile-pr
+        status: FAILURE
+      put: mini-portile-pr
+    task: rake-test
+  public: true
+  serial_groups:
+  - pr
+- name: ruby-2.7-pr
+  plan:
+  - get: ci
+  - get: mini-portile-pr
+    passed:
+    - pr-pending
+    trigger: true
+    version: every
+  - config:
+      image_resource:
+        source:
+          repository: ruby
+          tag: "2.7"
+        type: registry-image
+      inputs:
+      - name: ci
+      - name: mini-portile-pr
+        path: mini-portile
+      platform: linux
+      run:
+        path: ci/concourse/tasks/rake-test/task.sh
+    on_failure:
+      params:
+        path: mini-portile-pr
+        status: FAILURE
+      put: mini-portile-pr
+    task: rake-test
+  public: true
+  serial_groups:
+  - pr
+- disable_manual_trigger: true
+  name: pr-success
+  plan:
+  - get: mini-portile-pr
+    passed:
+    - ruby-2.6-pr
+    - ruby-2.7-pr
+    trigger: true
+    version: every
+  - params:
+      path: mini-portile-pr
+      status: SUCCESS
+    put: mini-portile-pr
+  public: true
+  serial_groups:
+  - pr
 resource_types:
 - name: pull-request
-  type: docker-image
   source:
-    repository: jtarchie/pr
-
+    repository: teliaoss/github-pr-resource
+  type: registry-image
 resources:
-  - name: ci
-    type: git
-    source:
-      uri: https://github.com/flavorjones/mini_portile/
-      branch: master
-      disable_ci_skip: true # always get the latest pipeline configuration
-  - name: mini_portile-pr
-    type: pull-request
-    source:
-      repo: flavorjones/mini_portile
-      access_token: ((github-repo-status-access-token))
-      ignore_paths: ["CHANGELOG.md","README.md","concourse/**"]
-
-jobs:
-  - name: pr-pending
-    public: true
-    plan:
-      - get: ci
-      - get: mini_portile-pr
-        trigger: true
-        version: every
-      - put: mini_portile-pr
-        params: {path: mini_portile-pr, status: pending}
-
-  - name: ruby-2.6-pr
-    public: true
-    serial_groups: [pr]
-    plan:
-      - get: ci
-      - get: mini_portile-pr
-        trigger: true
-        version: every
-        passed: [pr-pending]
-      - task: rake-test
-        config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: ruby, tag: "2.6"}
-          inputs:
-            - name: ci
-            - name: mini_portile-pr
-              path: mini_portile
-          run:
-            path: ci/concourse/tasks/rake-test/task.sh
-        on_failure:
-          put: mini_portile-pr
-          params: {path: mini_portile-pr, status: failure}
-  - name: ruby-2.7-pr
-    public: true
-    serial_groups: [pr]
-    plan:
-      - get: ci
-      - get: mini_portile-pr
-        trigger: true
-        version: every
-        passed: [pr-pending]
-      - task: rake-test
-        config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source: {repository: ruby, tag: "2.7"}
-          inputs:
-            - name: ci
-            - name: mini_portile-pr
-              path: mini_portile
-          run:
-            path: ci/concourse/tasks/rake-test/task.sh
-        on_failure:
-          put: mini_portile-pr
-          params: {path: mini_portile-pr, status: failure}
-
-  - name: pr-success
-    public: true
-    serial_groups: [pr]
-    disable_manual_trigger: true
-    plan:
-      - get: mini_portile-pr
-        trigger: true
-        version: every
-        passed:
-          - ruby-2.6-pr
-          - ruby-2.7-pr
-      - put: mini_portile-pr
-        params: {path: mini_portile-pr, status: success}
+- icon: cog
+  name: ci
+  source:
+    branch: master
+    disable_ci_skip: true
+    uri: https://github.com/flavorjones/mini_portile/
+  type: git
+- check_every: 15m
+  icon: github
+  name: mini-portile-pr
+  source:
+    access_token: ((github-repo-status-access-token))
+    ignore_paths:
+    - CHANGELOG.md
+    - README.md
+    - concourse/**
+    repository: flavorjones/mini_portile
+  type: pull-request
+  webhook_token: ((mini-portile-pr-webhook-token))

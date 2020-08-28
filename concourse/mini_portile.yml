@@ -2,8 +2,9 @@
 
 resources:
 <%= erbify_file "common_resources.yml" -%>
-  - name: mini_portile
+  - name: mini-portile
     type: git
+    icon: github
     source:
       uri: https://github.com/flavorjones/mini_portile/
       branch: master
@@ -15,7 +16,7 @@ jobs:
     public: true
     plan:
       - get: ci
-      - get: mini_portile
+      - get: mini-portile
         trigger: true
       - task: rake-test
         config:
@@ -25,7 +26,7 @@ jobs:
             source: {repository: ruby, tag: "<%= ruby_version %>"}
           inputs:
             - name: ci
-            - name: mini_portile
+            - name: mini-portile
           run:
             path: ci/concourse/tasks/rake-test/task.sh
 % end
