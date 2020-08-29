@@ -1,13 +1,19 @@
 ---
 install:
-  - ps: ((New-Object Net.WebClient).DownloadFile('https://raw.githubusercontent.com/bagder/ca-bundle/master/ca-bundle.crt', "$env:TMP\ca-bundle.crt"))
-  - SET SSL_CERT_FILE=%TMP%\ca-bundle.crt
+  - ps: |
+      if ($env:ruby_version -like "*head*") {
+        $(new-object net.webclient).DownloadFile("https://github.com/oneclick/rubyinstaller2/releases/download/rubyinstaller-head/rubyinstaller-$env:ruby_version.exe", "$pwd/ruby-setup.exe")
+        cmd /c ruby-setup.exe /verysilent /dir=C:/Ruby$env:ruby_version
+      }
   - SET PATH=C:\Ruby%ruby_version%\bin;%PATH%
-  - SET RAKEOPT=-rdevkit
+  - SET MAKE=make -j2
   - ruby --version
   - gem --version
+  - gem install "bundler:~>2.1" --conservative
   - bundle install
   - gpg --version
+  - ridk enable
+  - pacman -S --noconfirm %MINGW_PACKAGE_PREFIX%-cmake
 
 build: off
 
@@ -16,10 +22,6 @@ test_script:
 
 environment:
   matrix:
-    - ruby_version: "22-x64"
-    - ruby_version: "22"
-    - ruby_version: "21-x64"
-    - ruby_version: "21"
-    - ruby_version: "200-x64"
-    - ruby_version: "200"
-    - ruby_version: "193"
+    - ruby_version: head-x64
+    - ruby_version: "24"
+    - ruby_version: "26-x64"
