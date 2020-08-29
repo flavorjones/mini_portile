@@ -5,8 +5,6 @@ class TestCMake < TestCase
 
   def before_all
     super
-    return if MiniPortile.windows?
-
     @assets_path = File.expand_path("../assets", __FILE__)
     @tar_path = File.expand_path("../../tmp/test-cmake-1.0.tar.gz", __FILE__)
 
@@ -29,10 +27,15 @@ class TestCMake < TestCase
 
   def after_all
     super
-    return if MiniPortile.windows?
-
     stop_webrick
     # leave test files for inspection
+  end
+
+  def exe_name
+    case
+      when MiniPortile.windows? then "hello.exe"
+      else "hello"
+    end
   end
 
   def test_cmake_inherits_from_base
@@ -40,8 +43,6 @@ class TestCMake < TestCase
   end
 
   def test_configure
-    skip if MiniPortile.windows?
-
     cmakecache = File.join(work_dir, "CMakeCache.txt")
     assert File.exist?(cmakecache), cmakecache
 
@@ -49,16 +50,12 @@ class TestCMake < TestCase
   end
 
   def test_compile
-    skip if MiniPortile.windows?
-
-    binary = File.join(work_dir, "hello")
+    binary = File.join(work_dir, exe_name)
     assert File.exist?(binary), binary
   end
 
   def test_install
-    skip if MiniPortile.windows?
-
-    binary = File.join(recipe.path, "bin", "hello")
+    binary = File.join(recipe.path, "bin", exe_name)
     assert File.exist?(binary), binary
   end
 end
