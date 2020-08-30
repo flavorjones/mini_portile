@@ -99,7 +99,7 @@ resources:
     disable_ci_skip: true
     uri: https://github.com/flavorjones/mini_portile/
   type: git
-- check_every: 15m
+- check_every: 5m
   icon: github
   name: mini-portile-pr
   source:
