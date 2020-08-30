@@ -6,8 +6,10 @@ class MiniPortileCMake < MiniPortile
   end
 
   def configure_defaults
-    if MiniPortile.windows?
-      ['-G "NMake Makefiles"']
+    if MiniPortile.mswin?
+      ['-G', 'NMake Makefiles']
+    elsif MiniPortile.mingw?
+      ['-G', 'MSYS Makefiles']
     else
       []
     end
@@ -34,7 +36,7 @@ class MiniPortileCMake < MiniPortile
   end
 
   def make_cmd
-    return "nmake" if MiniPortile.windows?
+    return "nmake" if MiniPortile.mswin?
     super
   end
 end

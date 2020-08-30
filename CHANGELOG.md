@@ -1,3 +1,12 @@
+## mini_portile changelog
+
+### unreleased
+
+#### Dependencies
+
+This release ends support for ruby < 2.3.0. If you're on 2.2.x or earlier, we strongly suggest that you find the time to upgrade, because [official support for Ruby 2.2 ended on 2018-03-31](https://www.ruby-lang.org/en/news/2018/06/20/support-of-ruby-2-2-has-ended/).
+
+
 ### 2.5.0 / 2020-02-24
 
 #### Enhancements
