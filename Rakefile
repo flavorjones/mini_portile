@@ -25,7 +25,7 @@ task :test => ["test:unit", "test:examples"]
 task :default => [:test]
 
 require "concourse"
-Concourse.new("mini_portile", fly_target: "ci", format: true) do |c|
-  c.add_pipeline "mini_portile", "mini_portile.yml"
-  c.add_pipeline "mini_portile-pr", "mini_portile-pr.yml"
+Concourse.new("mini-portile", fly_target: "ci", format: true) do |c|
+  c.add_pipeline "mini-portile", "mini-portile.yml"
+  c.add_pipeline "mini-portile-pr", "mini-portile-pr.yml"
 end
