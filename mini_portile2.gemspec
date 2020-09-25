@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.summary = "Simplistic port-like solution for developers"
   spec.description = "Simplistic port-like solution for developers. It provides a standard and simplified way to compile against dependency libraries without messing up your system."
 
-  spec.homepage = "http://github.com/flavorjones/mini_portile"
+  spec.homepage = "https://github.com/flavorjones/mini_portile"
   spec.licenses = ["MIT"]
 
   begin
