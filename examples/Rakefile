@@ -17,20 +17,26 @@ recipes.push libiconv
 
 
 # sqlite3
-sqlite3 = MiniPortile.new "sqlite3", "3.35.4"
-sqlite3.files << "https://www.sqlite.org/2021/sqlite-autoconf-3350400.tar.gz"
+unless windows?
+  # i can't get this version to build on Github Actions windows-latest / windows-2019
+  sqlite3 = MiniPortile.new "sqlite3", "3.35.4"
+  sqlite3.files << "https://www.sqlite.org/2021/sqlite-autoconf-3350400.tar.gz"
 
-recipes.push sqlite3
+  recipes.push sqlite3
+end
 
 
-# c-ares
-c_ares = MiniPortile.new "c-ares", "1.7.5"
-c_ares.files << {
-  url: "file://#{File.dirname(__FILE__)}/c-ares-1.7.5.tar.gz",
-  md5: "800875fc23cd8e1924d8af9172ed33e7"
-}
+unless windows?
+  # i can't get this version to build on Github Actions windows-latest / windows-2019
+  # c-ares
+  c_ares = MiniPortile.new "c-ares", "1.7.5"
+  c_ares.files << {
+    url: "file://#{File.dirname(__FILE__)}/c-ares-1.7.5.tar.gz",
+    md5: "800875fc23cd8e1924d8af9172ed33e7"
+  }
 
-recipes.push c_ares
+  recipes.push c_ares
+end
 
 
 # zlib
