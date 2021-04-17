@@ -17,7 +17,6 @@ class TestCMake < TestCase
     @recipe = MiniPortileCMake.new("test-cmake", "1.0").tap do |recipe|
       recipe.files << "http://localhost:#{HTTP_PORT}/#{ERB::Util.url_encode(File.basename(@tar_path))}"
       recipe.patch_files << File.join(@assets_path, "patch 1.diff")
-      recipe.configure_options << "--option=\"path with 'space'\""
       git_dir = File.join(@assets_path, "git")
       with_custom_git_dir(git_dir) do
         recipe.cook
