@@ -20,6 +20,7 @@ jobs:
     version: every
   - config:
       image_resource:
+        name: ""
         source:
           repository: ruby
           tag: "2.6"
@@ -50,6 +51,7 @@ jobs:
     version: every
   - config:
       image_resource:
+        name: ""
         source:
           repository: ruby
           tag: "2.7"
@@ -95,11 +97,11 @@ resources:
 - icon: cog
   name: ci
   source:
-    branch: master
+    branch: main
     disable_ci_skip: true
     uri: https://github.com/flavorjones/mini_portile/
   type: git
-- check_every: 5m
+- check_every: 5m0s
   icon: github
   name: mini-portile-pr
   source:

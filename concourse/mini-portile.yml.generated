@@ -6,6 +6,7 @@ jobs:
     trigger: true
   - config:
       image_resource:
+        name: ""
         source:
           repository: ruby
           tag: "2.6"
@@ -25,6 +26,7 @@ jobs:
     trigger: true
   - config:
       image_resource:
+        name: ""
         source:
           repository: ruby
           tag: "2.7"
@@ -41,14 +43,14 @@ resources:
 - icon: cog
   name: ci
   source:
-    branch: master
+    branch: main
     disable_ci_skip: true
     uri: https://github.com/flavorjones/mini_portile/
   type: git
 - icon: github
   name: mini-portile
   source:
-    branch: master
+    branch: main
     ignore_paths:
     - CHANGELOG.md
     - README.md
