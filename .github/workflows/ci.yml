@@ -12,6 +12,8 @@ on:
 
 jobs:
   test-unit:
+    env:
+      MAKEFLAGS: -j2
     strategy:
       matrix:
         platform: [ubuntu-latest, windows-latest]
@@ -33,6 +35,8 @@ jobs:
       - run: bundle exec rake test:unit
 
   test-examples:
+    env:
+      MAKEFLAGS: -j2
     strategy:
       matrix:
         platform: [ubuntu-latest, windows-latest]
