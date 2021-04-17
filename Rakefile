@@ -23,9 +23,3 @@ desc "Run all tests"
 task :test => ["test:unit", "test:examples"]
 
 task :default => [:test]
-
-require "concourse"
-Concourse.new("mini-portile", fly_target: "ci", format: true) do |c|
-  c.add_pipeline "mini-portile", "mini-portile.yml"
-  c.add_pipeline "mini-portile-pr", "mini-portile-pr.yml"
-end

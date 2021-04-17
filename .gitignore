@@ -1,6 +1,5 @@
-pkg
-tmp
-Gemfile.lock
 .bundle
+Gemfile.lock
+pkg
 ports
-concourse/private.yml
+tmp
