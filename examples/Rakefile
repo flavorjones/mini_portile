@@ -17,8 +17,8 @@ recipes.push libiconv
 
 
 # sqlite3
-sqlite3 = MiniPortile.new "sqlite3", "3.8.4.1"
-sqlite3.files << "http://sqlite.org/2014/sqlite-autoconf-3080401.tar.gz"
+sqlite3 = MiniPortile.new "sqlite3", "3.35.4"
+sqlite3.files << "https://www.sqlite.org/2021/sqlite-autoconf-3350400.tar.gz"
 
 recipes.push sqlite3
 
