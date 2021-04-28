@@ -1,6 +1,6 @@
 ## mini_portile changelog
 
-### unreleased
+### 2.5.1 / 2021-04-28
 
 #### Dependencies
 
@@ -9,6 +9,7 @@ This release ends support for ruby < 2.3.0. If you're on 2.2.x or earlier, we st
 #### Enhancements
 
 * `MiniPortile.execute` now takes an optional `:env` hash, which is merged into the environment variables for the subprocess. Likely this is only useful for specialized use cases. [#99]
+* Experimental support for cmake-based projects extended to Windows. (Thanks, @larskanis!)
 
 
 ### 2.5.0 / 2020-02-24
