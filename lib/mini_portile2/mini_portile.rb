@@ -414,7 +414,7 @@ private
       end
 
       if $?.success?
-        output "OK" if opt_message
+        output "OK"
         return true
       else
         if File.exist? log_out
