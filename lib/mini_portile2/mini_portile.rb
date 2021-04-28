@@ -380,29 +380,41 @@ private
     execute('extract', [tar_exe, "#{tar_compression_switch(filename)}xf", file, "-C", target], {:cd => Dir.pwd, :initial_message => false})
   end
 
-  def execute(action, command, options={})
-    log_out    = log_file(action)
+  # command could be an array of args, or one string containing a command passed to the shell. See
+  # Process.spawn for more information.
+  def execute(action, command, command_opts={})
+    opt_message = command_opts.fetch(:initial_message, true)
+    opt_debug =   command_opts.fetch(:debug, false)
+    opt_cd =      command_opts.fetch(:cd) { work_path }
+    opt_env =     command_opts.fetch(:env) { Hash.new }
 
-    Dir.chdir (options.fetch(:cd){ work_path }) do
-      if options.fetch(:initial_message){ true }
-        message "Running '#{action}' for #{@name} #{@version}... "
-      end
+    log_out = log_file(action)
+
+    Dir.chdir(opt_cd) do
+      output "DEBUG: env is #{opt_env.inspect}" if opt_debug
+      output "DEBUG: command is #{command.inspect}" if opt_debug
+      message "Running '#{action}' for #{@name} #{@version}... " if opt_message
 
       if Process.respond_to?(:spawn) && ! RbConfig.respond_to?(:java)
-        args = [command].flatten + [{[:out, :err]=>[log_out, "a"]}]
+        options = {[:out, :err]=>[log_out, "a"]}
+        output "DEBUG: options are #{options.inspect}" if opt_debug
+        args = [opt_env, command, options].flatten
         pid = spawn(*args)
         Process.wait(pid)
       else
-        redirected = if command.kind_of?(Array)
-                       %Q{#{command.map(&:shellescape).join(" ")} > #{log_out.shellescape} 2>&1}
-                     else
-                       %Q{#{command} > #{log_out.shellescape} 2>&1}
-                     end
+        env_args = opt_env.map { |k,v| "#{k}=#{v}".shellescape }.join(" ")
+        c = if command.kind_of?(Array)
+              command.map(&:shellescape).join(" ")
+            else
+              command
+            end
+        redirected = %Q{env #{env_args} #{c} > #{log_out.shellescape} 2>&1}
+        output "DEBUG: final command is #{redirected.inspect}" if opt_debug
         system redirected
       end
 
       if $?.success?
-        output "OK"
+        output "OK" if opt_message
         return true
       else
         if File.exist? log_out
