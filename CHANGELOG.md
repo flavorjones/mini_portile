@@ -1,5 +1,12 @@
 ## mini_portile changelog
 
+### 2.5.2 / 2021-05-28
+
+#### Dependencies
+
+Add `net-ftp` as an explicit dependency to accommodate the upcoming Ruby 3.1 changes that move this and other gems out of the "default" gem set and into the "bundled" gem set. See https://bugs.ruby-lang.org/issues/17873 [#101]
+
+
 ### 2.5.1 / 2021-04-28
 
 #### Dependencies
