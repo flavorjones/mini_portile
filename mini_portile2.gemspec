@@ -31,12 +31,14 @@ Gem::Specification.new do |spec|
   spec.test_files = spec.files.grep(%r{^(test|spec|features|examples)/})
   spec.require_paths = ["lib"]
 
+  spec.required_ruby_version = ">= 2.3.0"
+
+  spec.add_dependency "net-ftp", "~> 0.1"
+
   spec.add_development_dependency "bundler", "~> 2.1"
   spec.add_development_dependency "minitar", "~> 0.7"
   spec.add_development_dependency "minitest", "~> 5.11"
   spec.add_development_dependency "minitest-hooks", "~> 1.5.0"
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "webrick", "~> 1.0"
-
-  spec.required_ruby_version = ">= 2.3.0"
 end
