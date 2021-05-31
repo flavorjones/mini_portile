@@ -104,16 +104,18 @@ recipes.push zlib
 namespace :ports do
   directory "ports"
 
+  task :before do
+    FileUtils.rm_rf(File.expand_path("tmp"), verbose: true);
+    recipes.each do |recipe|
+      FileUtils.rm_rf(recipe.path, verbose: true)
+    end
+  end
+  task :all => :before
+
   recipes.each do |recipe|
     desc "Install port #{recipe.name} #{recipe.version}"
     task recipe.name => ["ports"] do |t|
-      checkpoint = "ports/.#{recipe.name}-#{recipe.version}-#{recipe.host}.installed"
-
-      unless File.exist?(checkpoint)
-        recipe.cook
-        touch checkpoint
-      end
-
+      recipe.cook
       recipe.activate
     end
 

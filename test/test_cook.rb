@@ -113,3 +113,32 @@ class TestCookWithBrokenGitDir < TestCase
     end
   end
 end
+
+class TestCookAgainstSourceDirectory < TestCase
+  attr_accessor :recipe
+
+  def setup
+    super
+
+    @recipe ||= MiniPortile.new("test mini portile", "1.0.0").tap do |recipe|
+      recipe.source_directory = File.expand_path("../assets/test mini portile-1.0.0", __FILE__)
+    end
+  end
+
+  def test_source_directory
+    recipe.cook
+
+    path = File.join(work_dir, "configure.txt")
+    assert(File.exist?(path))
+    assert_equal((recipe.configure_options + ["--prefix=#{recipe.path}"]).inspect,
+                 File.read(path).chomp);
+
+    path = File.join(work_dir, "compile.txt")
+    assert(File.exist?(path))
+    assert_equal("[\"all\"]", File.read(path).chomp);
+
+    path = File.join(work_dir, "install.txt")
+    assert(File.exist?(path))
+    assert_equal("[\"install\"]", File.read(path).chomp);
+  end
+end

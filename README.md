@@ -89,6 +89,18 @@ system-wide installation.
 Same as above, but instead of `MiniPortile.new`, call `MiniPortileCMake.new`.
 
 
+### Local source directories
+
+Instead of downloading a remote file, you can also point mini_portile2 at a local source
+directory. In particular, this may be useful for testing or debugging:
+
+``` ruby
+gem "mini_portile2", "~> 2.0.0" # NECESSARY if used in extconf.rb. see below.
+require "mini_portile2"
+recipe = MiniPortile.new("libiconv", "1.13.1")
+recipe.source_directory = "/path/to/local/source/for/library-1.2.3"
+```
+
 ### Directory Structure Conventions
 
 `mini_portile2` follows the principle of **convention over configuration** and

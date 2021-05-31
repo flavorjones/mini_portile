@@ -31,7 +31,7 @@ end
 class MiniPortile
   attr_reader :name, :version, :original_host
   attr_writer :configure_options
-  attr_accessor :host, :files, :patch_files, :target, :logger
+  attr_accessor :host, :files, :patch_files, :target, :logger, :source_directory
 
   def self.windows?
     RbConfig::CONFIG['target_os'] =~ /mswin|mingw/
@@ -55,8 +55,20 @@ class MiniPortile
     @patch_files = []
     @log_files = {}
     @logger = STDOUT
+    @source_directory = nil
 
     @original_host = @host = detect_host
+  end
+
+  def source_directory=(path)
+    @source_directory = File.expand_path(path)
+  end
+
+  def prepare_build_directory
+    raise "source_directory is not set" if source_directory.nil?
+    output "Building #{@name} #{@version} from source at '#{source_directory}'"
+    FileUtils.mkdir_p(File.join(tmp_path, [name, version].join("-")))
+    FileUtils.rm_rf(port_path) # make sure we always re-install
   end
 
   def download
@@ -110,15 +122,16 @@ class MiniPortile
   def configure
     return if configured?
 
+    FileUtils.mkdir_p(tmp_path)
     cache_file = File.join(tmp_path, 'configure.options_cache')
     File.open(cache_file, "w") { |f| f.write computed_options.to_s }
 
+    command = Array(File.join((source_directory || "."), "configure"))
     if RUBY_PLATFORM=~/mingw|mswin/
       # Windows doesn't recognize the shebang.
-      execute('configure', %w(sh ./configure) + computed_options)
-    else
-      execute('configure', %w(./configure) + computed_options)
+      command.unshift("sh")
     end
+    execute('configure', command + computed_options)
   end
 
   def compile
@@ -139,7 +152,7 @@ class MiniPortile
   end
 
   def configured?
-    configure = File.join(work_path, 'configure')
+    configure = File.join((source_directory || work_path), 'configure')
     makefile  = File.join(work_path, 'Makefile')
     cache_file  = File.join(tmp_path, 'configure.options_cache')
 
@@ -157,9 +170,13 @@ class MiniPortile
   end
 
   def cook
-    download unless downloaded?
-    extract
-    patch
+    if source_directory
+      prepare_build_directory
+    else
+      download unless downloaded?
+      extract
+      patch
+    end
     configure unless configured?
     compile
     install unless installed?
