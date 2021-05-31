@@ -9,6 +9,11 @@ particular, this may be useful for debugging problems with the upstream dependen
 bisect` in a local clone) or for continuous integration with upstream HEAD.
 
 
+### 2.5.3 / 2021-05-31
+
+Make `net-ftp` an optional dependency, since requiring it as a hard dependency in v2.5.2 caused warnings to be emitted by Ruby 2.7 and earlier. A warning message is emitted if FTP functionality is called and `net-ftp` isn't available; this should only happen in Ruby 3.1 and later.
+
+
 ### 2.5.2 / 2021-05-28
 
 #### Dependencies
