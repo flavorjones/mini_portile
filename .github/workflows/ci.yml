@@ -1,14 +1,19 @@
 name: Continuous Integration
 
 on:
+  workflow_dispatch:
   push:
-    branches: [main]
+    branches:
+      - main
+      - v*.*.x
+    tags:
+      - v*.*.*
   pull_request:
     types: [opened, synchronize]
-    branches: [main]
+    branches:
+      - "*"
   schedule:
     - cron: "0 8 * * 5" # At 08:00 on Friday # https://crontab.guru/#0_8_*_*_5
-  workflow_dispatch:
 
 jobs:
   test-unit:
