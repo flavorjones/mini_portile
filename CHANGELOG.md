@@ -1,12 +1,12 @@
 ## mini_portile changelog
 
-### next / unreleased
+### 2.6.0 / 2021-05-31
 
 ### Added
 
 Recipes may build against a local directory by specifying `source_directory` instead of `files`. In
 particular, this may be useful for debugging problems with the upstream dependency (e.g., use `git
-bisect` in a local clone).
+bisect` in a local clone) or for continuous integration with upstream HEAD.
 
 
 ### 2.5.2 / 2021-05-28
