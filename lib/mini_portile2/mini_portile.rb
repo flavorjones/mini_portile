@@ -1,7 +1,6 @@
 require 'rbconfig'
 require 'net/http'
 require 'net/https'
-require 'net/ftp'
 require 'fileutils'
 require 'tempfile'
 require 'digest'
@@ -473,7 +472,6 @@ private
   def download_file_http(url, full_path, count = 3)
     filename = File.basename(full_path)
     with_tempfile(filename, full_path) do |temp_file|
-      progress = 0
       total = 0
       params = {
         "Accept-Encoding" => 'identity',
@@ -482,7 +480,6 @@ private
           if total
             new_progress = (bytes * 100) / total
             message "\rDownloading %s (%3d%%) " % [filename, new_progress]
-            progress = new_progress
           else
             # Content-Length is unavailable because Transfer-Encoding is chunked
             message "\rDownloading %s " % [filename]
@@ -530,16 +527,15 @@ private
   end
 
   def download_file_ftp(uri, full_path)
+    require "net/ftp"
     filename = File.basename(uri.path)
     with_tempfile(filename, full_path) do |temp_file|
-      progress = 0
       total = 0
       params = {
         :content_length_proc => lambda{|length| total = length },
         :progress_proc => lambda{|bytes|
           new_progress = (bytes * 100) / total
           message "\rDownloading %s (%3d%%) " % [filename, new_progress]
-          progress = new_progress
         }
       }
       if ENV["ftp_proxy"]
@@ -555,6 +551,8 @@ private
       end
       output
     end
+  rescue LoadError
+    raise LoadError, "Ruby #{RUBY_VERSION} does not provide the net-ftp gem, please add it as a dependency if you need to use FTP"
   rescue Net::FTPError
     return false
   end

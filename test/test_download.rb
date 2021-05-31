@@ -18,10 +18,12 @@ describe "recipe download" do
       end
     end
 
-    block.call
-
-    thread.kill
-    server.close
+    begin
+      block.call
+    ensure
+      thread.kill
+      server.close
+    end
 
     request_count.must_be :>, 0
   end
