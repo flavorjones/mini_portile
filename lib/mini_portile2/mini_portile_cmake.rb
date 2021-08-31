@@ -5,6 +5,11 @@ class MiniPortileCMake < MiniPortile
     "-DCMAKE_INSTALL_PREFIX=#{File.expand_path(port_path)}"
   end
 
+  def initialize(name, version, **kwargs)
+    super(name, version, **kwargs)
+    @cmake_command = kwargs[:cmake_command]
+  end
+
   def configure_defaults
     if MiniPortile.mswin?
       ['-G', 'NMake Makefiles']
@@ -21,7 +26,7 @@ class MiniPortileCMake < MiniPortile
     cache_file = File.join(tmp_path, 'configure.options_cache')
     File.open(cache_file, "w") { |f| f.write computed_options.to_s }
 
-    execute('configure', %w(cmake) + computed_options + ["."])
+    execute('configure', [cmake_cmd] + computed_options + ["."])
   end
 
   def configured?
@@ -38,5 +43,9 @@ class MiniPortileCMake < MiniPortile
   def make_cmd
     return "nmake" if MiniPortile.mswin?
     super
+  end
+
+  def cmake_cmd
+    (ENV["CMAKE"] || @cmake_command || "cmake").dup
   end
 end

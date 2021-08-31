@@ -83,11 +83,60 @@ library into a namespaced structure.
 `#activate` ensures GCC will find this library and prefer it over a
 system-wide installation.
 
+Some keyword arguments can be passed to the constructor to configure the commands used:
+
+#### `gcc_command`
+
+The compiler command that is used is configurable, and in order of preference will use:
+
+- the `CC` environment variable (if present)
+- the `gcc_command` value passed in to the constructor
+- `RbConfig::CONFIG["CC"]`
+- `"gcc"`
+
+You can pass it in like so:
+
+``` ruby
+MiniPortile.new("libiconv", "1.13.1", gcc_command: "cc")
+```
+
+#### `make_command`
+
+The configuration/make command that is used is configurable, and in order of preference will use:
+
+- the `MAKE` environment variable (if present)
+- the `make_command` value passed in to the constructor
+- the `make` environment variable (if present)
+- `"make"`
+
+You can pass it in like so:
+
+``` ruby
+MiniPortile.new("libiconv", "1.13.1", make_command: "nmake")
+```
+
 
 ### How to use (for cmake projects)
 
 Same as above, but instead of `MiniPortile.new`, call `MiniPortileCMake.new`.
 
+#### `make_command`
+
+This is configurable as above, except for Windows systems where it's hardcoded to `"nmake"`.
+
+#### `cmake_command`
+
+The cmake command used is configurable, and in order of preference will use:
+
+- the `CMAKE` environment variable (if present)
+- the `cmake_command` value passed in to the constructor
+- `"cmake"`
+
+You can pass it in like so:
+
+``` ruby
+MiniPortileCMake.new("libfoobar", "1.3.5", cmake_command: "cmake3")
+```
 
 ### Local source directories
 

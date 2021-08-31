@@ -1,5 +1,12 @@
 ## mini_portile changelog
 
+### next-minor / unreleased
+
+### Added
+
+The commands used for "make", "compile", and "cmake" are configurable via keyword arguments. [#107] (Thanks, @cosmo0920!)
+
+
 ### 2.6.1 / 2021-05-31
 
 #### Dependencies

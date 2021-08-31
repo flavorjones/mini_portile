@@ -67,6 +67,32 @@ class TestCook < TestCase
   end
 end
 
+class TestCookConfiguration < TestCase
+  def test_make_command_configuration
+    without_env("MAKE") do
+      assert_equal("make", MiniPortile.new("test", "1.0.0").make_cmd)
+      assert_equal("xyzzy", MiniPortile.new("test", "1.0.0", make_command: "xyzzy").make_cmd)
+    end
+    with_env("MAKE"=>"asdf") do
+      assert_equal("asdf", MiniPortile.new("test", "1.0.0").make_cmd)
+      assert_equal("asdf", MiniPortile.new("test", "1.0.0", make_command: "xyzzy").make_cmd)
+    end
+  end
+
+  def test_gcc_command_configuration
+    without_env("CC") do
+      expected_compiler = RbConfig::CONFIG["CC"] || "gcc"
+      assert_equal(expected_compiler, MiniPortile.new("test", "1.0.0").gcc_cmd)
+      assert_equal("xyzzy", MiniPortile.new("test", "1.0.0", gcc_command: "xyzzy").gcc_cmd)
+    end
+    with_env("CC"=>"asdf") do
+      assert_equal("asdf", MiniPortile.new("test", "1.0.0").gcc_cmd)
+      assert_equal("asdf", MiniPortile.new("test", "1.0.0", gcc_command: "xyzzy").gcc_cmd)
+    end
+  end
+end
+
+
 class TestCookWithBrokenGitDir < TestCase
   #
   #  this is a test for #69
