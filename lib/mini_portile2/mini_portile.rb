@@ -46,7 +46,7 @@ class MiniPortile
     RbConfig::CONFIG['target_os'] =~ /mswin/
   end
 
-  def initialize(name, version)
+  def initialize(name, version, **kwargs)
     @name = name
     @version = version
     @target = 'ports'
@@ -57,6 +57,9 @@ class MiniPortile
     @source_directory = nil
 
     @original_host = @host = detect_host
+
+    @gcc_command = kwargs[:gcc_command]
+    @make_command = kwargs[:make_command]
   end
 
   def source_directory=(path)
@@ -220,6 +223,14 @@ class MiniPortile
 
   def path
     File.expand_path(port_path)
+  end
+
+  def gcc_cmd
+    (ENV["CC"] || @gcc_command || RbConfig::CONFIG["CC"] || "gcc").dup
+  end
+
+  def make_cmd
+    (ENV["MAKE"] || @make_command || ENV["make"] || "make").dup
   end
 
 private
@@ -582,15 +593,5 @@ private
     File.unlink full_path if File.exist?(full_path)
     FileUtils.mkdir_p File.dirname(full_path)
     FileUtils.mv temp_file.path, full_path, :force => true
-  end
-
-  def gcc_cmd
-    cc = ENV["CC"] || RbConfig::CONFIG["CC"] || "gcc"
-    return cc.dup
-  end
-
-  def make_cmd
-    m = ENV['MAKE'] || ENV['make'] || 'make'
-    return m.dup
   end
 end

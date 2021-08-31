@@ -58,3 +58,33 @@ class TestCMake < TestCase
     assert File.exist?(binary), binary
   end
 end
+
+class TestCMakeConfig < TestCase
+  def test_make_command_configuration
+    MiniPortile.stub(:mswin?, false) do
+      without_env("MAKE") do
+        assert_equal("make", MiniPortileCMake.new("test", "1.0.0").make_cmd)
+        assert_equal("xyzzy", MiniPortileCMake.new("test", "1.0.0", make_command: "xyzzy").make_cmd)
+      end
+      with_env("MAKE"=>"asdf") do
+        assert_equal("asdf", MiniPortileCMake.new("test", "1.0.0").make_cmd)
+        assert_equal("asdf", MiniPortileCMake.new("test", "1.0.0", make_command: "xyzzy").make_cmd)
+      end
+    end
+
+    MiniPortile.stub(:mswin?, true) do
+      assert_equal("nmake", MiniPortileCMake.new("test", "1.0.0").make_cmd)
+    end
+  end
+
+  def test_cmake_command_configuration
+    without_env("CMAKE") do
+      assert_equal("cmake", MiniPortileCMake.new("test", "1.0.0").cmake_cmd)
+      assert_equal("xyzzy", MiniPortileCMake.new("test", "1.0.0", cmake_command: "xyzzy").cmake_cmd)
+    end
+    with_env("CMAKE"=>"asdf") do
+      assert_equal("asdf", MiniPortileCMake.new("test", "1.0.0").cmake_cmd)
+      assert_equal("asdf", MiniPortileCMake.new("test", "1.0.0", cmake_command: "xyzzy").cmake_cmd)
+    end
+  end
+end

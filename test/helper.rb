@@ -57,4 +57,20 @@ class TestCase < Minitest::Test
   ensure
     ENV['GIT_DIR'] = old
   end
+
+  def with_env(env)
+    before = ENV.to_h.dup
+    env.each { |k, v| ENV[k] = v }
+    yield
+  ensure
+    ENV.replace(before)
+  end
+
+  def without_env(*keys, &blk)
+    before = ENV.to_h.dup
+    keys.flatten.each { |k| ENV.delete(k) }
+    yield
+  ensure
+    ENV.replace(before)
+  end
 end
