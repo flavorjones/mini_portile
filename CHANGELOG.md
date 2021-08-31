@@ -1,6 +1,6 @@
 ## mini_portile changelog
 
-### next-minor / unreleased
+### 2.7.0 / 2021-08-31
 
 ### Added
 
