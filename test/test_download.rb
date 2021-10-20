@@ -62,7 +62,7 @@ describe "recipe download" do
       @recipe.files << "file://#{path}"
       @recipe.download
       assert File.exist?(dest)
-      Digest::MD5.file(dest).hexdigest.must_equal "5deffb997041bbb5f11bdcafdbb47975"
+      Digest::MD5.file(dest).hexdigest.must_equal "ee0e9f44e72213015ef976d5ac23931d"
     end
 
     it "other" do
