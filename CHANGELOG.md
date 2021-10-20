@@ -1,5 +1,12 @@
 ## mini_portile changelog
 
+### 2.7.1 / 2021-10-20
+
+#### Packaging
+
+A test artifact that has been included in the gem was being flagged by some users' security scanners because it wasn't a real tarball. That artifact has been updated to be a real tarball. [#108]
+
+
 ### 2.7.0 / 2021-08-31
 
 ### Added
