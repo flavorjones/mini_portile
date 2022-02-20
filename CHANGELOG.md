@@ -1,5 +1,13 @@
 ## mini_portile changelog
 
+### 2.8.0 / unreleased
+
+#### Added
+
+- When downloading a source archive, explicitly set open_timeout and read_timeout to 10 seconds.
+- Allow configuration of open_timeout and read_timeout.
+
+
 ### 2.7.1 / 2021-10-20
 
 #### Packaging

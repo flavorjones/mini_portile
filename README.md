@@ -115,6 +115,15 @@ You can pass it in like so:
 MiniPortile.new("libiconv", "1.13.1", make_command: "nmake")
 ```
 
+#### `open_timeout`, `read_timeout`
+
+By default, when downloading source archives, MiniPortile will use a timeout value of 10
+seconds. This can be overridden by passing a different value (in seconds):
+
+``` ruby
+MiniPortile.new("libiconv", "1.13.1", open_timeout: 99, read_timeout: 2)
+```
+
 
 ### How to use (for cmake projects)
 
@@ -137,6 +146,7 @@ You can pass it in like so:
 ``` ruby
 MiniPortileCMake.new("libfoobar", "1.3.5", cmake_command: "cmake3")
 ```
+
 
 ### Local source directories
 

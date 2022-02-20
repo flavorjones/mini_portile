@@ -28,6 +28,8 @@ class Net::HTTP
 end
 
 class MiniPortile
+  DEFAULT_TIMEOUT = 10
+
   attr_reader :name, :version, :original_host
   attr_writer :configure_options
   attr_accessor :host, :files, :patch_files, :target, :logger, :source_directory
@@ -60,6 +62,8 @@ class MiniPortile
 
     @gcc_command = kwargs[:gcc_command]
     @make_command = kwargs[:make_command]
+    @open_timeout = kwargs[:open_timeout] || DEFAULT_TIMEOUT
+    @read_timeout = kwargs[:read_timeout] || DEFAULT_TIMEOUT
   end
 
   def source_directory=(path)
@@ -512,7 +516,9 @@ private
             # Content-Length is unavailable because Transfer-Encoding is chunked
             message "\rDownloading %s " % [filename]
           end
-        }
+        },
+        :open_timeout => @open_timeout,
+        :read_timeout => @read_timeout,
       }
       proxy_uri = URI.parse(url).scheme.downcase == 'https' ?
                   ENV["https_proxy"] :
@@ -537,7 +543,7 @@ private
         return download_file(redirect.url, full_path, count-1)
       rescue => e
         count = count - 1
-        puts "#{count} retrie(s) left for #{filename}"
+        puts "#{count} retrie(s) left for #{filename} (#{e.message})"
         if count > 0
           sleep 1
           return download_file_http(url, full_path, count)
@@ -564,7 +570,9 @@ private
         :progress_proc => lambda{|bytes|
           new_progress = (bytes * 100) / total
           message "\rDownloading %s (%3d%%) " % [filename, new_progress]
-        }
+        },
+        :open_timeout => @open_timeout,
+        :read_timeout => @read_timeout,
       }
       if ENV["ftp_proxy"]
         _, userinfo, _p_host, _p_port = URI.split(ENV['ftp_proxy'])
