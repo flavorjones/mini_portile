@@ -12,8 +12,17 @@ end
 # libiconv
 libiconv = MiniPortile.new "libiconv", "1.15"
 libiconv.files << "ftp://ftp.gnu.org/pub/gnu/#{libiconv.name}/#{libiconv.name}-#{libiconv.version}.tar.gz"
-
 recipes.push libiconv
+
+
+# libxml2 with xz extension
+libxml2 = MiniPortile.new "libxml2", "2.9.13"
+libxml2.files << "https://download.gnome.org/sources/libxml2/2.9/libxml2-2.9.13.tar.xz"
+libxml2.configure_options += [
+  "--without-python",
+  "--without-readline",
+]
+recipes.push libxml2
 
 
 # sqlite3

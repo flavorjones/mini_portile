@@ -4,8 +4,8 @@
 
 #### Added
 
-- When downloading a source archive, explicitly set open_timeout and read_timeout to 10 seconds.
-- Allow configuration of open_timeout and read_timeout.
+- Support xz-compressed archives (recognized by an `.xz` file extension).
+- When downloading a source archive, default open_timeout and read_timeout to 10 seconds, but allow configuration via open_timeout and read_timeout config parameters.
 
 
 ### 2.7.1 / 2021-10-20
@@ -17,7 +17,7 @@ A test artifact that has been included in the gem was being flagged by some user
 
 ### 2.7.0 / 2021-08-31
 
-### Added
+#### Added
 
 The commands used for "make", "compile", and "cmake" are configurable via keyword arguments. [#107] (Thanks, @cosmo0920!)
 
