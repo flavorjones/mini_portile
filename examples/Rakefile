@@ -9,24 +9,33 @@ def windows?
   RbConfig::CONFIG['target_os'] =~ /mswin|mingw32/
 end
 
-# libiconv
-libiconv = MiniPortile.new "libiconv", "1.15"
-libiconv.files << "ftp://ftp.gnu.org/pub/gnu/#{libiconv.name}/#{libiconv.name}-#{libiconv.version}.tar.gz"
-recipes.push libiconv
+def arm64_darwin?
+  RUBY_PLATFORM =~ /arm64-darwin/
+end
+
+# libiconv is still shipping an old version of automake that doesn't support arm64-darwin
+unless arm64_darwin?
+  libiconv = MiniPortile.new "libiconv", "1.15"
+  libiconv.files << "ftp://ftp.gnu.org/pub/gnu/#{libiconv.name}/#{libiconv.name}-#{libiconv.version}.tar.gz"
+  recipes.push libiconv
+end
 
 
-# libxml2 with xz extension
-libxml2 = MiniPortile.new "libxml2", "2.9.13"
-libxml2.files << "https://download.gnome.org/sources/libxml2/2.9/libxml2-2.9.13.tar.xz"
-libxml2.configure_options += [
-  "--without-python",
-  "--without-readline",
-]
-recipes.push libxml2
+# libxml2 2.9.13 is still shipping an old version of automake that doesn't support arm64-darwin
+unless arm64_darwin?
+  # test the version of libxml2 with an xz extension
+  libxml2 = MiniPortile.new "libxml2", "2.9.13"
+  libxml2.files << "https://download.gnome.org/sources/libxml2/2.9/libxml2-2.9.13.tar.xz"
+  libxml2.configure_options += [
+    "--without-python",
+    "--without-readline",
+  ]
+  recipes.push libxml2
+end
 
 
-# sqlite3
-unless windows?
+# libxml2 2.9.13 is still shipping an old version of automake that doesn't support arm64-darwin
+unless windows? || arm64_darwin?
   # i can't get this version to build on Github Actions windows-latest / windows-2019
   sqlite3 = MiniPortile.new "sqlite3", "3.35.4"
   sqlite3.files << "https://www.sqlite.org/2021/sqlite-autoconf-3350400.tar.gz"
@@ -35,7 +44,7 @@ unless windows?
 end
 
 
-unless windows?
+unless windows? || arm64_darwin?
   # i can't get this version to build on Github Actions windows-latest / windows-2019
   # c-ares
   c_ares = MiniPortile.new "c-ares", "1.7.5"
