@@ -362,6 +362,8 @@ private
         'z'
       when '.bz2', '.tbz2'
         'j'
+      when '.xz'
+        'J'
       when '.Z'
         'Z'
       else
