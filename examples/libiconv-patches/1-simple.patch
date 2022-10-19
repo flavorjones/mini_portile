@@ -1,0 +1,14 @@
+This file tests the 'patch' functionality, as well as working around a
+libiconv compilation issue with glibc >= 2.16.
+
+--- ./srclib/stat.c	2017-01-01 18:02:22.000000000 -0500
++++ ./srclib/stat.c	2022-10-18 20:27:18.831323906 -0400
+@@ -48,6 +48,8 @@
+   return stat (filename, buf);
+ }
+ 
++/* this was patched! */
++
+ /* Specification.  */
+ /* Write "sys/stat.h" here, not <sys/stat.h>, otherwise OSF/1 5.1 DTK cc
+    eliminates this include because of the preliminary #include <sys/stat.h>
