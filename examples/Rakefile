@@ -17,6 +17,7 @@ end
 unless arm64_darwin?
   libiconv = MiniPortile.new "libiconv", "1.15"
   libiconv.files << "ftp://ftp.gnu.org/pub/gnu/#{libiconv.name}/#{libiconv.name}-#{libiconv.version}.tar.gz"
+  libiconv.patch_files = Dir[File.join(__dir__, "libiconv-patches", "*.patch")].sort
   recipes.push libiconv
 end
 
