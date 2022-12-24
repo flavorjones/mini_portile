@@ -99,9 +99,9 @@ class MiniPortile
       when which('git')
         lambda { |file|
           message "Running git apply with #{file}... "
-          # By --work-tree=. git-apply uses the current directory as
-          # the project root and will not search upwards for .git.
-          execute('patch', ["git", "--git-dir=.", "--work-tree=.", "apply", "--whitespace=warn", file], :initial_message => false)
+          Dir.mktmpdir do |tmp_git_dir|
+            execute('patch', ["git", "--git-dir=#{tmp_git_dir}", "--work-tree=.", "apply", "--whitespace=warn", file], :initial_message => false)
+          end
         }
       when which('patch')
         lambda { |file|
