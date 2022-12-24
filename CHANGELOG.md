@@ -1,6 +1,6 @@
 ## mini_portile changelog
 
-### next / unreleased
+### 2.8.1 / 2022-12-24
 
 #### Fixed
 
