@@ -1,5 +1,12 @@
 ## mini_portile changelog
 
+### next / unreleased
+
+#### Fixed
+
+- Support applying patches via `git apply` even when the working directory resembles a git directory. [#119] (Thanks, @h0tw1r3!)
+
+
 ### 2.8.0 / 2022-02-20
 
 #### Added
