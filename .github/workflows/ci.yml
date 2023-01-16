@@ -33,7 +33,7 @@ jobs:
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: MSP-Greg/setup-ruby-pkgs@v1
         with:
           apt-get: _update_ build-essential cmake
@@ -64,7 +64,7 @@ jobs:
           mingw: _upgrade_ cmake
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: examples/ports/archives
           key: ${{ matrix.platform }}-examples-${{ hashFiles('examples/Rakefile') }}
