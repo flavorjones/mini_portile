@@ -25,7 +25,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: [ubuntu-latest, windows-latest, macos-latest]
-        ruby: ["2.3", "2.4", "2.5", "2.6", "2.7", "3.0", "3.1", "head"]
+        ruby: ["2.3", "2.4", "2.5", "2.6", "2.7", "3.0", "3.1", "3.2", "head"]
     runs-on: ${{ matrix.platform }}
     steps:
       - name: configure git crlf on windows
@@ -57,7 +57,7 @@ jobs:
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: MSP-Greg/setup-ruby-pkgs@v1
         with:
           apt-get: _update_ build-essential cmake
