@@ -67,7 +67,7 @@ class MiniPortile
   end
 
   def source_directory=(path)
-    @source_directory = File.expand_path(path)
+    @source_directory = posix_path(path)
   end
 
   def prepare_build_directory
@@ -200,10 +200,7 @@ class MiniPortile
 
     output "Activating #{@name} #{@version} (from #{port_path})..."
     vars.each do |var, path|
-      full_path = File.expand_path(path)
-
-      # turn into a valid Windows path (if required)
-      full_path.gsub!(File::SEPARATOR, File::ALT_SEPARATOR) if File::ALT_SEPARATOR
+      full_path = native_path(path)
 
       # save current variable value
       old_value = ENV[var] || ''
@@ -237,7 +234,25 @@ class MiniPortile
     (ENV["MAKE"] || @make_command || ENV["make"] || "make").dup
   end
 
-private
+  private
+
+  def native_path(path)
+    path = File.expand_path(path)
+    if File::ALT_SEPARATOR
+      path.tr(File::SEPARATOR, File::ALT_SEPARATOR)
+    else
+      path
+    end
+  end
+
+  def posix_path(path)
+    path = File.expand_path(path)
+    if File::ALT_SEPARATOR
+      "/" + path.tr(File::ALT_SEPARATOR, File::SEPARATOR).tr(":", File::SEPARATOR)
+    else
+      path
+    end
+  end
 
   def tmp_path
     "tmp/#{@host}/ports/#{@name}/#{@version}"
