@@ -67,12 +67,12 @@ class MiniPortile
   end
 
   def source_directory=(path)
-    @source_directory = File.expand_path(path)
+    @source_directory = posix_path(path)
   end
 
   def prepare_build_directory
     raise "source_directory is not set" if source_directory.nil?
-    output "Building #{@name} #{@version} from source at '#{source_directory}'"
+    output "Building #{@name} from source at '#{source_directory}'"
     FileUtils.mkdir_p(File.join(tmp_path, [name, version].join("-")))
     FileUtils.rm_rf(port_path) # make sure we always re-install
   end
@@ -137,7 +137,7 @@ class MiniPortile
       # Windows doesn't recognize the shebang.
       command.unshift("sh")
     end
-    execute('configure', command + computed_options)
+    execute('configure', command + computed_options, altlog: "config.log")
   end
 
   def compile
@@ -200,10 +200,7 @@ class MiniPortile
 
     output "Activating #{@name} #{@version} (from #{port_path})..."
     vars.each do |var, path|
-      full_path = File.expand_path(path)
-
-      # turn into a valid Windows path (if required)
-      full_path.gsub!(File::SEPARATOR, File::ALT_SEPARATOR) if File::ALT_SEPARATOR
+      full_path = native_path(path)
 
       # save current variable value
       old_value = ENV[var] || ''
@@ -237,7 +234,25 @@ class MiniPortile
     (ENV["MAKE"] || @make_command || ENV["make"] || "make").dup
   end
 
-private
+  private
+
+  def native_path(path)
+    path = File.expand_path(path)
+    if File::ALT_SEPARATOR
+      path.tr(File::SEPARATOR, File::ALT_SEPARATOR)
+    else
+      path
+    end
+  end
+
+  def posix_path(path)
+    path = File.expand_path(path)
+    if File::ALT_SEPARATOR
+      "/" + path.tr(File::ALT_SEPARATOR, File::SEPARATOR).tr(":", File::SEPARATOR)
+    else
+      path
+    end
+  end
 
   def tmp_path
     "tmp/#{@host}/ports/#{@name}/#{@version}"
@@ -420,6 +435,7 @@ private
     opt_debug =   command_opts.fetch(:debug, false)
     opt_cd =      command_opts.fetch(:cd) { work_path }
     opt_env =     command_opts.fetch(:env) { Hash.new }
+    opt_altlog =  command_opts.fetch(:altlog, nil)
 
     log_out = log_file(action)
 
@@ -450,12 +466,12 @@ private
         output "OK"
         return true
       else
-        if File.exist? log_out
-          output "ERROR, review '#{log_out}' to see what happened. Last lines are:"
-          output("=" * 72)
-          log_lines = File.readlines(log_out)
-          output(log_lines[-[log_lines.length, 20].min .. -1])
-          output("=" * 72)
+        output "ERROR. Please review logs to see what happened:\n"
+        [log_out, opt_altlog].compact.each do |log|
+          next unless File.exist?(log)
+          output("----- contents of '#{log}' -----")
+          output(File.read(log))
+          output("----- end of file -----")
         end
         raise "Failed to complete #{action} task"
       end
