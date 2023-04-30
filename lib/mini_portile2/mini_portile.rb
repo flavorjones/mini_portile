@@ -137,7 +137,7 @@ class MiniPortile
       # Windows doesn't recognize the shebang.
       command.unshift("sh")
     end
-    execute('configure', command + computed_options)
+    execute('configure', command + computed_options, altlog: "config.log")
   end
 
   def compile
@@ -420,6 +420,7 @@ private
     opt_debug =   command_opts.fetch(:debug, false)
     opt_cd =      command_opts.fetch(:cd) { work_path }
     opt_env =     command_opts.fetch(:env) { Hash.new }
+    opt_altlog =  command_opts.fetch(:altlog, nil)
 
     log_out = log_file(action)
 
@@ -450,12 +451,12 @@ private
         output "OK"
         return true
       else
-        if File.exist? log_out
-          output "ERROR, review '#{log_out}' to see what happened. Last lines are:"
-          output("=" * 72)
-          log_lines = File.readlines(log_out)
-          output(log_lines[-[log_lines.length, 20].min .. -1])
-          output("=" * 72)
+        output "ERROR. Please review logs to see what happened:\n"
+        [log_out, opt_altlog].compact.each do |log|
+          next unless File.exist?(log)
+          output("----- contents of '#{log}' -----")
+          output(File.read(log))
+          output("----- end of file -----")
         end
         raise "Failed to complete #{action} task"
       end
