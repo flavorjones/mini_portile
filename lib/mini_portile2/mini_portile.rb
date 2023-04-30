@@ -72,7 +72,7 @@ class MiniPortile
 
   def prepare_build_directory
     raise "source_directory is not set" if source_directory.nil?
-    output "Building #{@name} #{@version} from source at '#{source_directory}'"
+    output "Building #{@name} from source at '#{source_directory}'"
     FileUtils.mkdir_p(File.join(tmp_path, [name, version].join("-")))
     FileUtils.rm_rf(port_path) # make sure we always re-install
   end
