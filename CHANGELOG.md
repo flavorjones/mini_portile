@@ -1,5 +1,12 @@
 ## mini_portile changelog
 
+### 2.8.2 / 2023-04-30
+
+#### Fixed
+
+- Ensure that the `source_directory` option will work when given a Windows path to an autoconf directory. [#126]
+
+
 ### 2.8.1 / 2022-12-24
 
 #### Fixed
