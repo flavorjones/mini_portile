@@ -14,13 +14,11 @@ class TestCMake < TestCase
     create_tar(@tar_path, @assets_path, "test-cmake-1.0")
     start_webrick(File.dirname(@tar_path))
 
-    @recipe = MiniPortileCMake.new("test-cmake", "1.0").tap do |recipe|
-      recipe.files << "http://localhost:#{HTTP_PORT}/#{ERB::Util.url_encode(File.basename(@tar_path))}"
-      recipe.patch_files << File.join(@assets_path, "patch 1.diff")
-      git_dir = File.join(@assets_path, "git")
-      with_custom_git_dir(git_dir) do
-        recipe.cook
-      end
+    @recipe = init_recipe
+
+    git_dir = File.join(@assets_path, "git")
+    with_custom_git_dir(git_dir) do
+      recipe.cook
     end
   end
 
@@ -57,6 +55,13 @@ class TestCMake < TestCase
     binary = File.join(recipe.path, "bin", exe_name)
     assert File.exist?(binary), binary
   end
+
+  def init_recipe
+    MiniPortileCMake.new("test-cmake", "1.0").tap do |recipe|
+      recipe.files << "http://localhost:#{HTTP_PORT}/#{ERB::Util.url_encode(File.basename(@tar_path))}"
+      recipe.patch_files << File.join(@assets_path, "patch 1.diff")
+    end
+  end
 end
 
 class TestCMakeConfig < TestCMake
@@ -77,26 +82,103 @@ class TestCMakeConfig < TestCMake
     end
   end
 
+  def test_configure_defaults_with_macos
+    recipe = init_recipe
+    recipe.host = 'some-host'
+
+    with_env({ "CC" => nil, "CXX" => nil }) do
+      MiniPortile.stub(:darwin?, true) do
+        with_stubbed_target(os: 'darwin22', cpu: 'arm64') do
+          with_compilers(recipe, host_prefix: true, c_compiler: 'clang', cxx_compiler: 'clang++') do
+            Open3.stub(:capture2, cmake_help_mock('Unix')) do
+              assert_equal(
+                [
+                  "-DCMAKE_SYSTEM_NAME=Darwin",
+                  "-DCMAKE_SYSTEM_PROCESSOR=arm64",
+                  "-DCMAKE_C_COMPILER=some-host-clang",
+                  "-DCMAKE_CXX_COMPILER=some-host-clang++"
+                ],
+                recipe.configure_defaults)
+            end
+          end
+        end
+      end
+    end
+  end
+
+  def test_configure_defaults_with_manual_system_name
+    recipe = init_recipe
+    recipe.system_name = 'Custom'
+
+    MiniPortile.stub(:darwin?, false) do
+      with_stubbed_target do
+        with_compilers(recipe) do
+          Open3.stub(:capture2, cmake_help_mock('Unix')) do
+            assert_equal(
+              [
+                "-DCMAKE_SYSTEM_NAME=Custom",
+                "-DCMAKE_SYSTEM_PROCESSOR=x86_64",
+                "-DCMAKE_C_COMPILER=gcc",
+                "-DCMAKE_CXX_COMPILER=g++"
+              ],
+              recipe.configure_defaults)
+          end
+        end
+      end
+    end
+  end
+
   def test_configure_defaults_with_unix_makefiles
-    Open3.stub(:capture2, cmake_help_mock('Unix')) do
-      MiniPortile.stub(:mingw?, true) do
-        assert_equal([], @recipe.configure_defaults)
+    recipe = init_recipe
+
+    MiniPortile.stub(:linux?, true) do
+      MiniPortile.stub(:darwin?, false) do
+        with_stubbed_target do
+          with_compilers(recipe) do
+            Open3.stub(:capture2, cmake_help_mock('Unix')) do
+              MiniPortile.stub(:mingw?, true) do
+                assert_equal(default_x86_compile_flags,
+                            recipe.configure_defaults)
+              end
+            end
+          end
+        end
       end
     end
   end
 
   def test_configure_defaults_with_msys_makefiles
-    Open3.stub(:capture2, cmake_help_mock('MSYS')) do
-      MiniPortile.stub(:mingw?, true) do
-        assert_equal(['-G', 'MSYS Makefiles'], @recipe.configure_defaults)
+    recipe = init_recipe
+
+    MiniPortile.stub(:linux?, true) do
+      MiniPortile.stub(:darwin?, false) do
+        with_stubbed_target do
+          with_compilers(recipe) do
+            Open3.stub(:capture2, cmake_help_mock('MSYS')) do
+              MiniPortile.stub(:mingw?, true) do
+                assert_equal(['-G', 'MSYS Makefiles'] + default_x86_compile_flags, recipe.configure_defaults)
+              end
+            end
+          end
+        end
       end
     end
   end
 
   def test_configure_defaults_with_nmake_makefiles
-    Open3.stub(:capture2, cmake_help_mock('NMake')) do
-      MiniPortile.stub(:mswin?, true) do
-        assert_equal(['-G', 'NMake Makefiles'], @recipe.configure_defaults)
+    recipe = init_recipe
+
+    MiniPortile.stub(:linux?, true) do
+      MiniPortile.stub(:darwin?, false) do
+        with_stubbed_target do
+          with_compilers(recipe) do
+            Open3.stub(:capture2, cmake_help_mock('NMake')) do
+              MiniPortile.stub(:mswin?, true) do
+                assert_equal(['-G', 'NMake Makefiles'] + default_x86_compile_flags, recipe.configure_defaults)
+              end
+            end
+          end
+        end
       end
     end
   end
@@ -114,12 +196,47 @@ class TestCMakeConfig < TestCMake
 
   private
 
+  def with_stubbed_target(os: 'linux', cpu: 'x86_64')
+    MiniPortile.stub(:target_os, os) do
+      MiniPortile.stub(:target_cpu, cpu) do
+        yield
+      end
+    end
+  end
+
+  def with_compilers(recipe, host_prefix: false, c_compiler: 'gcc', cxx_compiler: 'g++')
+    mock = MiniTest::Mock.new
+
+    if host_prefix
+      mock.expect(:call, true, ["#{recipe.host}-#{c_compiler}"])
+      mock.expect(:call, true, ["#{recipe.host}-#{cxx_compiler}"])
+    else
+      mock.expect(:call, false, ["#{recipe.host}-#{c_compiler}"])
+      mock.expect(:call, true, [c_compiler])
+      mock.expect(:call, false, ["#{recipe.host}-#{cxx_compiler}"])
+      mock.expect(:call, true, [cxx_compiler])
+    end
+
+    recipe.stub(:which, mock) do
+      yield
+    end
+  end
+
+  def default_x86_compile_flags
+    [
+      "-DCMAKE_SYSTEM_NAME=Linux",
+      "-DCMAKE_SYSTEM_PROCESSOR=x86_64",
+      "-DCMAKE_C_COMPILER=gcc",
+      "-DCMAKE_CXX_COMPILER=g++"
+    ]
+  end
+
   def cmake_help_mock(generator_type)
     open3_mock = MiniTest::Mock.new
     cmake_script = <<~SCRIPT
-    echo "The following generators are available on this platform (* marks default):"
-    echo "* #{generator_type} Makefiles               = Generates standard #{generator_type.upcase} makefiles."
-  SCRIPT
+      echo "The following generators are available on this platform (* marks default):"
+      echo "* #{generator_type} Makefiles               = Generates standard #{generator_type.upcase} makefiles."
+    SCRIPT
 
     exit_status = MiniTest::Mock.new
     exit_status.expect(:success?, true)
