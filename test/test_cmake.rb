@@ -59,7 +59,7 @@ class TestCMake < TestCase
   end
 end
 
-class TestCMakeConfig < TestCase
+class TestCMakeConfig < TestCMake
   def test_make_command_configuration
     MiniPortile.stub(:mswin?, false) do
       without_env("MAKE") do
@@ -77,6 +77,30 @@ class TestCMakeConfig < TestCase
     end
   end
 
+  def test_configure_defaults_with_unix_makefiles
+    Open3.stub(:capture2, cmake_help_mock('Unix')) do
+      MiniPortile.stub(:mingw?, true) do
+        assert_equal([], @recipe.configure_defaults)
+      end
+    end
+  end
+
+  def test_configure_defaults_with_msys_makefiles
+    Open3.stub(:capture2, cmake_help_mock('MSYS')) do
+      MiniPortile.stub(:mingw?, true) do
+        assert_equal(['-G', 'MSYS Makefiles'], @recipe.configure_defaults)
+      end
+    end
+  end
+
+  def test_configure_defaults_with_nmake_makefiles
+    Open3.stub(:capture2, cmake_help_mock('NMake')) do
+      MiniPortile.stub(:mswin?, true) do
+        assert_equal(['-G', 'NMake Makefiles'], @recipe.configure_defaults)
+      end
+    end
+  end
+
   def test_cmake_command_configuration
     without_env("CMAKE") do
       assert_equal("cmake", MiniPortileCMake.new("test", "1.0.0").cmake_cmd)
@@ -86,5 +110,21 @@ class TestCMakeConfig < TestCase
       assert_equal("asdf", MiniPortileCMake.new("test", "1.0.0").cmake_cmd)
       assert_equal("asdf", MiniPortileCMake.new("test", "1.0.0", cmake_command: "xyzzy").cmake_cmd)
     end
+  end
+
+  private
+
+  def cmake_help_mock(generator_type)
+    open3_mock = MiniTest::Mock.new
+    cmake_script = <<~SCRIPT
+    echo "The following generators are available on this platform (* marks default):"
+    echo "* #{generator_type} Makefiles               = Generates standard #{generator_type.upcase} makefiles."
+  SCRIPT
+
+    exit_status = MiniTest::Mock.new
+    exit_status.expect(:success?, true)
+    expected_output = [cmake_script, exit_status]
+    open3_mock.expect(:call, expected_output, ['cmake --help'])
+    open3_mock
   end
 end

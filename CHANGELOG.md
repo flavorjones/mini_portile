@@ -1,5 +1,12 @@
 ## mini_portile changelog
 
+### next / unreleased
+
+#### Fixed
+
+- cmake: only use MSYS/NMake generators when available. [#129]
+
+
 ### 2.8.2 / 2023-04-30
 
 #### Fixed

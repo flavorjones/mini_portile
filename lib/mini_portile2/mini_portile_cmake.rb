@@ -1,4 +1,5 @@
 require 'mini_portile2/mini_portile'
+require 'open3'
 
 class MiniPortileCMake < MiniPortile
   def configure_prefix
@@ -11,9 +12,9 @@ class MiniPortileCMake < MiniPortile
   end
 
   def configure_defaults
-    if MiniPortile.mswin?
+    if MiniPortile.mswin? && generator_available?('NMake')
       ['-G', 'NMake Makefiles']
-    elsif MiniPortile.mingw?
+    elsif MiniPortile.mingw? && generator_available?('MSYS')
       ['-G', 'MSYS Makefiles']
     else
       []
@@ -47,5 +48,15 @@ class MiniPortileCMake < MiniPortile
 
   def cmake_cmd
     (ENV["CMAKE"] || @cmake_command || "cmake").dup
+  end
+
+  private
+
+  def generator_available?(generator_type)
+    stdout_str, status = Open3.capture2("#{cmake_cmd} --help")
+
+    raise 'Unable to determine whether CMake supports #{generator_type} Makefile generator' unless status.success?
+
+    stdout_str.include?("#{generator_type} Makefiles")
   end
 end
