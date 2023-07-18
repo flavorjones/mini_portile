@@ -35,17 +35,45 @@ class MiniPortile
   attr_accessor :host, :files, :patch_files, :target, :logger, :source_directory
 
   def self.windows?
-    RbConfig::CONFIG['target_os'] =~ /mswin|mingw/
+    target_os =~ /mswin|mingw/
   end
 
   # GNU MinGW compiled Ruby?
   def self.mingw?
-    RbConfig::CONFIG['target_os'] =~ /mingw/
+    target_os =~ /mingw/
   end
 
   # MS Visual-C compiled Ruby?
   def self.mswin?
-    RbConfig::CONFIG['target_os'] =~ /mswin/
+    target_os =~ /mswin/
+  end
+
+  def self.darwin?
+    target_os =~ /darwin/
+  end
+
+  def self.freebsd?
+    target_os =~ /freebsd/
+  end
+
+  def self.openbsd?
+    target_os =~ /openbsd/
+  end
+
+  def self.linux?
+    target_os =~ /linux/
+  end
+
+  def self.solaris?
+    target_os =~ /solaris/
+  end
+
+  def self.target_os
+    RbConfig::CONFIG['target_os']
+  end
+
+  def self.target_cpu
+    RbConfig::CONFIG['target_cpu']
   end
 
   def initialize(name, version, **kwargs)
