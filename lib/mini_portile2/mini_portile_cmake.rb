@@ -67,7 +67,7 @@ class MiniPortileCMake < MiniPortile
     # needed to ensure cross-compilation with CMake targets the right CPU and compilers
     [
       "-DCMAKE_SYSTEM_NAME=#{cmake_system_name}",
-      "-DCMAKE_SYSTEM_PROCESSOR=#{MiniPortile.target_cpu}",
+      "-DCMAKE_SYSTEM_PROCESSOR=#{cpu_type}",
       "-DCMAKE_C_COMPILER=#{c_compiler}",
       "-DCMAKE_CXX_COMPILER=#{cxx_compiler}"
     ]
@@ -128,5 +128,11 @@ class MiniPortileCMake < MiniPortile
     raise 'Unable to determine whether CMake supports #{generator_type} Makefile generator' unless status.success?
 
     stdout_str.include?("#{generator_type} Makefiles")
+  end
+
+  def cpu_type
+    return 'x86_64' if MiniPortile.target_cpu == 'x64'
+
+    MiniPortile.target_cpu
   end
 end
