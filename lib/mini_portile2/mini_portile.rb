@@ -76,6 +76,24 @@ class MiniPortile
     RbConfig::CONFIG['target_cpu']
   end
 
+  def self.native_path(path)
+    path = File.expand_path(path)
+    if File::ALT_SEPARATOR
+      path.tr(File::SEPARATOR, File::ALT_SEPARATOR)
+    else
+      path
+    end
+  end
+
+  def self.posix_path(path)
+    path = File.expand_path(path)
+    if File::ALT_SEPARATOR
+      "/" + path.tr(File::ALT_SEPARATOR, File::SEPARATOR).tr(":", File::SEPARATOR)
+    else
+      path
+    end
+  end
+
   def initialize(name, version, **kwargs)
     @name = name
     @version = version
@@ -240,7 +258,7 @@ class MiniPortile
 
     # rely on LDFLAGS when cross-compiling
     if File.exist?(lib_path) && (@host != @original_host)
-      full_path = File.expand_path(lib_path)
+      full_path = native_path(lib_path)
 
       old_value = ENV.fetch("LDFLAGS", "")
 
@@ -265,21 +283,11 @@ class MiniPortile
   private
 
   def native_path(path)
-    path = File.expand_path(path)
-    if File::ALT_SEPARATOR
-      path.tr(File::SEPARATOR, File::ALT_SEPARATOR)
-    else
-      path
-    end
+    MiniPortile.native_path(path)
   end
 
   def posix_path(path)
-    path = File.expand_path(path)
-    if File::ALT_SEPARATOR
-      "/" + path.tr(File::ALT_SEPARATOR, File::SEPARATOR).tr(":", File::SEPARATOR)
-    else
-      path
-    end
+    MiniPortile.posix_path(path)
   end
 
   def tmp_path
