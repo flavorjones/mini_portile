@@ -3,7 +3,10 @@ require 'rbconfig'
 $: << File.expand_path(File.join(File.dirname(__FILE__), "../lib"))
 require "mini_portile2"
 
+require "mkmf"
+
 recipes = []
+recipe_hooks = {}
 
 def windows?
   RbConfig::CONFIG['target_os'] =~ /mswin|mingw32/
@@ -119,6 +122,26 @@ zlib.files << {
 
 recipes.push zlib
 
+#
+#  libyaml, using pkgconf for configuration
+#
+yaml = MiniPortile.new("yaml", "0.2.5")
+yaml.files = [{
+                url: "https://github.com/yaml/libyaml/releases/download/0.2.5/yaml-0.2.5.tar.gz",
+                sha256: "c642ae9b75fee120b2d96c712538bd2cf283228d2337df2cf2988e3c02678ef4",
+              }]
+recipes.push(yaml)
+recipe_hooks["yaml"] = lambda do |recipe|
+  conf = pkg_config(File.join(recipe.path, "lib", "pkgconfig", "yaml-0.1.pc"))
+  puts "pkg_config: #{conf.inspect}"
+
+  expected = "-L" + MiniPortile.native_path(File.join(recipe.path, "lib"))
+  $LDFLAGS.split.include?(expected) or raise(<<~MSG)
+    assertion failed: LDFLAGS not updated correctly:
+    #{$LDFLAGS}
+    should have included '#{expected}'
+  MSG
+end
 
 namespace :ports do
   directory "ports"
@@ -136,6 +159,9 @@ namespace :ports do
     task recipe.name => ["ports"] do |t|
       recipe.cook
       recipe.activate
+      if hook = recipe_hooks[recipe.name]
+        hook.call(recipe)
+      end
     end
 
     task :all => recipe.name
@@ -146,7 +172,8 @@ namespace :ports do
     recipes.each do |recipe|
       puts "Artifacts of '#{recipe.name}' in '#{recipe.path}'"
     end
-    puts "LDFLAGS: " + ENV['LDFLAGS'].inspect
+    puts "LIBRARY_PATH: #{ENV['LIBRARY_PATH'].inspect}"
+    puts "LDFLAGS: #{ENV['LDFLAGS'].inspect}, #{$LDFLAGS.inspect}"
   end
 end
 
