@@ -268,6 +268,43 @@ class MiniPortile
     end
   end
 
+  def mkmf_config(pkg: nil, dir: nil)
+    require "mkmf"
+
+    if pkg
+      dir ||= File.join(path, "lib", "pkgconfig")
+      pcfile = File.join(dir, "#{pkg}.pc")
+      unless File.exist?(pcfile)
+        raise ArgumentError, "pkg-config file '#{pcfile}' does not exist"
+      end
+
+      output "Configuring MakeMakefile for #{File.basename(pcfile)} (in #{File.dirname(pcfile)})\n"
+
+      # on macos, pkg-config will not return --cflags without this
+      ENV["PKG_CONFIG_ALLOW_SYSTEM_CFLAGS"] = "t"
+
+      # append to PKG_CONFIG_PATH as we go, so later pkg-config files can depend on earlier ones
+      ENV["PKG_CONFIG_PATH"] = [ENV["PKG_CONFIG_PATH"], dir].compact.join(File::PATH_SEPARATOR)
+
+      cflags = minimal_pkg_config(pcfile, "cflags")
+      ldflags = minimal_pkg_config(pcfile, "libs", "static")
+    else
+      output "Configuring MakeMakefile for #{@name} #{@version} (from #{path})\n"
+
+      include_path = File.join(path, "include")
+      lib_path = File.join(path, "lib")
+
+      lib_name = name.sub(/\Alib/, "") # TODO: use delete_prefix when we no longer support ruby 2.4
+
+      cflags = "-I#{include_path}" if Dir.exist?(include_path)
+      ldflags = "-L#{lib_path} -l#{lib_name}" if Dir.exist?(lib_path)
+    end
+
+    $CFLAGS << " " << cflags if cflags
+    $CXXFLAGS << " " << cflags if cflags
+    $LDFLAGS << " " << ldflags if ldflags
+  end
+
   def path
     File.expand_path(port_path)
   end
@@ -655,5 +692,30 @@ class MiniPortile
     File.unlink full_path if File.exist?(full_path)
     FileUtils.mkdir_p File.dirname(full_path)
     FileUtils.mv temp_file.path, full_path, :force => true
+  end
+
+  #
+  #  this minimal version of pkg_config is based on ruby 29dc9378 (2023-01-09)
+  #
+  #  specifically with the fix from b90e56e6 to support multiple pkg-config options, and removing
+  #  code paths that aren't helpful for mini-portile's use case of parsing pc files.
+  #
+  def minimal_pkg_config(pkg, *pcoptions)
+    if pcoptions.empty?
+      raise ArgumentError, "no pkg-config options are given"
+    end
+
+    if ($PKGCONFIG ||=
+        (pkgconfig = MakeMakefile.with_config("pkg-config") {MakeMakefile.config_string("PKG_CONFIG") || "pkg-config"}) &&
+        MakeMakefile.find_executable0(pkgconfig) && pkgconfig)
+      pkgconfig = $PKGCONFIG
+    else
+      raise RuntimeError, "pkg-config is not found"
+    end
+
+    pcoptions = Array(pcoptions).map { |o| "--#{o}" }
+    response = IO.popen([pkgconfig, *pcoptions, pkg], err:[:child, :out], &:read)
+    raise RuntimeError, response unless $?.success?
+    response.strip
   end
 end
