@@ -86,12 +86,12 @@ class MiniPortile
     @logger = STDOUT
     @source_directory = nil
 
-    @original_host = @host = detect_host
-
     @gcc_command = kwargs[:gcc_command]
     @make_command = kwargs[:make_command]
     @open_timeout = kwargs[:open_timeout] || DEFAULT_TIMEOUT
     @read_timeout = kwargs[:read_timeout] || DEFAULT_TIMEOUT
+
+    @original_host = @host = detect_host
   end
 
   def source_directory=(path)
