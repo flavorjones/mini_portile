@@ -8,6 +8,6 @@ Name: libxslt
 Version: 1.1.38
 Description: XSLT library version 2.
 Requires: libxml-2.0
-Cflags: -I${includedir}
+Cflags: -I${includedir} -Wno-deprecated-enum-enum-conversion
 Libs: -L${libdir} -lxslt
 Libs.private: -lm
