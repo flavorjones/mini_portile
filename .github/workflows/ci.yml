@@ -67,5 +67,22 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: examples/ports/archives
-          key: ${{ matrix.platform }}-examples-${{ hashFiles('examples/Rakefile') }}
+          key: examples-${{ hashFiles('examples/Rakefile') }}
+      - run: bundle exec rake test:examples
+
+  fedora: # see https://github.com/flavorjones/mini_portile/issues/118
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:35
+    steps:
+      - run: |
+          dnf group install -y "C Development Tools and Libraries"
+          dnf install -y ruby ruby-devel libyaml-devel git-all patch cmake xz
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        with:
+          path: examples/ports/archives
+          key: examples-${{ hashFiles('examples/Rakefile') }}
+      - run: bundle install
+      - run: bundle exec rake test:unit
       - run: bundle exec rake test:examples
