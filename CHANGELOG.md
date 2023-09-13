@@ -1,5 +1,12 @@
 ## mini_portile changelog
 
+### 2.9.0.rc1 / 2023-09-13
+
+#### Added
+
+- `MiniPortile#mkmf_config`
+
+
 ### 2.8.4 / 2023-07-18
 
 - cmake: set CMAKE compile flags to configure cross-compilation similarly to `autotools` `--host` flag: `SYSTEM_NAME`, `SYSTEM_PROCESSOR`, `C_COMPILER`, and `CXX_COMPILER`. [#130] (Thanks, @stanhu!)
