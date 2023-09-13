@@ -1,10 +1,12 @@
 ## mini_portile changelog
 
-### 2.9.0.rc1 / 2023-09-13
+### 2.8.5.rc1 / 2023-09-13
 
 #### Added
 
-- `MiniPortile#mkmf_config`
+- New method `MiniPortile#mkmf_config` will set up MakeMakefile variables to properly link against the recipe. This should make it easier for C extensions to package third-party libraries.
+  - With no arguments, will set up just `$INCFLAGS`, `$libs`, and `$LIBPATH`.
+  - Optionally, if provided a pkg-config file, will use that config to more precisely set `$INCFLAGS`, `$libs`, `$LIBPATH`, and `$CFLAGS`/`$CXXFLAGS`.
 
 
 ### 2.8.4 / 2023-07-18
