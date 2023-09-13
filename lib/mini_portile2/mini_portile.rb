@@ -286,8 +286,10 @@ class MiniPortile
       # append to PKG_CONFIG_PATH as we go, so later pkg-config files can depend on earlier ones
       ENV["PKG_CONFIG_PATH"] = [ENV["PKG_CONFIG_PATH"], dir].compact.join(File::PATH_SEPARATOR)
 
-      cflags = minimal_pkg_config(pcfile, "cflags")
-      ldflags = minimal_pkg_config(pcfile, "libs", "static")
+      incflags = minimal_pkg_config(pcfile, "cflags-only-I")
+      cflags = minimal_pkg_config(pcfile, "cflags-only-other")
+      ldflags = minimal_pkg_config(pcfile, "libs-only-L", "static")
+      libflags = minimal_pkg_config(pcfile, "libs-only-l", "static")
     else
       output "Configuring MakeMakefile for #{@name} #{@version} (from #{path})\n"
 
@@ -296,13 +298,26 @@ class MiniPortile
 
       lib_name = name.sub(/\Alib/, "") # TODO: use delete_prefix when we no longer support ruby 2.4
 
-      cflags = "-I#{include_path}" if Dir.exist?(include_path)
-      ldflags = "-L#{lib_path} -l#{lib_name}" if Dir.exist?(lib_path)
+      incflags = "-I#{include_path}" if Dir.exist?(include_path)
+      ldflags = "-L#{lib_path}" if Dir.exist?(lib_path)
+      libflags = "-l#{lib_name}" if Dir.exist?(lib_path)
     end
 
-    $CFLAGS << " " << cflags if cflags
-    $CXXFLAGS << " " << cflags if cflags
-    $LDFLAGS << " " << ldflags if ldflags
+    if ldflags
+      libpaths = ldflags.split.map { |f| f.sub(/\A-L/, "") }
+    end
+
+    # prefer this package by prepending directories to the search path
+    #
+    # use $LIBPATH instead of $LDFLAGS to ensure we get the `-Wl,-rpath` linker flag for re-finding
+    # shared libraries
+    $INCFLAGS = [incflags, $INCFLAGS].join(" ").strip if incflags
+    $LIBPATH = libpaths | $LIBPATH if libpaths
+
+    # prefer this package's flags by appending them to the command line
+    $CFLAGS = [$CFLAGS, cflags].join(" ").strip if cflags
+    $CXXFLAGS = [$CXXFLAGS, cflags].join(" ").strip if cflags
+    $libs = [$libs, libflags].join(" ").strip if libflags
   end
 
   def path
