@@ -237,11 +237,10 @@ class MiniPortile
   end
 
   def activate
-    lib_path = File.join(port_path, "lib")
     vars = {
       'PATH'          => File.join(port_path, 'bin'),
-      'CPATH'         => File.join(port_path, 'include'),
-      'LIBRARY_PATH'  => lib_path
+      'CPATH'         => include_path,
+      'LIBRARY_PATH'  => lib_path,
     }.reject { |env, path| !File.directory?(path) }
 
     output "Activating #{@name} #{@version} (from #{port_path})..."
@@ -272,7 +271,7 @@ class MiniPortile
     require "mkmf"
 
     if pkg
-      dir ||= File.join(path, "lib", "pkgconfig")
+      dir ||= File.join(lib_path, "pkgconfig")
       pcfile = File.join(dir, "#{pkg}.pc")
       unless File.exist?(pcfile)
         raise ArgumentError, "pkg-config file '#{pcfile}' does not exist"
@@ -293,35 +292,38 @@ class MiniPortile
     else
       output "Configuring MakeMakefile for #{@name} #{@version} (from #{path})\n"
 
-      include_path = File.join(path, "include")
-      lib_path = File.join(path, "lib")
-
       lib_name = name.sub(/\Alib/, "") # TODO: use delete_prefix when we no longer support ruby 2.4
 
-      incflags = "-I#{include_path}" if Dir.exist?(include_path)
-      ldflags = "-L#{lib_path}" if Dir.exist?(lib_path)
-      libflags = "-l#{lib_name}" if Dir.exist?(lib_path)
+      incflags = Dir.exist?(include_path) ? "-I#{include_path}" : ""
+      cflags = ""
+      ldflags = Dir.exist?(lib_path) ? "-L#{lib_path}" : ""
+      libflags = Dir.exist?(lib_path) ? "-l#{lib_name}" : ""
     end
 
-    if ldflags
-      libpaths = ldflags.split.map { |f| f.sub(/\A-L/, "") }
-    end
-
-    # prefer this package by prepending directories to the search path
+    # prefer this package by prepending to search paths and library flags
     #
-    # use $LIBPATH instead of $LDFLAGS to ensure we get the `-Wl,-rpath` linker flag for re-finding
-    # shared libraries
-    $INCFLAGS = [incflags, $INCFLAGS].join(" ").strip if incflags
-    $LIBPATH = libpaths | $LIBPATH if libpaths
+    # convert the ldflags into a list of directories and append to $LIBPATH (instead of just using
+    # $LDFLAGS) to ensure we get the `-Wl,-rpath` linker flag for re-finding shared libraries.
+    $INCFLAGS = [incflags, $INCFLAGS].join(" ").strip
+    libpaths = ldflags.shellsplit.map { |f| f.sub(/\A-L/, "") }
+    $LIBPATH = libpaths | $LIBPATH
+    $libs = [libflags, $libs].join(" ").strip
 
-    # prefer this package's flags by appending them to the command line
-    $CFLAGS = [$CFLAGS, cflags].join(" ").strip if cflags
-    $CXXFLAGS = [$CXXFLAGS, cflags].join(" ").strip if cflags
-    $libs = [$libs, libflags].join(" ").strip if libflags
+    # prefer this package's compiler flags by appending them to the command line
+    $CFLAGS = [$CFLAGS, cflags].join(" ").strip
+    $CXXFLAGS = [$CXXFLAGS, cflags].join(" ").strip
   end
 
   def path
     File.expand_path(port_path)
+  end
+
+  def include_path
+    File.join(path, "include")
+  end
+
+  def lib_path
+    File.join(path, "lib")
   end
 
   def gcc_cmd

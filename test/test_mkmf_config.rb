@@ -3,7 +3,7 @@ require File.expand_path('../helper', __FILE__)
 require "mkmf" # initialize $LDFLAGS et al here, instead of in the middle of a test
 
 class TestMkmfConfig < TestCase
-  attr_reader :recipe, :include_path, :lib_path
+  attr_reader :recipe
 
   LIBXML_PCP = File.join(__dir__, "assets", "pkgconf", "libxml2")
   LIBXSLT_PCP = File.join(__dir__, "assets", "pkgconf", "libxslt")
@@ -25,8 +25,6 @@ class TestMkmfConfig < TestCase
     @recipe = MiniPortile.new("libfoo", "1.0.0").tap do |recipe|
       recipe.logger = StringIO.new
     end
-    @include_path = File.join(@recipe.path, "include")
-    @lib_path = File.join(@recipe.path, "lib")
   end
 
   def teardown
@@ -47,35 +45,35 @@ class TestMkmfConfig < TestCase
   def test_mkmf_config_recipe_LIBPATH_global_lib_dir_does_not_exist
     recipe.mkmf_config
 
-    refute_includes($LIBPATH, lib_path)
-    refute_includes($libs.split, "-lfoo")
+    refute_includes($LIBPATH, recipe.lib_path)
+    refute_includes($libs.shellsplit, "-lfoo")
   end
 
   def test_mkmf_config_recipe_LIBPATH_global
-    FileUtils.mkdir_p(lib_path)
+    FileUtils.mkdir_p(recipe.lib_path)
 
     recipe.mkmf_config
 
-    assert_includes($LIBPATH, lib_path)
-    assert_operator($LIBPATH.index(lib_path), :<, $LIBPATH.index("xxx")) # prepend
+    assert_includes($LIBPATH, recipe.lib_path)
+    assert_operator($LIBPATH.index(recipe.lib_path), :<, $LIBPATH.index("xxx")) # prepend
 
-    assert_includes($libs.split, "-lfoo") # note the recipe name is "libfoo"
-    assert_match(%r{-lxxx.*-lfoo}, $libs) # append
+    assert_includes($libs.shellsplit, "-lfoo") # note the recipe name is "libfoo"
+    assert_match(%r{-lfoo.*-lxxx}, $libs) # prepend
   end
 
   def test_mkmf_config_recipe_INCFLAGS_global_include_dir_does_not_exist
     recipe.mkmf_config
 
-    refute_includes($INCFLAGS.split, "-I#{include_path}")
+    refute_includes($INCFLAGS.shellsplit, "-I#{recipe.include_path}")
   end
 
   def test_mkmf_config_recipe_INCFLAGS_global
-    FileUtils.mkdir_p(include_path)
+    FileUtils.mkdir_p(recipe.include_path)
 
     recipe.mkmf_config
 
-    assert_includes($INCFLAGS.split, "-I#{include_path}")
-    assert_match(%r{-I#{include_path}.*-I/xxx}, $INCFLAGS) # prepend
+    assert_includes($INCFLAGS.shellsplit, "-I#{recipe.include_path}")
+    assert_match(%r{-I#{recipe.include_path}.*-I/xxx}, $INCFLAGS) # prepend
   end
 
   def test_mkmf_config_pkgconf_does_not_exist
@@ -93,8 +91,8 @@ class TestMkmfConfig < TestCase
     assert_includes($LIBPATH, "/foo/libxml2/2.11.5/lib")
     assert_operator($LIBPATH.index("/foo/libxml2/2.11.5/lib"), :<, $LIBPATH.index("xxx")) # prepend
 
-    assert_includes($libs.split, "-lxml2")
-    assert_match(%r{-lxxx.*-lxml2}, $libs) # append
+    assert_includes($libs.shellsplit, "-lxml2")
+    assert_match(%r{-lxml2.*-lxxx}, $libs) # prepend
   end
 
   def test_mkmf_config_pkgconf_CFLAGS_global
@@ -103,14 +101,14 @@ class TestMkmfConfig < TestCase
 
     recipe.mkmf_config(pkg: "libxml-2.0", dir: LIBXML_PCP)
 
-    assert_includes($INCFLAGS.split, "-I/foo/libxml2/2.11.5/include/libxml2")
+    assert_includes($INCFLAGS.shellsplit, "-I/foo/libxml2/2.11.5/include/libxml2")
     assert_match(%r{-I/foo/libxml2/2.11.5/include/libxml2.*-I/xxx}, $INCFLAGS) # prepend
 
-    assert_includes($CFLAGS.split, "-ggdb3")
-    assert_match(%r{-xxx.*-ggdb3}, $CFLAGS) # prepend
+    assert_includes($CFLAGS.shellsplit, "-ggdb3")
+    assert_match(%r{-xxx.*-ggdb3}, $CFLAGS) # append
 
-    assert_includes($CXXFLAGS.split, "-ggdb3")
-    assert_match(%r{-xxx.*-ggdb3}, $CXXFLAGS) # prepend
+    assert_includes($CXXFLAGS.shellsplit, "-ggdb3")
+    assert_match(%r{-xxx.*-ggdb3}, $CXXFLAGS) # append
   end
 
   def test_mkmf_config_pkgconf_path_accumulation
