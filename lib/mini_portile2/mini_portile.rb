@@ -27,6 +27,8 @@ class Net::HTTP
   end
 end
 
+$MINI_PORTILE_STATIC_LIBS = {}
+
 class MiniPortile
   DEFAULT_TIMEOUT = 10
 
@@ -267,7 +269,15 @@ class MiniPortile
     end
   end
 
-  def mkmf_config(pkg: nil, dir: nil)
+  # pkg: the pkg-config file name (without the .pc extension)
+  # dir: inject the directory path for the pkg-config file (probably only useful for tests)
+  # static: the name of the static library archive (without the "lib" prefix or the file extension), or nil for dynamic linking
+  #
+  # we might be able to be terribly clever and infer the name of the static archive file, but
+  # unfortunately projects have so much freedom in what they can report (for name, for libs, etc.)
+  # that it feels unreliable to try to do so, so I'm preferring to just have the developer make it
+  # explicit.
+  def mkmf_config(pkg: nil, dir: nil, static: nil)
     require "mkmf"
 
     if pkg
@@ -287,8 +297,13 @@ class MiniPortile
 
       incflags = minimal_pkg_config(pcfile, "cflags-only-I")
       cflags = minimal_pkg_config(pcfile, "cflags-only-other")
-      ldflags = minimal_pkg_config(pcfile, "libs-only-L", "static")
-      libflags = minimal_pkg_config(pcfile, "libs-only-l", "static")
+      if static
+        ldflags = minimal_pkg_config(pcfile, "libs-only-L", "static")
+        libflags = minimal_pkg_config(pcfile, "libs-only-l", "static")
+      else
+        ldflags = minimal_pkg_config(pcfile, "libs-only-L")
+        libflags = minimal_pkg_config(pcfile, "libs-only-l")
+      end
     else
       output "Configuring MakeMakefile for #{@name} #{@version} (from #{path})\n"
 
@@ -298,6 +313,37 @@ class MiniPortile
       cflags = ""
       ldflags = Dir.exist?(lib_path) ? "-L#{lib_path}" : ""
       libflags = Dir.exist?(lib_path) ? "-l#{lib_name}" : ""
+    end
+
+    if static
+      libdir = lib_path
+      if pcfile
+        variables = minimal_pkg_config(pcfile, "print-variables").split("\n").map(&:strip)
+        if variables.include?("libdir")
+          libdir = minimal_pkg_config(pcfile, "variable=libdir")
+        end
+      end
+
+      #
+      # keep track of the libraries we're statically linking against, and fix up ldflags and
+      # libflags to make sure we link statically against the recipe's libaries.
+      #
+      # this avoids the unintentionally dynamically linking against system libraries, and makes sure
+      # that if multiple pkg-config files reference each other that we are able to intercept flags
+      # from dependent packages that reference the static archive.
+      #
+      $MINI_PORTILE_STATIC_LIBS[static] = libdir
+      static_ldflags = $MINI_PORTILE_STATIC_LIBS.values.map { |v| "-L#{v}" }
+      static_libflags = $MINI_PORTILE_STATIC_LIBS.keys.map { |v| "-l#{v}" }
+
+      # remove `-L#{libdir}` and `-lfoo`. we don't need them since we link against the static
+      # archive using the full path.
+      ldflags = ldflags.shellsplit.reject { |f| static_ldflags.include?(f) }.shelljoin
+      libflags = libflags.shellsplit.reject { |f| static_libflags.include?(f) }.shelljoin
+
+      # prepend the full path to the static archive to the linker flags
+      static_archive = File.join(libdir, "lib#{static}.#{$LIBEXT}")
+      libflags = [static_archive, libflags].join(" ").strip
     end
 
     # prefer this package by prepending to search paths and library flags
