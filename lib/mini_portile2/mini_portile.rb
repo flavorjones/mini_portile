@@ -32,9 +32,9 @@ $MINI_PORTILE_STATIC_LIBS = {}
 class MiniPortile
   DEFAULT_TIMEOUT = 10
 
-  attr_reader :name, :version, :original_host
+  attr_reader :name, :version, :original_host, :source_directory
   attr_writer :configure_options
-  attr_accessor :host, :files, :patch_files, :target, :logger, :source_directory
+  attr_accessor :host, :files, :patch_files, :target, :logger
 
   def self.windows?
     target_os =~ /mswin|mingw/
