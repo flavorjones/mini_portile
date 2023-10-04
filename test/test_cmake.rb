@@ -96,7 +96,8 @@ class TestCMakeConfig < TestCMake
                   "-DCMAKE_SYSTEM_NAME=Darwin",
                   "-DCMAKE_SYSTEM_PROCESSOR=arm64",
                   "-DCMAKE_C_COMPILER=some-host-clang",
-                  "-DCMAKE_CXX_COMPILER=some-host-clang++"
+                  "-DCMAKE_CXX_COMPILER=some-host-clang++",
+                  "-DCMAKE_BUILD_TYPE=Release"
                 ],
                 recipe.configure_defaults)
             end
@@ -119,7 +120,8 @@ class TestCMakeConfig < TestCMake
                 "-DCMAKE_SYSTEM_NAME=Custom",
                 "-DCMAKE_SYSTEM_PROCESSOR=x86_64",
                 "-DCMAKE_C_COMPILER=gcc",
-                "-DCMAKE_CXX_COMPILER=g++"
+                "-DCMAKE_CXX_COMPILER=g++",
+                "-DCMAKE_BUILD_TYPE=Release"
               ],
               recipe.configure_defaults)
           end
@@ -227,7 +229,8 @@ class TestCMakeConfig < TestCMake
       "-DCMAKE_SYSTEM_NAME=Linux",
       "-DCMAKE_SYSTEM_PROCESSOR=x86_64",
       "-DCMAKE_C_COMPILER=gcc",
-      "-DCMAKE_CXX_COMPILER=g++"
+      "-DCMAKE_CXX_COMPILER=g++",
+      "-DCMAKE_BUILD_TYPE=Release"
     ]
   end
 

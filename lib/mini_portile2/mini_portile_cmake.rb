@@ -69,7 +69,8 @@ class MiniPortileCMake < MiniPortile
       "-DCMAKE_SYSTEM_NAME=#{cmake_system_name}",
       "-DCMAKE_SYSTEM_PROCESSOR=#{cpu_type}",
       "-DCMAKE_C_COMPILER=#{c_compiler}",
-      "-DCMAKE_CXX_COMPILER=#{cxx_compiler}"
+      "-DCMAKE_CXX_COMPILER=#{cxx_compiler}",
+      "-DCMAKE_BUILD_TYPE=Release"
     ]
   end
 
