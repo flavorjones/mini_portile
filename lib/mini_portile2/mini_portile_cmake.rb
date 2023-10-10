@@ -11,6 +11,7 @@ class MiniPortileCMake < MiniPortile
   def initialize(name, version, **kwargs)
     super(name, version, **kwargs)
     @cmake_command = kwargs[:cmake_command]
+    @cmake_build_type = kwargs[:cmake_build_type]
   end
 
   def configure_defaults
@@ -49,6 +50,10 @@ class MiniPortileCMake < MiniPortile
     (ENV["CMAKE"] || @cmake_command || "cmake").dup
   end
 
+  def cmake_build_type
+    (ENV["CMAKE_BUILD_TYPE"] || @cmake_build_type || "Release").dup
+  end
+
   private
 
   def generator_defaults
@@ -70,7 +75,7 @@ class MiniPortileCMake < MiniPortile
       "-DCMAKE_SYSTEM_PROCESSOR=#{cpu_type}",
       "-DCMAKE_C_COMPILER=#{c_compiler}",
       "-DCMAKE_CXX_COMPILER=#{cxx_compiler}",
-      "-DCMAKE_BUILD_TYPE=Release"
+      "-DCMAKE_BUILD_TYPE=#{cmake_build_type}",
     ]
   end
 

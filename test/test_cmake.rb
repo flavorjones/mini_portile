@@ -196,6 +196,17 @@ class TestCMakeConfig < TestCMake
     end
   end
 
+  def test_cmake_build_type_configuration
+    without_env("CMAKE_BUILD_TYPE") do
+      assert_equal("Release", MiniPortileCMake.new("test", "1.0.0").cmake_build_type)
+      assert_equal("xyzzy", MiniPortileCMake.new("test", "1.0.0", cmake_build_type: "xyzzy").cmake_build_type)
+    end
+    with_env("CMAKE_BUILD_TYPE"=>"Debug") do
+      assert_equal("Debug", MiniPortileCMake.new("test", "1.0.0").cmake_build_type)
+      assert_equal("Debug", MiniPortileCMake.new("test", "1.0.0", cmake_build_type: "xyzzy").cmake_build_type)
+    end
+  end
+
   private
 
   def with_stubbed_target(os: 'linux', cpu: 'x86_64')
