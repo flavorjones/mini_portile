@@ -96,7 +96,8 @@ class TestCMakeConfig < TestCMake
                   "-DCMAKE_SYSTEM_NAME=Darwin",
                   "-DCMAKE_SYSTEM_PROCESSOR=arm64",
                   "-DCMAKE_C_COMPILER=some-host-clang",
-                  "-DCMAKE_CXX_COMPILER=some-host-clang++"
+                  "-DCMAKE_CXX_COMPILER=some-host-clang++",
+                  "-DCMAKE_BUILD_TYPE=Release"
                 ],
                 recipe.configure_defaults)
             end
@@ -119,7 +120,8 @@ class TestCMakeConfig < TestCMake
                 "-DCMAKE_SYSTEM_NAME=Custom",
                 "-DCMAKE_SYSTEM_PROCESSOR=x86_64",
                 "-DCMAKE_C_COMPILER=gcc",
-                "-DCMAKE_CXX_COMPILER=g++"
+                "-DCMAKE_CXX_COMPILER=g++",
+                "-DCMAKE_BUILD_TYPE=Release"
               ],
               recipe.configure_defaults)
           end
@@ -194,6 +196,17 @@ class TestCMakeConfig < TestCMake
     end
   end
 
+  def test_cmake_build_type_configuration
+    without_env("CMAKE_BUILD_TYPE") do
+      assert_equal("Release", MiniPortileCMake.new("test", "1.0.0").cmake_build_type)
+      assert_equal("xyzzy", MiniPortileCMake.new("test", "1.0.0", cmake_build_type: "xyzzy").cmake_build_type)
+    end
+    with_env("CMAKE_BUILD_TYPE"=>"Debug") do
+      assert_equal("Debug", MiniPortileCMake.new("test", "1.0.0").cmake_build_type)
+      assert_equal("Debug", MiniPortileCMake.new("test", "1.0.0", cmake_build_type: "xyzzy").cmake_build_type)
+    end
+  end
+
   private
 
   def with_stubbed_target(os: 'linux', cpu: 'x86_64')
@@ -227,7 +240,8 @@ class TestCMakeConfig < TestCMake
       "-DCMAKE_SYSTEM_NAME=Linux",
       "-DCMAKE_SYSTEM_PROCESSOR=x86_64",
       "-DCMAKE_C_COMPILER=gcc",
-      "-DCMAKE_CXX_COMPILER=g++"
+      "-DCMAKE_CXX_COMPILER=g++",
+      "-DCMAKE_BUILD_TYPE=Release"
     ]
   end
 
