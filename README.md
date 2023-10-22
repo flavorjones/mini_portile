@@ -138,8 +138,8 @@ This is configurable as above, except for Windows systems where it's hardcoded t
 The cmake command used is configurable, and in order of preference will use:
 
 - the `CMAKE` environment variable (if present)
-- the `cmake_command` value passed in to the constructor
-- `"cmake"`
+- the `:cmake_command` keyword argument passed into the constructor
+- `"cmake"` (the default)
 
 You can pass it in like so:
 
@@ -147,6 +147,19 @@ You can pass it in like so:
 MiniPortileCMake.new("libfoobar", "1.3.5", cmake_command: "cmake3")
 ```
 
+#### `cmake_build_type`
+
+The cmake build type is configurable as of v2.8.5, and in order of preference will use:
+
+- the `CMAKE_BUILD_TYPE` environment variable (if present)
+- the `:cmake_build_type` keyword argument passed into the constructor
+- `"Release"` (the default)
+
+You can pass it in like so:
+
+``` ruby
+MiniPortileCMake.new("libfoobar", "1.3.5", cmake_build_type: "Debug")
+```
 
 ### Local source directories
 
