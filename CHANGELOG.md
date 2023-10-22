@@ -1,14 +1,21 @@
 ## mini_portile changelog
 
-### 2.8.5.rc2 / 2023-09-17
+### 2.8.5 / 2023-10-22
 
 #### Added
 
-- New method `MiniPortile#mkmf_config` will set up MakeMakefile variables to properly link against the recipe. This should make it easier for C extensions to package third-party libraries.
-  - With no arguments, will set up just `$INCFLAGS`, `$libs`, and `$LIBPATH`.
-  - Optionally, if provided a pkg-config file, will use that config to more precisely set `$INCFLAGS`, `$libs`, `$LIBPATH`, and `$CFLAGS`/`$CXXFLAGS`.
-  - Optionally, if provided the name of a static archive, will rewrite linker flags to ensure correct linkage.
-- New methods `#lib_path` and `#include_path` which point at the installed directories under `ports`.
+- New methods `#lib_path` and `#include_path` which point at the installed directories under `ports`. (by @flavorjones)
+- Add config param for CMAKE_BUILD_TYPE, which now defaults to `Release`. (#136 by @Watson1978)
+
+#### Experimental
+
+Introduce experimental support for `MiniPortile#mkmf_config` which sets up MakeMakefile variables to properly link against the recipe. This should make it easier for C extensions to package third-party libraries. (by @flavorjones)
+
+- With no arguments, will set up just `$INCFLAGS`, `$libs`, and `$LIBPATH`.
+- Optionally, if provided a pkg-config file, will use that config to more precisely set `$INCFLAGS`, `$libs`, `$LIBPATH`, and `$CFLAGS`/`$CXXFLAGS`.
+- Optionally, if provided the name of a static archive, will rewrite linker flags to ensure correct linkage.
+
+Note that the behavior may change slightly before official support is announced. Please comment on [#118](https://github.com/flavorjones/mini_portile/issues/118) if you have feedback.
 
 
 ### 2.8.4 / 2023-07-18
