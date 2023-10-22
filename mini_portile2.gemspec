@@ -1,7 +1,4 @@
-# coding: utf-8
-lib = File.expand_path("../lib", __FILE__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "mini_portile2/version"
+require_relative "lib/mini_portile2/version"
 
 Gem::Specification.new do |spec|
   spec.name = "mini_portile2"
@@ -10,8 +7,12 @@ Gem::Specification.new do |spec|
   spec.authors = ["Luis Lavena", "Mike Dalessio", "Lars Kanis"]
   spec.email = "mike.dalessio@gmail.com"
 
-  spec.summary = "Simplistic port-like solution for developers"
-  spec.description = "Simplistic port-like solution for developers. It provides a standard and simplified way to compile against dependency libraries without messing up your system."
+  spec.summary = "Simple autoconf and cmake builder for developers"
+  spec.description = <<~TEXT
+    Simple autoconf and cmake builder for developers. It provides a standard way to compile against
+    dependency libraries without requiring system-wide installation. It also simplifies
+    vendoring and cross-compilation by providing a consistent build interface.
+  TEXT
 
   spec.homepage = "https://github.com/flavorjones/mini_portile"
   spec.licenses = ["MIT"]
