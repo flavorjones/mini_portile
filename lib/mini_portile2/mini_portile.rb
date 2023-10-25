@@ -687,6 +687,8 @@ class MiniPortile
       end
 
       begin
+        output "Downloading file from #{url}"
+        output "Downloading file with parameters #{params}"
         OpenURI.open_uri(url, 'rb', params) do |io|
           temp_file << io.read
         end
@@ -702,8 +704,13 @@ class MiniPortile
           sleep 1
           return download_file_http(url, full_path, count)
         end
-
-        output e.message
+        if e.kind_of?(OpenURI::HTTPError)
+          response = e.io
+          output "Response status is #{response.status}"
+          output "Response is #{response.read}"
+        else
+          output "Error: #{e.message}"
+        end
         return false
       end
     end
