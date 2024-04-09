@@ -107,6 +107,29 @@ class TestCMakeConfig < TestCMake
     end
   end
 
+  def test_configure_defaults_with_freebsd
+    recipe = init_recipe
+    recipe.host = 'some-host'
+
+    with_env({ "CC" => nil, "CXX" => nil }) do
+      with_stubbed_target(os: 'freebsd14') do
+        with_compilers(recipe, c_compiler: 'cc', cxx_compiler: 'c++') do
+          Open3.stub(:capture2, cmake_help_mock('Unix')) do
+            assert_equal(
+              [
+                "-DCMAKE_SYSTEM_NAME=FreeBSD",
+                "-DCMAKE_SYSTEM_PROCESSOR=x86_64",
+                "-DCMAKE_C_COMPILER=cc",
+                "-DCMAKE_CXX_COMPILER=c++",
+                "-DCMAKE_BUILD_TYPE=Release"
+              ],
+              recipe.configure_defaults)
+          end
+        end
+      end
+    end
+  end
+
   def test_configure_defaults_with_manual_system_name
     recipe = init_recipe
     recipe.system_name = 'Custom'

@@ -94,6 +94,9 @@ class MiniPortileCMake < MiniPortile
     if MiniPortile.darwin?
       c_compiler ||= 'clang'
       cxx_compiler ||='clang++'
+    elsif MiniPortile.freebsd?
+      c_compiler ||= 'cc'
+      cxx_compiler ||= 'c++'
     else
       c_compiler ||= 'gcc'
       cxx_compiler ||= 'g++'
