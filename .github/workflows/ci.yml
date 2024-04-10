@@ -71,6 +71,10 @@ jobs:
       - run: bundle exec rake test:examples
 
   fedora: # see https://github.com/flavorjones/mini_portile/issues/118
+    strategy:
+      fail-fast: false
+      matrix:
+        task: ["test:unit", "test:examples"]
     runs-on: ubuntu-latest
     container:
       image: fedora:35
@@ -84,5 +88,27 @@ jobs:
           path: examples/ports/archives
           key: examples-${{ hashFiles('examples/Rakefile') }}
       - run: bundle install
-      - run: bundle exec rake test:unit
-      - run: bundle exec rake test:examples
+      - run: bundle exec rake ${{ matrix.task }}
+
+  freebsd:
+    strategy:
+      fail-fast: false
+      matrix:
+        task: ["test:unit", "test:examples"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: examples/ports/archives
+          key: examples-${{ hashFiles('examples/Rakefile') }}
+      - uses: vmactions/freebsd-vm@v1
+        with:
+          usesh: true
+          copyback: false
+          prepare: pkg install -y ruby devel/ruby-gems pkgconf git cmake textproc/libyaml security/gnupg
+          run: |
+            git config --global --add safe.directory /home/runner/work/mini_portile/mini_portile
+            gem install bundler
+            bundle install
+            bundle exec rake ${{ matrix.task }}
