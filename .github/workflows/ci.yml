@@ -96,6 +96,8 @@ jobs:
       matrix:
         task: ["test:unit", "test:examples"]
     runs-on: ubuntu-latest
+    env:
+      MAKE: gmake
     steps:
       - uses: actions/checkout@v4
       - uses: actions/cache@v4
@@ -104,9 +106,10 @@ jobs:
           key: examples-${{ hashFiles('examples/Rakefile') }}
       - uses: vmactions/freebsd-vm@v1
         with:
+          envs: MAKE
           usesh: true
           copyback: false
-          prepare: pkg install -y ruby devel/ruby-gems pkgconf git cmake textproc/libyaml security/gnupg
+          prepare: pkg install -y ruby devel/ruby-gems pkgconf git cmake devel/gmake textproc/libyaml security/gnupg
           run: |
             git config --global --add safe.directory /home/runner/work/mini_portile/mini_portile
             gem install bundler
