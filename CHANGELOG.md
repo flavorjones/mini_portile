@@ -1,5 +1,12 @@
 ## mini_portile changelog
 
+### 2.8.6 / 2024-04-14
+
+#### Added
+
+- When using CMake on FreeBSD, default to clang's "cc" and "c++" compilers. (#139 by @mudge)
+
+
 ### 2.8.5 / 2023-10-22
 
 #### Added
