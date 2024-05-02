@@ -510,30 +510,6 @@ class MiniPortile
       }
   end
 
-  TAR_EXECUTABLES = %w[gtar bsdtar tar basic-bsdtar]
-  def tar_exe
-    @@tar_exe ||= begin
-      TAR_EXECUTABLES.find { |c|
-        which(c)
-      } or raise("tar not found - please make sure that one of the following commands is in the PATH: #{TAR_EXECUTABLES.join(", ")}")
-    end
-  end
-
-  def tar_compression_switch(filename)
-    case File.extname(filename)
-      when '.gz', '.tgz'
-        'z'
-      when '.bz2', '.tbz2'
-        'j'
-      when '.xz'
-        'J'
-      when '.Z'
-        'Z'
-      else
-        ''
-    end
-  end
-
   # From: http://stackoverflow.com/a/5471032/7672
   # Thanks, Mislav!
   #
@@ -570,12 +546,35 @@ class MiniPortile
     end
   end
 
+  TAR_EXECUTABLES = %w[gtar bsdtar tar basic-bsdtar]
+  def tar_exe
+    @@tar_exe ||= begin
+      TAR_EXECUTABLES.find { |c|
+        which(c)
+      } or raise("tar not found - please make sure that one of the following commands is in the PATH: #{TAR_EXECUTABLES.join(", ")}")
+    end
+  end
+
+  def tar_command(file, target)
+    case File.extname(file)
+      when '.gz', '.tgz'
+        [tar_exe, 'xzf', file, '-C', target]
+      when '.bz2', '.tbz2'
+        [tar_exe, 'xjf', file, '-C', target]
+      when '.xz'
+        # NOTE: OpenBSD's tar command does not support the -J option
+        "xzcat #{file.shellescape} | #{tar_exe.shellescape} xf - -C #{target.shellescape}"
+      else
+        [tar_exe, 'xf', file, '-C', target]
+    end
+  end
+
   def extract_file(file, target)
     filename = File.basename(file)
     FileUtils.mkdir_p target
 
     message "Extracting #{filename} into #{target}... "
-    execute('extract', [tar_exe, "#{tar_compression_switch(filename)}xf", file, "-C", target], {:cd => Dir.pwd, :initial_message => false})
+    execute('extract', tar_command(file, target) , {:cd => Dir.pwd, :initial_message => false})
   end
 
   # command could be an array of args, or one string containing a command passed to the shell. See
