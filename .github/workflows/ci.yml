@@ -126,6 +126,10 @@ jobs:
             bundle exec rake ${{ matrix.task }}
 
   openbsd:
+    strategy:
+      fail-fast: false
+      matrix:
+        task: ["test:unit", "test:examples"]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
