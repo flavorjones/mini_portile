@@ -4,8 +4,9 @@
 
 #### Added
 
-- When setting the C compiler through the `MiniPortile` constructor, the preferred keyword argument is now `:cc_command`. The original `:gcc_command` is still supported. @flavorjones
-- GPG file verification error messages are captured in the raised exception. Previously these errors went to `stderr`. @flavorjones
+- When setting the C compiler through the `MiniPortile` constructor, the preferred keyword argument is now `:cc_command`. The original `:gcc_command` is still supported. (#144 by @flavorjones)
+- GPG file verification error messages are captured in the raised exception. Previously these errors went to `stderr`. (#145 by @flavorjones)
+- Add support for extracting xz-compressed tarballs on OpenBSD. (#141 by @postmodern)
 
 
 ### 2.8.6 / 2024-04-14

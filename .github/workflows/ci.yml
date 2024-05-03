@@ -131,14 +131,17 @@ jobs:
       matrix:
         task: ["test:unit", "test:examples"]
     runs-on: ubuntu-latest
+    env:
+      MAKE: gmake
     steps:
     - uses: actions/checkout@v4
     - uses: vmactions/openbsd-vm@v1
       with:
+        envs: MAKE
         usesh: true
         copyback: false
         prepare: |
-          pkg_add ruby%3.1
+          pkg_add ruby%3.1 gmake cmake git pkgconf security/gnupg
           ln -sf /usr/local/bin/ruby31 /usr/local/bin/ruby
           ln -sf /usr/local/bin/bundle31 /usr/local/bin/bundle
           ln -sf /usr/local/bin/bundler31 /usr/local/bin/bundler
