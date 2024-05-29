@@ -10,6 +10,11 @@ require 'fileutils'
 require 'erb'
 require 'mini_portile2'
 
+puts "#{__FILE__}:#{__LINE__}: relevant RbConfig::CONFIG values:"
+%w[target_os target_cpu CC CXX].each do |key|
+  puts "- #{key}: #{RbConfig::CONFIG[key].inspect}"
+end
+
 class TestCase < Minitest::Test
   include Minitest::Hooks
 
