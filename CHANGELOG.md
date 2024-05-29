@@ -1,5 +1,12 @@
 ## mini_portile changelog
 
+### next / unreleased
+
+#### Added
+
+- When setting the C compiler through the `MiniPortile` constructor, the preferred keyword argument is now `:cc_command`. The original `:gcc_command` is still supported.
+
+
 ### 2.8.6 / 2024-04-14
 
 #### Added
