@@ -79,14 +79,22 @@ class TestCookConfiguration < TestCase
     end
   end
 
-  def test_gcc_command_configuration
+  def test_cc_command_configuration
     without_env("CC") do
       expected_compiler = RbConfig::CONFIG["CC"] || "gcc"
+      assert_equal(expected_compiler, MiniPortile.new("test", "1.0.0").cc_cmd)
       assert_equal(expected_compiler, MiniPortile.new("test", "1.0.0").gcc_cmd)
+      assert_equal("xyzzy", MiniPortile.new("test", "1.0.0", cc_command: "xyzzy").cc_cmd)
+      assert_equal("xyzzy", MiniPortile.new("test", "1.0.0", gcc_command: "xyzzy").cc_cmd)
+      assert_equal("xyzzy", MiniPortile.new("test", "1.0.0", cc_command: "xyzzy").gcc_cmd)
       assert_equal("xyzzy", MiniPortile.new("test", "1.0.0", gcc_command: "xyzzy").gcc_cmd)
     end
     with_env("CC"=>"asdf") do
+      assert_equal("asdf", MiniPortile.new("test", "1.0.0").cc_cmd)
       assert_equal("asdf", MiniPortile.new("test", "1.0.0").gcc_cmd)
+      assert_equal("asdf", MiniPortile.new("test", "1.0.0", cc_command: "xyzzy").cc_cmd)
+      assert_equal("asdf", MiniPortile.new("test", "1.0.0", gcc_command: "xyzzy").cc_cmd)
+      assert_equal("asdf", MiniPortile.new("test", "1.0.0", cc_command: "xyzzy").gcc_cmd)
       assert_equal("asdf", MiniPortile.new("test", "1.0.0", gcc_command: "xyzzy").gcc_cmd)
     end
   end

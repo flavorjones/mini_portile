@@ -106,7 +106,7 @@ class MiniPortile
     @logger = STDOUT
     @source_directory = nil
 
-    @gcc_command = kwargs[:gcc_command]
+    @cc_command = kwargs[:cc_command] || kwargs[:gcc_command]
     @make_command = kwargs[:make_command]
     @open_timeout = kwargs[:open_timeout] || DEFAULT_TIMEOUT
     @read_timeout = kwargs[:read_timeout] || DEFAULT_TIMEOUT
@@ -372,9 +372,10 @@ class MiniPortile
     File.join(path, "lib")
   end
 
-  def gcc_cmd
-    (ENV["CC"] || @gcc_command || RbConfig::CONFIG["CC"] || "gcc").dup
+  def cc_cmd
+    (ENV["CC"] || @cc_command || RbConfig::CONFIG["CC"] || "gcc").dup
   end
+  alias :gcc_cmd :cc_cmd
 
   def make_cmd
     (ENV["MAKE"] || @make_command || ENV["make"] || "make").dup
