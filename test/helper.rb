@@ -9,6 +9,7 @@ require 'archive/tar/minitar'
 require 'fileutils'
 require 'erb'
 require 'mini_portile2'
+require 'logger'
 
 puts "#{__FILE__}:#{__LINE__}: relevant RbConfig::CONFIG values:"
 %w[target_os target_cpu CC CXX].each do |key|
@@ -23,7 +24,12 @@ class TestCase < Minitest::Test
   attr_accessor :webrick
 
   def start_webrick(path)
-    @webrick = WEBrick::HTTPServer.new(:Port => HTTP_PORT, :DocumentRoot => path).tap do |w|
+    @webrick = WEBrick::HTTPServer.new(
+      :Port => HTTP_PORT,
+      :DocumentRoot => path,
+      :Logger => Logger.new(File::NULL),
+      :AccessLog => [],
+    ).tap do |w|
       Thread.new do
         w.start
       end
