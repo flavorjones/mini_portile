@@ -107,6 +107,7 @@ class MiniPortile
     @source_directory = nil
 
     @cc_command = kwargs[:cc_command] || kwargs[:gcc_command]
+    @cxx_command = kwargs[:cxx_command]
     @make_command = kwargs[:make_command]
     @open_timeout = kwargs[:open_timeout] || DEFAULT_TIMEOUT
     @read_timeout = kwargs[:read_timeout] || DEFAULT_TIMEOUT
@@ -376,6 +377,10 @@ class MiniPortile
     (ENV["CC"] || @cc_command || RbConfig::CONFIG["CC"] || "gcc").dup
   end
   alias :gcc_cmd :cc_cmd
+
+  def cxx_cmd
+    (ENV["CXX"] || @cxx_command || RbConfig::CONFIG["CXX"] || "g++").dup
+  end
 
   def make_cmd
     (ENV["MAKE"] || @make_command || ENV["make"] || "make").dup

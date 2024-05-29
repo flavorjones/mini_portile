@@ -98,6 +98,18 @@ class TestCookConfiguration < TestCase
       assert_equal("asdf", MiniPortile.new("test", "1.0.0", gcc_command: "xyzzy").gcc_cmd)
     end
   end
+
+  def test_cxx_command_configuration
+    without_env("CXX") do
+      expected_compiler = RbConfig::CONFIG["CXX"] || "g++"
+      assert_equal(expected_compiler, MiniPortile.new("test", "1.0.0").cxx_cmd)
+      assert_equal("xyzzy", MiniPortile.new("test", "1.0.0", cxx_command: "xyzzy").cxx_cmd)
+    end
+    with_env("CXX"=>"asdf") do
+      assert_equal("asdf", MiniPortile.new("test", "1.0.0").cxx_cmd)
+      assert_equal("asdf", MiniPortile.new("test", "1.0.0", cxx_command: "xyzzy").cxx_cmd)
+    end
+  end
 end
 
 

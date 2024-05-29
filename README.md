@@ -85,22 +85,29 @@ system-wide installation.
 
 Some keyword arguments can be passed to the constructor to configure the commands used:
 
-#### `cc_command`
+#### `cc_command` and `cxx_command`
 
-The compiler command that is used is configurable, and in order of preference will use:
+The C compiler command that is used is configurable, and in order of preference will use:
 
 - the `CC` environment variable (if present)
 - the `:cc_command` keyword argument passed in to the constructor
 - `RbConfig::CONFIG["CC"]`
 - `"gcc"`
 
-You can pass it in like so:
+The C++ compiler is similarly configuratble, and in order of preference will use:
+
+- the `CXX` environment variable (if present)
+- the `:cxx_command` keyword argument passed in to the constructor
+- `RbConfig::CONFIG["CXX"]`
+- `"g++"`
+
+You can pass your compiler commands to the MiniPortile constructor:
 
 ``` ruby
-MiniPortile.new("libiconv", "1.13.1", cc_command: "cc")
+MiniPortile.new("libiconv", "1.13.1", cc_command: "clang", cxx_command: "clang++")
 ```
 
-For backwards compatibility, the constructor also supports a keyword argument `:gcc_command`.
+(For backwards compatibility, the constructor also supports a keyword argument `:gcc_command` for the C compiler.)
 
 #### `make_command`
 

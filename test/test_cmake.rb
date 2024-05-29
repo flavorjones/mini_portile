@@ -83,23 +83,20 @@ class TestCMakeConfig < TestCMake
   end
 
   def test_configure_defaults_with_macos
-    recipe = init_recipe
-    recipe.host = 'some-host'
-
     with_env({ "CC" => nil, "CXX" => nil }) do
       MiniPortile.stub(:darwin?, true) do
         with_stubbed_target(os: 'darwin22', cpu: 'arm64') do
-          with_compilers(recipe, host_prefix: true, c_compiler: 'clang', cxx_compiler: 'clang++') do
+          with_compilers(c_compiler: 'clang', cxx_compiler: 'clang++') do
             Open3.stub(:capture2, cmake_help_mock('Unix')) do
               assert_equal(
                 [
                   "-DCMAKE_SYSTEM_NAME=Darwin",
                   "-DCMAKE_SYSTEM_PROCESSOR=arm64",
-                  "-DCMAKE_C_COMPILER=some-host-clang",
-                  "-DCMAKE_CXX_COMPILER=some-host-clang++",
+                  "-DCMAKE_C_COMPILER=clang",
+                  "-DCMAKE_CXX_COMPILER=clang++",
                   "-DCMAKE_BUILD_TYPE=Release"
                 ],
-                recipe.configure_defaults)
+                @recipe.configure_defaults)
             end
           end
         end
@@ -108,12 +105,9 @@ class TestCMakeConfig < TestCMake
   end
 
   def test_configure_defaults_with_freebsd
-    recipe = init_recipe
-    recipe.host = 'some-host'
-
     with_env({ "CC" => nil, "CXX" => nil }) do
       with_stubbed_target(os: 'freebsd14') do
-        with_compilers(recipe, c_compiler: 'cc', cxx_compiler: 'c++') do
+        with_compilers(c_compiler: 'cc', cxx_compiler: 'c++') do
           Open3.stub(:capture2, cmake_help_mock('Unix')) do
             assert_equal(
               [
@@ -123,7 +117,7 @@ class TestCMakeConfig < TestCMake
                 "-DCMAKE_CXX_COMPILER=c++",
                 "-DCMAKE_BUILD_TYPE=Release"
               ],
-              recipe.configure_defaults)
+              @recipe.configure_defaults)
           end
         end
       end
@@ -131,22 +125,21 @@ class TestCMakeConfig < TestCMake
   end
 
   def test_configure_defaults_with_manual_system_name
-    recipe = init_recipe
-    recipe.system_name = 'Custom'
-
     MiniPortile.stub(:darwin?, false) do
       with_stubbed_target do
-        with_compilers(recipe) do
+        with_compilers do
           Open3.stub(:capture2, cmake_help_mock('Unix')) do
-            assert_equal(
-              [
-                "-DCMAKE_SYSTEM_NAME=Custom",
-                "-DCMAKE_SYSTEM_PROCESSOR=x86_64",
-                "-DCMAKE_C_COMPILER=gcc",
-                "-DCMAKE_CXX_COMPILER=g++",
-                "-DCMAKE_BUILD_TYPE=Release"
-              ],
-              recipe.configure_defaults)
+            @recipe.stub(:system_name, 'Custom') do
+              assert_equal(
+                [
+                  "-DCMAKE_SYSTEM_NAME=Custom",
+                  "-DCMAKE_SYSTEM_PROCESSOR=x86_64",
+                  "-DCMAKE_C_COMPILER=gcc",
+                  "-DCMAKE_CXX_COMPILER=g++",
+                  "-DCMAKE_BUILD_TYPE=Release"
+                ],
+                @recipe.configure_defaults)
+            end
           end
         end
       end
@@ -154,16 +147,14 @@ class TestCMakeConfig < TestCMake
   end
 
   def test_configure_defaults_with_unix_makefiles
-    recipe = init_recipe
-
     MiniPortile.stub(:linux?, true) do
       MiniPortile.stub(:darwin?, false) do
         with_stubbed_target do
-          with_compilers(recipe) do
+          with_compilers do
             Open3.stub(:capture2, cmake_help_mock('Unix')) do
               MiniPortile.stub(:mingw?, true) do
                 assert_equal(default_x86_compile_flags,
-                            recipe.configure_defaults)
+                             @recipe.configure_defaults)
               end
             end
           end
@@ -173,15 +164,13 @@ class TestCMakeConfig < TestCMake
   end
 
   def test_configure_defaults_with_msys_makefiles
-    recipe = init_recipe
-
     MiniPortile.stub(:linux?, true) do
       MiniPortile.stub(:darwin?, false) do
         with_stubbed_target do
-          with_compilers(recipe) do
+          with_compilers do
             Open3.stub(:capture2, cmake_help_mock('MSYS')) do
               MiniPortile.stub(:mingw?, true) do
-                assert_equal(['-G', 'MSYS Makefiles'] + default_x86_compile_flags, recipe.configure_defaults)
+                assert_equal(['-G', 'MSYS Makefiles'] + default_x86_compile_flags, @recipe.configure_defaults)
               end
             end
           end
@@ -191,15 +180,13 @@ class TestCMakeConfig < TestCMake
   end
 
   def test_configure_defaults_with_nmake_makefiles
-    recipe = init_recipe
-
     MiniPortile.stub(:linux?, true) do
       MiniPortile.stub(:darwin?, false) do
         with_stubbed_target do
-          with_compilers(recipe) do
+          with_compilers do
             Open3.stub(:capture2, cmake_help_mock('NMake')) do
               MiniPortile.stub(:mswin?, true) do
-                assert_equal(['-G', 'NMake Makefiles'] + default_x86_compile_flags, recipe.configure_defaults)
+                assert_equal(['-G', 'NMake Makefiles'] + default_x86_compile_flags, @recipe.configure_defaults)
               end
             end
           end
@@ -240,21 +227,11 @@ class TestCMakeConfig < TestCMake
     end
   end
 
-  def with_compilers(recipe, host_prefix: false, c_compiler: 'gcc', cxx_compiler: 'g++')
-    mock = MiniTest::Mock.new
-
-    if host_prefix
-      mock.expect(:call, true, ["#{recipe.host}-#{c_compiler}"])
-      mock.expect(:call, true, ["#{recipe.host}-#{cxx_compiler}"])
-    else
-      mock.expect(:call, false, ["#{recipe.host}-#{c_compiler}"])
-      mock.expect(:call, true, [c_compiler])
-      mock.expect(:call, false, ["#{recipe.host}-#{cxx_compiler}"])
-      mock.expect(:call, true, [cxx_compiler])
-    end
-
-    recipe.stub(:which, mock) do
-      yield
+  def with_compilers(c_compiler: 'gcc', cxx_compiler: 'g++')
+    @recipe.stub(:cc_cmd, c_compiler) do
+      @recipe.stub(:cxx_cmd, cxx_compiler) do
+        yield
+      end
     end
   end
 

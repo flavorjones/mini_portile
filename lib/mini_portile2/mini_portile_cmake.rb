@@ -67,47 +67,19 @@ class MiniPortileCMake < MiniPortile
   end
 
   def cmake_compile_flags
-    c_compiler, cxx_compiler = find_c_and_cxx_compilers(host)
+    # RbConfig::CONFIG['CC'] and RbConfig::CONFIG['CXX'] can contain additional flags, for example
+    # "clang++ -std=gnu++11" or "clang -fdeclspec". CMake is just looking for the command name.
+    cc_compiler = cc_cmd.split.first
+    cxx_compiler = cxx_cmd.split.first
 
     # needed to ensure cross-compilation with CMake targets the right CPU and compilers
     [
       "-DCMAKE_SYSTEM_NAME=#{cmake_system_name}",
       "-DCMAKE_SYSTEM_PROCESSOR=#{cpu_type}",
-      "-DCMAKE_C_COMPILER=#{c_compiler}",
+      "-DCMAKE_C_COMPILER=#{cc_compiler}",
       "-DCMAKE_CXX_COMPILER=#{cxx_compiler}",
       "-DCMAKE_BUILD_TYPE=#{cmake_build_type}",
     ]
-  end
-
-  def find_compiler(compilers)
-    compilers.find { |binary| which(binary) }
-  end
-
-  # configure automatically searches for the right compiler based on the
-  # `--host` parameter.  However, CMake doesn't have an equivalent feature.
-  # Search for the right compiler for the target architecture using
-  # some basic heruistics.
-  def find_c_and_cxx_compilers(host)
-    c_compiler = ENV["CC"]
-    cxx_compiler = ENV["CXX"]
-
-    if MiniPortile.darwin?
-      c_compiler ||= 'clang'
-      cxx_compiler ||='clang++'
-    elsif MiniPortile.freebsd?
-      c_compiler ||= 'cc'
-      cxx_compiler ||= 'c++'
-    else
-      c_compiler ||= 'gcc'
-      cxx_compiler ||= 'g++'
-    end
-
-    c_platform_compiler = "#{host}-#{c_compiler}"
-    cxx_platform_compiler = "#{host}-#{cxx_compiler}"
-    c_compiler = find_compiler([c_platform_compiler, c_compiler])
-    cxx_compiler = find_compiler([cxx_platform_compiler, cxx_compiler])
-
-    [c_compiler, cxx_compiler]
   end
 
   # Full list: https://gitlab.kitware.com/cmake/cmake/-/blob/v3.26.4/Modules/CMakeDetermineSystem.cmake?ref_type=tags#L12-31
