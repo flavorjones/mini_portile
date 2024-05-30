@@ -15,7 +15,7 @@ class TestExecute < TestCase
       def execute_with_env(env)
         execute("testenv1",
                 %Q(ruby -e "puts ENV['TEST_ENV_VAR1'].inspect ; exit 0"),
-                {:env => env, :initial_message => false, :debug => true})
+                {:env => env, :initial_message => false})
       end
     end
 
@@ -29,7 +29,7 @@ class TestExecute < TestCase
       def execute_with_env(env)
         execute("testenv2",
                 ["ruby", "-e", "puts ENV['TEST_ENV_VAR2'].inspect"],
-                {:env => env, :initial_message => false, :debug => true})
+                {:env => env, :initial_message => false})
       end
     end
 

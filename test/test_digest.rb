@@ -149,7 +149,6 @@ KEY
   end
 
   def test_with_different_key_than_one_used_to_sign
-    puts "################"
 
     key = <<-KEY
 -----BEGIN PGP PUBLIC KEY BLOCK-----
