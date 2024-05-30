@@ -14,12 +14,16 @@ class TestCMake < TestCase
     create_tar(@tar_path, @assets_path, "test-cmake-1.0")
     start_webrick(File.dirname(@tar_path))
 
+    @logger = StringIO.new # IO to keep recipe logs in case we need to debug
     @recipe = init_recipe
 
     git_dir = File.join(@assets_path, "git")
     with_custom_git_dir(git_dir) do
       recipe.cook
     end
+  rescue => e
+    puts @logger.string
+    raise e
   end
 
   def after_all
@@ -58,6 +62,7 @@ class TestCMake < TestCase
 
   def init_recipe
     MiniPortileCMake.new("test-cmake", "1.0").tap do |recipe|
+      recipe.logger = @logger
       recipe.files << "http://localhost:#{HTTP_PORT}/#{ERB::Util.url_encode(File.basename(@tar_path))}"
       recipe.patch_files << File.join(@assets_path, "patch 1.diff")
     end

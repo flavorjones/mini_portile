@@ -4,7 +4,8 @@ class TestExecute < TestCase
   def setup
     super
     @env = {"TEST_ENV_VAR1" => "VAR1_VALUE", "TEST_ENV_VAR2" => "VAR2_VALUE"}
-    @recipe = MiniPortile.new("test_execute", "1.0.0")
+    @logger = StringIO.new
+    @recipe = MiniPortile.new("test_execute", "1.0.0", logger: @logger)
     @log_path = @recipe.send(:tmp_path)
     FileUtils.mkdir_p File.join(@log_path, "subdir") # normally created by `download`
   end
@@ -14,7 +15,7 @@ class TestExecute < TestCase
       def execute_with_env(env)
         execute("testenv1",
                 %Q(ruby -e "puts ENV['TEST_ENV_VAR1'].inspect ; exit 0"),
-                {:env => env, :initial_message => false, :debug => true})
+                {:env => env, :initial_message => false})
       end
     end
 
@@ -28,7 +29,7 @@ class TestExecute < TestCase
       def execute_with_env(env)
         execute("testenv2",
                 ["ruby", "-e", "puts ENV['TEST_ENV_VAR2'].inspect"],
-                {:env => env, :initial_message => false, :debug => true})
+                {:env => env, :initial_message => false})
       end
     end
 

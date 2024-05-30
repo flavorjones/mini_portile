@@ -1,12 +1,10 @@
 require "rake/clean"
 require "bundler/gem_tasks"
+require "rake/testtask"
+
+Rake::TestTask.new("test:unit")
 
 namespace :test do
-  desc "Test MiniPortile by running unit tests"
-  task :unit do
-    sh "ruby -w -W2 -I. -Ilib -e \"#{Dir["test/test_*.rb"].map { |f| "require '#{f}';" }.join}\" -- #{ENV["TESTOPTS"]} -v"
-  end
-
   desc "Test MiniPortile by compiling examples"
   task :examples do
     Dir.chdir("examples") do

@@ -37,6 +37,7 @@ class TestProxy < TestCase
   def setup
     # remove any download files
     FileUtils.rm_rf("port/archives")
+    @logger = StringIO.new
   end
 
   def assert_proxy_auth(expected, request)
@@ -48,7 +49,7 @@ class TestProxy < TestCase
   end
 
   def test_http_proxy
-    recipe = MiniPortile.new("test http_proxy", "1.0.0")
+    recipe = MiniPortile.new("test http_proxy", "1.0.0", logger: @logger)
     recipe.files << "http://myserver/path/to/tar.gz"
     request = with_dummy_proxy do |url, thread|
       ENV['http_proxy'] = url
@@ -59,7 +60,7 @@ class TestProxy < TestCase
   end
 
   def test_http_proxy_with_basic_auth
-    recipe = MiniPortile.new("test http_proxy", "1.0.0")
+    recipe = MiniPortile.new("test http_proxy", "1.0.0", logger: @logger)
     recipe.files << "http://myserver/path/to/tar.gz"
     request = with_dummy_proxy('user: @name', '@12: üMp') do |url, thread|
       ENV['http_proxy'] = url
@@ -72,7 +73,7 @@ class TestProxy < TestCase
   end
 
   def test_https_proxy
-    recipe = MiniPortile.new("test https_proxy", "1.0.0")
+    recipe = MiniPortile.new("test https_proxy", "1.0.0", logger: @logger)
     recipe.files << "https://myserver/path/to/tar.gz"
     request = with_dummy_proxy do |url, thread|
       ENV['https_proxy'] = url
@@ -83,7 +84,7 @@ class TestProxy < TestCase
   end
 
   def test_https_proxy_with_basic_auth
-    recipe = MiniPortile.new("test https_proxy", "1.0.0")
+    recipe = MiniPortile.new("test https_proxy", "1.0.0", logger: @logger)
     recipe.files << "https://myserver/path/to/tar.gz"
     request = with_dummy_proxy('user: @name', '@12: üMp') do |url, thread|
       ENV['https_proxy'] = url
@@ -96,7 +97,7 @@ class TestProxy < TestCase
   end
 
   def test_ftp_proxy
-    recipe = MiniPortile.new("test ftp_proxy", "1.0.0")
+    recipe = MiniPortile.new("test ftp_proxy", "1.0.0", logger: @logger)
     recipe.files << "ftp://myserver/path/to/tar.gz"
     request = with_dummy_proxy do |url, thread|
       ENV['ftp_proxy'] = url
@@ -107,7 +108,7 @@ class TestProxy < TestCase
   end
 
   def test_ftp_proxy_with_basic_auth
-    recipe = MiniPortile.new("test ftp_proxy", "1.0.0")
+    recipe = MiniPortile.new("test ftp_proxy", "1.0.0", logger: @logger)
     recipe.files << "ftp://myserver/path/to/tar.gz"
     request = with_dummy_proxy('user: @name', '@12: üMp') do |url, thread|
       ENV['ftp_proxy'] = url
