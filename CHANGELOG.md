@@ -4,7 +4,8 @@
 
 #### Added
 
-- When setting the C compiler through the `MiniPortile` constructor, the preferred keyword argument is now `:cc_command`. The original `:gcc_command` is still supported.
+- When setting the C compiler through the `MiniPortile` constructor, the preferred keyword argument is now `:cc_command`. The original `:gcc_command` is still supported. @flavorjones
+- GPG file verification error messages are captured in the raised exception. Previously these errors went to `stderr`. @flavorjones
 
 
 ### 2.8.6 / 2024-04-14

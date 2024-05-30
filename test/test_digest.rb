@@ -131,7 +131,7 @@ KEY
     exception = assert_raises(RuntimeError){
       @recipe.download
     }
-    assert_equal("signature mismatch", exception.message)
+    assert_includes(exception.message, "signature mismatch")
   end
 
   def test_with_invalid_key
@@ -145,7 +145,7 @@ KEY
       }
     }
     exception = assert_raises(RuntimeError){ @recipe.download }
-    assert_equal("invalid gpg key provided", exception.message)
+    assert_includes(exception.message, "invalid gpg key provided")
   end
 
   def test_with_different_key_than_one_used_to_sign
@@ -209,7 +209,6 @@ KEY
       }
     }
     exception = assert_raises(RuntimeError){ @recipe.download }
-    assert_equal("signature mismatch", exception.message)
+    assert_includes(exception.message, "signature mismatch")
   end
 end
-
