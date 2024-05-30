@@ -554,6 +554,8 @@ class MiniPortile
       output = `#{gcc_cmd} -v 2>&1`
       if m = output.match(/^Target\: (.*)$/)
         @detect_host = m[1]
+      else
+        @detect_host = nil
       end
 
       @detect_host
