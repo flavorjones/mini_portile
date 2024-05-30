@@ -25,7 +25,7 @@ describe "recipe download" do
       server.close
     end
 
-    request_count.must_be :>, 0
+    assert_operator(request_count, :>, 0)
   end
 
   before do
@@ -63,12 +63,12 @@ describe "recipe download" do
       @recipe.files << "file://#{path}"
       @recipe.download
       assert File.exist?(dest)
-      Digest::MD5.file(dest).hexdigest.must_equal "ee0e9f44e72213015ef976d5ac23931d"
+      assert_equal("ee0e9f44e72213015ef976d5ac23931d", Digest::MD5.file(dest).hexdigest)
     end
 
     it "other" do
       @recipe.files << "foo://foo"
-      proc { @recipe.download }.must_raise ArgumentError
+      assert_raises(ArgumentError) { @recipe.download }
     end
   end
 end
