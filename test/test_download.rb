@@ -30,7 +30,8 @@ describe "recipe download" do
 
   before do
     @request_count = 0
-    @recipe = MiniPortile.new("test-download", "1.1.1")
+    @logger = StringIO.new
+    @recipe = MiniPortile.new("test-download", "1.1.1", logger: @logger)
   end
 
   describe "urls" do

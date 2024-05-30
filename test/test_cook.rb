@@ -13,7 +13,9 @@ class TestCook < TestCase
     create_tar(@tar_path, @assets_path, "test mini portile-1.0.0")
     start_webrick(File.dirname(@tar_path))
 
+    @logger = StringIO.new # IO to keep recipe logs in case we need to debug
     @recipe = MiniPortile.new("test mini portile", "1.0.0").tap do |recipe|
+      recipe.logger = @logger
       recipe.files << "http://localhost:#{HTTP_PORT}/#{ERB::Util.url_encode(File.basename(@tar_path))}"
       recipe.patch_files << File.join(@assets_path, "patch 1.diff")
       recipe.configure_options << "--option=\"path with 'space'\""
@@ -22,6 +24,9 @@ class TestCook < TestCase
         recipe.cook
       end
     end
+  rescue => e
+    puts @logger.string
+    raise e
   end
 
   def after_all
@@ -136,7 +141,9 @@ class TestCookWithBrokenGitDir < TestCase
 
     create_tar(@tar_path, @assets_path, "test mini portile-1.0.0")
 
+    @logger = StringIO.new # IO to keep recipe logs in case we need to debug
     @recipe = MiniPortile.new("test mini portile", "1.0.0").tap do |recipe|
+      recipe.logger = @logger
       recipe.files << "file://#{@tar_path}"
       recipe.patch_files << File.join(@assets_path, "patch 1.diff")
       recipe.configure_options << "--option=\"path with 'space'\""
@@ -166,7 +173,9 @@ class TestCookAgainstSourceDirectory < TestCase
   def setup
     super
 
+    @logger = StringIO.new # IO to keep recipe logs in case we need to debug
     @recipe ||= MiniPortile.new("test mini portile", "1.0.0").tap do |recipe|
+      recipe.logger = @logger
       recipe.source_directory = File.expand_path("../assets/test mini portile-1.0.0", __FILE__)
     end
   end

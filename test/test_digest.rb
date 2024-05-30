@@ -24,7 +24,8 @@ class TestDigest < TestCase
   def setup
     super
     FileUtils.rm_rf("ports/archives")
-    @recipe = MiniPortile.new("test-digest", "1.0.0")
+    @logger = StringIO.new # IO to keep recipe logs in case we need to debug
+    @recipe = MiniPortile.new("test-digest", "1.0.0", logger: @logger)
   end
 
   def download_with_digest(key, klass)

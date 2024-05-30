@@ -4,7 +4,8 @@ class TestExecute < TestCase
   def setup
     super
     @env = {"TEST_ENV_VAR1" => "VAR1_VALUE", "TEST_ENV_VAR2" => "VAR2_VALUE"}
-    @recipe = MiniPortile.new("test_execute", "1.0.0")
+    @logger = StringIO.new
+    @recipe = MiniPortile.new("test_execute", "1.0.0", logger: @logger)
     @log_path = @recipe.send(:tmp_path)
     FileUtils.mkdir_p File.join(@log_path, "subdir") # normally created by `download`
   end

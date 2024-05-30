@@ -103,7 +103,7 @@ class MiniPortile
     @files = []
     @patch_files = []
     @log_files = {}
-    @logger = STDOUT
+    @logger = kwargs[:logger] || STDOUT
     @source_directory = nil
 
     @cc_command = kwargs[:cc_command] || kwargs[:gcc_command]
@@ -705,7 +705,7 @@ class MiniPortile
         return download_file(redirect.url, full_path, count-1)
       rescue => e
         count = count - 1
-        puts "#{count} retrie(s) left for #{filename} (#{e.message})"
+        @logger.puts "#{count} retrie(s) left for #{filename} (#{e.message})"
         if count > 0
           sleep 1
           return download_file_http(url, full_path, count)
