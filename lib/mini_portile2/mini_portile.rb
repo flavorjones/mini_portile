@@ -320,10 +320,8 @@ class MiniPortile
     if static
       libdir = lib_path
       if pcfile
-        variables = minimal_pkg_config(pcfile, "print-variables").split("\n").map(&:strip)
-        if variables.include?("libdir")
-          libdir = minimal_pkg_config(pcfile, "variable=libdir")
-        end
+        pcfile_libdir = minimal_pkg_config(pcfile, "variable=libdir").strip
+        libdir = pcfile_libdir unless pcfile_libdir.empty?
       end
 
       #
