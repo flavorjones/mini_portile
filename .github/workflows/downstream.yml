@@ -52,6 +52,11 @@ jobs:
           bundler-cache: true
           bundler: latest
       - run: git clone --depth=1 ${{matrix.url}} ${{matrix.name}}
+      - uses: actions/cache@v4
+        with:
+          path: ${{matrix.name}}/ports/archives
+          key: tarballs-${{matrix.name}}
+          enableCrossOsArchive: true
       - name: ${{matrix.name}} test suite
         working-directory: ${{matrix.name}}
         run: |
