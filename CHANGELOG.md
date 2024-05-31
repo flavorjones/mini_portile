@@ -1,6 +1,6 @@
 ## mini_portile changelog
 
-### 2.8.7.rc1 / unreleased
+### 2.8.7 / 2024-05-31
 
 #### Added
 
