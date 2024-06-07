@@ -40,4 +40,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "minitest-hooks", "~> 1.5"
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "webrick", "~> 1.7"
+
+  spec.metadata["changelog_uri"] = spec.homepage + "/blob/main/CHANGELOG.md"
 end
