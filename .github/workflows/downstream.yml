@@ -30,18 +30,14 @@ jobs:
             url: https://github.com/mudge/re2
             command: "bundle exec rake compile spec"
             ruby: "3.3"
-            continue-on-error: true # https://github.com/mudge/re2/issues/158
           - name: nokogiri
             url: https://github.com/sparklemotion/nokogiri
             command: "bundle exec rake compile test"
             ruby: "3.3"
-            continue-on-error: false
           - name: sqlite3
             url: https://github.com/sparklemotion/sqlite3-ruby
             command: "bundle exec rake compile test"
             ruby: "3.3"
-            continue-on-error: false
-    continue-on-error: ${{matrix.continue-on-error}}
     runs-on: ${{matrix.platform}}
     steps:
       - name: configure git crlf
