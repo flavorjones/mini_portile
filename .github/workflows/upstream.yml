@@ -15,5 +15,6 @@ on:
 
 jobs:
   skeleton:
+    runs-on: ubuntu-latest
     steps:
       - run: echo "Hello, World!"
