@@ -553,6 +553,10 @@ class MiniPortile
     end
   end
 
+  def xzcat_exe
+    @@xzcat_exe ||= which("xzcat") ? "xzcat" : raise("xzcat not found")
+  end
+
   def tar_command(file, target)
     case File.extname(file)
       when '.gz', '.tgz'
@@ -561,7 +565,7 @@ class MiniPortile
         [tar_exe, 'xjf', file, '-C', target]
       when '.xz'
         # NOTE: OpenBSD's tar command does not support the -J option
-        "xzcat #{file.shellescape} | #{tar_exe.shellescape} xf - -C #{target.shellescape}"
+        "#{xzcat_exe.shellescape} #{file.shellescape} | #{tar_exe.shellescape} xf - -C #{target.shellescape}"
       else
         [tar_exe, 'xf', file, '-C', target]
     end
