@@ -1,5 +1,12 @@
 ## mini_portile changelog
 
+### 2.8.8 / 2024-11-14
+
+#### Improved
+
+- Raise an exception with a clear error message when `xzcat` is needed but is not installed. (#152) @flavorjones
+
+
 ### 2.8.7 / 2024-05-31
 
 #### Added
