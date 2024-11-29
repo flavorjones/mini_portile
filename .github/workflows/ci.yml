@@ -53,6 +53,7 @@ jobs:
   test-examples:
     env:
       MAKEFLAGS: -j2
+      LDFLAGS: "-L/usr/local/opt/libiconv/lib" # for macos-13, sigh
     strategy:
       fail-fast: false
       matrix:
@@ -71,6 +72,7 @@ jobs:
         with:
           apt-get: _update_ build-essential cmake
           mingw: _upgrade_ cmake
+          brew: libiconv
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
       - uses: actions/cache@v4
