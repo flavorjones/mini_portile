@@ -35,4 +35,5 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">= 2.3.0"
 
   spec.metadata["changelog_uri"] = spec.homepage + "/blob/main/CHANGELOG.md"
+  spec.metadata["funding_uri"] = "https://github.com/sponsors/flavorjones"
 end
