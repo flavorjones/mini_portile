@@ -143,21 +143,21 @@ jobs:
         usesh: true
         copyback: false
         prepare: |
-          pkg_add ruby%3.1 gmake cmake git pkgconf security/gnupg
-          ln -sf /usr/local/bin/ruby31 /usr/local/bin/ruby
-          ln -sf /usr/local/bin/bundle31 /usr/local/bin/bundle
-          ln -sf /usr/local/bin/bundler31 /usr/local/bin/bundler
-          ln -sf /usr/local/bin/erb31 /usr/local/bin/erb
-          ln -sf /usr/local/bin/gem31 /usr/local/bin/gem
-          ln -sf /usr/local/bin/irb31 /usr/local/bin/irb
-          ln -sf /usr/local/bin/racc31 /usr/local/bin/racc
-          ln -sf /usr/local/bin/rake31 /usr/local/bin/rake
-          ln -sf /usr/local/bin/rbs31 /usr/local/bin/rbs
-          ln -sf /usr/local/bin/rdbg31 /usr/local/bin/rdbg
-          ln -sf /usr/local/bin/rdoc31 /usr/local/bin/rdoc
-          ln -sf /usr/local/bin/ri31 /usr/local/bin/ri
-          ln -sf /usr/local/bin/syntax_suggest31 /usr/local/bin/syntax_suggest
-          ln -sf /usr/local/bin/typeprof31 /usr/local/bin/typeprof
+          pkg_add ruby%3.4 gmake cmake git pkgconf security/gnupg
+          ln -sf /usr/local/bin/ruby34 /usr/local/bin/ruby
+          ln -sf /usr/local/bin/bundle34 /usr/local/bin/bundle
+          ln -sf /usr/local/bin/bundler34 /usr/local/bin/bundler
+          ln -sf /usr/local/bin/erb34 /usr/local/bin/erb
+          ln -sf /usr/local/bin/gem34 /usr/local/bin/gem
+          ln -sf /usr/local/bin/irb34 /usr/local/bin/irb
+          ln -sf /usr/local/bin/racc34 /usr/local/bin/racc
+          ln -sf /usr/local/bin/rake34 /usr/local/bin/rake
+          ln -sf /usr/local/bin/rbs34 /usr/local/bin/rbs
+          ln -sf /usr/local/bin/rdbg34 /usr/local/bin/rdbg
+          ln -sf /usr/local/bin/rdoc34 /usr/local/bin/rdoc
+          ln -sf /usr/local/bin/ri34 /usr/local/bin/ri
+          ln -sf /usr/local/bin/syntax_suggest34 /usr/local/bin/syntax_suggest
+          ln -sf /usr/local/bin/typeprof34 /usr/local/bin/typeprof
         run: |
           git config --global --add safe.directory /home/runner/work/mini_portile/mini_portile
           gem install bundler
