@@ -1,5 +1,12 @@
 ## mini_portile changelog
 
+### 2.8.9 / 2025-05-12
+
+### Ruby support
+
+* Import only what's needed from `cgi`, for supporting Ruby 3.5. #160 @Earlopain
+
+
 ### 2.8.8 / 2024-11-14
 
 #### Improved
