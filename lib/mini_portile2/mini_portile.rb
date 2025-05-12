@@ -5,7 +5,8 @@ require 'fileutils'
 require 'tempfile'
 require 'digest'
 require 'open-uri'
-require 'cgi'
+require "cgi/escape"
+require "cgi/util" if RUBY_VERSION < "3.5"
 require 'rbconfig'
 require 'shellwords'
 require 'open3'
