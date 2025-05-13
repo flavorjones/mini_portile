@@ -72,6 +72,10 @@ class MiniPortile
     target_os =~ /solaris/
   end
 
+  def self.hurd?
+    target_os == 'gnu'
+  end
+
   def self.target_os
     RbConfig::CONFIG['target_os']
   end
