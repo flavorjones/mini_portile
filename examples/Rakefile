@@ -14,13 +14,10 @@ def arm64_darwin?
   RUBY_PLATFORM =~ /arm64-darwin/
 end
 
-# libiconv is still shipping an old version of automake that doesn't support arm64-darwin
-unless arm64_darwin?
-  libiconv = MiniPortile.new "libiconv", "1.15"
-  libiconv.files << "ftp://ftp.gnu.org/pub/gnu/#{libiconv.name}/#{libiconv.name}-#{libiconv.version}.tar.gz"
-  libiconv.patch_files = Dir[File.join(__dir__, "libiconv-patches", "*.patch")].sort
-  recipes.push libiconv
-end
+libiconv = MiniPortile.new "libiconv", "1.18"
+libiconv.files << "ftp://ftp.gnu.org/pub/gnu/#{libiconv.name}/#{libiconv.name}-#{libiconv.version}.tar.gz"
+libiconv.patch_files = Dir[File.join(__dir__, "libiconv-patches", "*.patch")].sort
+recipes.push libiconv
 
 
 # libxml2 2.9.13 is still shipping an old version of automake that doesn't support arm64-darwin
