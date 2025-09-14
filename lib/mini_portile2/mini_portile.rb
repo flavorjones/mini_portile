@@ -516,7 +516,7 @@ class MiniPortile
   #
   #   which('ruby') #=> /usr/bin/ruby
   def which(cmd)
-    exts = ENV['PATHEXT'] ? ENV['PATHEXT'].split(';') : ['']
+    exts = [''] + (ENV['PATHEXT'] ? ENV['PATHEXT'].split(';') : [])
     ENV['PATH'].split(File::PATH_SEPARATOR).each do |path|
       exts.each { |ext|
         exe = File.join(path, "#{cmd}#{ext}")
