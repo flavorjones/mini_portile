@@ -28,12 +28,16 @@ jobs:
         ruby: ["2.3", "2.4", "2.5", "2.6", "2.7", "3.0", "3.1", "3.2", "3.3", "3.4"]
         exclude:
           # I can't figure out how to install these on macos through setup-ruby
-          - ruby: "2.3"
-            platform: "macos-latest"
-          - ruby: "2.4"
-            platform: "macos-latest"
-          - ruby: "2.5"
-            platform: "macos-latest"
+          - { ruby: "2.3", platform: "macos-latest" }
+          - { ruby: "2.4", platform: "macos-latest" }
+          - { ruby: "2.5", platform: "macos-latest" }
+          # Older devkit versions are incompatible with modern msys2
+          - { ruby: "2.4", platform: windows-latest }
+          - { ruby: "2.5", platform: windows-latest }
+          - { ruby: "2.6", platform: windows-latest }
+          - { ruby: "2.7", platform: windows-latest }
+          - { ruby: "3.0", platform: windows-latest }
+          - { ruby: "3.1", platform: windows-latest }
     runs-on: ${{ matrix.platform }}
     steps:
       - name: configure git crlf on windows
@@ -59,7 +63,7 @@ jobs:
       matrix:
         # use macos-13 (not 14) because libyaml 0.2.5 doesn't have up-to-date config.guess and config.sub
         platform: [ubuntu-latest, windows-latest, macos-13]
-        ruby: ["3.1"]
+        ruby: ["3.4"]
     runs-on: ${{ matrix.platform }}
     steps:
       - name: configure git crlf on windows
