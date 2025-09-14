@@ -14,13 +14,10 @@ def arm64_darwin?
   RUBY_PLATFORM =~ /arm64-darwin/
 end
 
-# libiconv is still shipping an old version of automake that doesn't support arm64-darwin
-unless arm64_darwin?
-  libiconv = MiniPortile.new "libiconv", "1.15"
-  libiconv.files << "ftp://ftp.gnu.org/pub/gnu/#{libiconv.name}/#{libiconv.name}-#{libiconv.version}.tar.gz"
-  libiconv.patch_files = Dir[File.join(__dir__, "libiconv-patches", "*.patch")].sort
-  recipes.push libiconv
-end
+libiconv = MiniPortile.new "libiconv", "1.18"
+libiconv.files << "ftp://ftp.gnu.org/pub/gnu/#{libiconv.name}/#{libiconv.name}-#{libiconv.version}.tar.gz"
+libiconv.patch_files = Dir[File.join(__dir__, "libiconv-patches", "*.patch")].sort
+recipes.push libiconv
 
 
 # libxml2 2.9.13 is still shipping an old version of automake that doesn't support arm64-darwin
@@ -111,11 +108,10 @@ class ZlibRecipe < MiniPortile
   end
 end
 
-zlib = ZlibRecipe.new "zlib", "1.2.8"
+zlib = ZlibRecipe.new "zlib", "1.3.1"
 zlib.files << {
-  # url: "http://zlib.net/#{zlib.name}-#{zlib.version}.tar.gz",
-  url: "file://#{File.dirname(__FILE__)}/#{zlib.name}-#{zlib.version}.tar.gz",
-  md5: "44d667c142d7cda120332623eab69f40",
+  url: "http://zlib.net/#{zlib.name}-#{zlib.version}.tar.gz",
+  md5: "9855b6d802d7fe5b7bd5b196a2271655"
 }
 
 recipes.push zlib

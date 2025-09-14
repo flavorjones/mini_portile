@@ -1,14 +1,13 @@
-This file tests the 'patch' functionality, as well as working around a
-libiconv compilation issue with glibc >= 2.16.
-
---- ./srclib/stat.c	2017-01-01 18:02:22.000000000 -0500
-+++ ./srclib/stat.c	2022-10-18 20:27:18.831323906 -0400
-@@ -48,6 +48,8 @@
-   return stat (filename, buf);
- }
+diff --git a/srclib/stat.c b/srclib/stat.c
+index ecf9f9bb..47e48769 100644
+--- a/srclib/stat.c
++++ b/srclib/stat.c
+@@ -22,6 +22,8 @@
+ #define __need_system_sys_stat_h
+ #include <config.h>
  
-+/* this was patched! */
++/* this is a simple patch */
 +
- /* Specification.  */
- /* Write "sys/stat.h" here, not <sys/stat.h>, otherwise OSF/1 5.1 DTK cc
-    eliminates this include because of the preliminary #include <sys/stat.h>
+ /* Get the original definition of stat.  It might be defined as a macro.  */
+ #include <sys/types.h>
+ #include <sys/stat.h>
