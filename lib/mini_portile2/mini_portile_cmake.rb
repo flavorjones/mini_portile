@@ -98,6 +98,8 @@ class MiniPortileCMake < MiniPortile
       'OpenBSD'
     elsif MiniPortile.solaris?
       'SunOS'
+    elsif MiniPortile.hurd?
+      'GNU'
     else
       raise "Unable to set CMAKE_SYSTEM_NAME for #{MiniPortile.target_os}"
     end
