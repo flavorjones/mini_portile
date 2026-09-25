@@ -534,7 +534,7 @@ class MiniPortile
 
       output = `#{gcc_cmd} -v 2>&1`
       if m = output.match(/^Target\: (.*)$/)
-        @detect_host = m[1]
+        @detect_host = normalize_host(m[1])
       else
         @detect_host = nil
       end
@@ -543,6 +543,14 @@ class MiniPortile
     ensure
       ENV["LC_ALL"] = old_lc_all
     end
+  end
+
+  # clang-based mingw toolchains (e.g. llvm-mingw, MSYS2 clang64/clangarm64) report their target
+  # using LLVM's canonical triple, e.g. "aarch64-w64-windows-gnu". GNU config.sub does not accept
+  # "windows-gnu", so autoconf-based projects fail to configure with it. Translate it to the
+  # equivalent GNU triple, e.g. "aarch64-w64-mingw32".
+  def normalize_host(host)
+    host.sub(/\A([^-]+)(?:-[^-]+)?-windows-gnu\z/, '\1-w64-mingw32')
   end
 
   TAR_EXECUTABLES = %w[gtar bsdtar tar basic-bsdtar]
