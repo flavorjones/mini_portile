@@ -93,7 +93,7 @@ class ZlibRecipe < MiniPortile
   def compile
     return super unless windows?
 
-    execute "compile", "make -f win32/Makefile.gcc"
+    execute "compile", "make -f win32/Makefile.gcc -j1"
   end
 
   def install
