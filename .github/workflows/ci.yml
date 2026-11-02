@@ -24,20 +24,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-latest, windows-latest, macos-latest]
+        platform: [ubuntu-24.04, windows-latest, macos-latest]
         ruby: ["2.3", "2.4", "2.5", "2.6", "2.7", "3.0", "3.1", "3.2", "3.3", "3.4"]
+        include:
+          - { ruby: "3.4", platform: windows-11-arm }
         exclude:
           # I can't figure out how to install these on macos through setup-ruby
-          - ruby: "2.3"
-            platform: "macos-latest"
-          - ruby: "2.4"
-            platform: "macos-latest"
-          - ruby: "2.5"
-            platform: "macos-latest"
+          - { ruby: "2.3", platform: "macos-latest" }
+          - { ruby: "2.4", platform: "macos-latest" }
+          - { ruby: "2.5", platform: "macos-latest" }
+          # Older devkit versions are incompatible with modern msys2
+          - { ruby: "2.4", platform: windows-latest }
+          - { ruby: "2.5", platform: windows-latest }
+          - { ruby: "2.6", platform: windows-latest }
+          - { ruby: "2.7", platform: windows-latest }
+          - { ruby: "3.0", platform: windows-latest }
+          - { ruby: "3.1", platform: windows-latest }
     runs-on: ${{ matrix.platform }}
     steps:
       - name: configure git crlf on windows
-        if: matrix.platform == 'windows-latest'
+        if: startsWith(matrix.platform, 'windows')
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
@@ -45,7 +51,8 @@ jobs:
       - uses: MSP-Greg/setup-ruby-pkgs@v1
         with:
           apt-get: _update_ build-essential cmake
-          mingw: _upgrade_ cmake
+          # _upgrade_ tries to install gcc-libs, which clangarm64 doesn't have
+          mingw: ${{ matrix.platform == 'windows-11-arm' && 'cmake' || '_upgrade_ cmake' }}
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
       - run: bundle exec rake test:unit
@@ -53,17 +60,19 @@ jobs:
   test-examples:
     env:
       MAKEFLAGS: -j2
-      LDFLAGS: "-L/usr/local/opt/libiconv/lib" # for macos-13, sigh
+      LDFLAGS: "-L/usr/local/opt/libiconv/lib" # for intel homebrew, sigh
     strategy:
       fail-fast: false
       matrix:
-        # use macos-13 (not 14) because libyaml 0.2.5 doesn't have up-to-date config.guess and config.sub
-        platform: [ubuntu-latest, windows-latest, macos-13]
-        ruby: ["3.1"]
+        # use an intel runner because libyaml 0.2.5 doesn't have up-to-date config.guess and config.sub
+        platform: [ubuntu-24.04, windows-latest, macos-15-intel]
+        ruby: ["3.4"]
+        include:
+          - { ruby: "3.4", platform: windows-11-arm }
     runs-on: ${{ matrix.platform }}
     steps:
       - name: configure git crlf on windows
-        if: matrix.platform == 'windows-latest'
+        if: startsWith(matrix.platform, 'windows')
         run: |
           git config --system core.autocrlf false
           git config --system core.eol lf
@@ -71,7 +80,8 @@ jobs:
       - uses: MSP-Greg/setup-ruby-pkgs@v1
         with:
           apt-get: _update_ build-essential cmake
-          mingw: _upgrade_ cmake
+          # _upgrade_ tries to install gcc-libs, which clangarm64 doesn't have
+          mingw: ${{ matrix.platform == 'windows-11-arm' && 'cmake' || '_upgrade_ cmake' }}
           brew: libiconv
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
@@ -86,7 +96,7 @@ jobs:
       fail-fast: false
       matrix:
         task: ["test:unit", "test:examples"]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container:
       image: fedora:35
     steps:
@@ -106,7 +116,7 @@ jobs:
       fail-fast: false
       matrix:
         task: ["test:unit", "test:examples"]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       MAKE: gmake
     steps:
@@ -132,7 +142,7 @@ jobs:
       fail-fast: false
       matrix:
         task: ["test:unit", "test:examples"]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       MAKE: gmake
     steps:

@@ -1,8 +1,15 @@
 ## mini_portile changelog
 
+### unreleased
+
+#### Fixed
+
+- Host detection now translates LLVM-style `*-windows-gnu` compiler targets (reported by clang-based mingw toolchains like llvm-mingw and MSYS2 clangarm64) to the GNU-style `*-w64-mingw32` triple, which autoconf's `config.sub` accepts. This fixes `configure` failures when building on or for `aarch64-mingw-ucrt`. @YOU54F
+
+
 ### 2.8.9 / 2025-05-12
 
-### Ruby support
+#### Ruby support
 
 * Import only what's needed from `cgi`, for supporting Ruby 3.5. #160 @Earlopain
 
