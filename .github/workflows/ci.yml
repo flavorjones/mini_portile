@@ -51,7 +51,8 @@ jobs:
       - uses: MSP-Greg/setup-ruby-pkgs@v1
         with:
           apt-get: _update_ build-essential cmake
-          mingw: _upgrade_ cmake
+          # _upgrade_ tries to install gcc-libs, which clangarm64 doesn't have
+          mingw: ${{ matrix.platform == 'windows-11-arm' && 'cmake' || '_upgrade_ cmake' }}
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
       - run: bundle exec rake test:unit
@@ -79,7 +80,8 @@ jobs:
       - uses: MSP-Greg/setup-ruby-pkgs@v1
         with:
           apt-get: _update_ build-essential cmake
-          mingw: _upgrade_ cmake
+          # _upgrade_ tries to install gcc-libs, which clangarm64 doesn't have
+          mingw: ${{ matrix.platform == 'windows-11-arm' && 'cmake' || '_upgrade_ cmake' }}
           brew: libiconv
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
