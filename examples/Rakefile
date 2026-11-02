@@ -34,8 +34,7 @@ end
 
 
 # libxml2 2.9.13 is still shipping an old version of automake that doesn't support arm64-darwin
-unless windows? || arm64_darwin?
-  # i can't get this version to build on Github Actions windows-latest / windows-2019
+unless arm64_darwin?
   sqlite3 = MiniPortile.new "sqlite3", "3.35.4"
   sqlite3.files << "https://www.sqlite.org/2021/sqlite-autoconf-3350400.tar.gz"
 
