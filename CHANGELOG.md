@@ -2,7 +2,7 @@
 
 ### 2.8.9 / 2025-05-12
 
-### Ruby support
+#### Ruby support
 
 * Import only what's needed from `cgi`, for supporting Ruby 3.5. #160 @Earlopain
 
